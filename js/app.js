@@ -977,11 +977,12 @@
     topicRow.appendChild(el("span", "combo-ready-topic", s.topicLabel));
     ready.appendChild(topicRow);
 
-    ready.appendChild(el("p", "combo-ready-hint muted",
-      isSurpriseRp
-        ? "설문 밖 생활 상황에서 무작위로 뽑은 돌발 주제예요. ‘시작’을 누르면 이 상황으로 상황극을 생성합니다."
-        : "‘시작’을 누르면 AI가 " + s.level + " 난이도 " +
-          (type === "roleplay" ? "상황극을" : "콤보 질문을") + " 생성합니다."));
+    var READY_HINT = {
+      topic: "3개의 질문이 이어집니다. 실전처럼 답해보세요",
+      roleplay: "상황이 주어집니다. 역할에 몰입해 말해보세요",
+      surprise: "예상 못 한 주제예요. 실전 돌발처럼 대응해보세요",
+    };
+    ready.appendChild(el("p", "combo-ready-hint muted", READY_HINT[type] || ""));
 
     var btns = el("div", "combo-ready-btns");
     var start = el("button", "primary-btn", "▶ 시작");
