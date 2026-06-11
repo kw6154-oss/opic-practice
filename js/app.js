@@ -14,10 +14,9 @@
   };
 
   // ---------- 화면 라우팅 ----------
-  var SCREENS = ["gate", "home", "settings", "survey", "practice", "mockset", "mock", "history", "detail", "stats", "script", "scripts"];
+  var SCREENS = ["home", "settings", "survey", "practice", "mockset", "mock", "history", "detail", "stats", "script", "scripts", "pron", "listen"];
   function show(name) {
-    // API 키 게이트: 키가 없으면 어떤 화면도 진입 불가, 게이트만 표시
-    if (name !== "gate" && !Storage.hasApiKey()) name = "gate";
+    // 키 없어도 모든 화면 자유 이용 — 키는 '실제 호출' 시점에만 requireApiKey로 확인
     SCREENS.forEach(function (s) {
       var el = $("screen-" + s);
       if (el) el.hidden = (s !== name);
@@ -75,12 +74,12 @@
     refreshHomeAvailability();
   }
   function refreshHomeAvailability() {
-    var ready = Storage.hasApiKey();
-    document.querySelectorAll(".type-card").forEach(function (c) { c.disabled = !ready; });
+    // 키 없어도 자유롭게 진입 가능(실제 호출 시점에 안내). 카드 비활성화하지 않음.
+    document.querySelectorAll(".type-card").forEach(function (c) { c.disabled = false; });
     var lab = $("openScriptLab");
-    if (lab) lab.disabled = !ready;
+    if (lab) lab.disabled = false;
     var hint = $("setupHint");
-    if (hint) hint.hidden = ready;
+    if (hint) hint.hidden = true;
   }
 
   function loadKeyIntoField() {
@@ -114,11 +113,18 @@
     refreshKeyState();
     setTestResult(null);
     toast("키를 삭제했습니다");
-    showGate(); // 키 없으면 다시 게이트
   }
 
-  // ---------- API 키 게이트 ----------
-  function showGate(errMsg) {
+  // ---------- API 키 안내 모달 (필요 시점에만) ----------
+  var _pendingKeyAction = null;
+  // 키가 있으면 onOk 즉시 실행, 없으면 모달을 띄우고 저장 후 onOk 이어서 실행
+  function requireApiKey(onOk) {
+    if (Storage.hasApiKey()) { onOk(); return true; }
+    _pendingKeyAction = onOk || null;
+    openKeyModal();
+    return false;
+  }
+  function openKeyModal(errMsg) {
     var input = $("gateKey");
     if (input) input.value = Storage.getApiKey() || "";
     var err = $("gateError");
@@ -126,7 +132,12 @@
       if (errMsg) { err.textContent = errMsg; err.hidden = false; }
       else { err.hidden = true; }
     }
-    show("gate");
+    var m = $("keyModal");
+    if (m) { m.hidden = false; }
+    if (input) setTimeout(function () { try { input.focus(); } catch (e) {} }, 30);
+  }
+  function closeKeyModal() {
+    var m = $("keyModal"); if (m) m.hidden = true;
   }
   function saveGateKey() {
     var v = $("gateKey").value.trim();
@@ -135,9 +146,10 @@
     var err = $("gateError"); if (err) err.hidden = true;
     refreshKeyState();
     loadKeyIntoField(); // 설정 화면 입력란도 동기화
-    renderHub();
-    show("home"); // 저장 즉시 홈 진입
+    closeKeyModal();
     toast("저장됨 · 이 브라우저에만 보관");
+    var fn = _pendingKeyAction; _pendingKeyAction = null;
+    if (fn) fn(); // 원래 하려던 동작 이어서 진행
   }
 
   async function testKey() {
@@ -267,13 +279,249 @@
 
   // 유형 카드 진입 (STEP C: 선택주제·롤플레이·돌발 연결, 모의는 다음 단계)
   function startType(type) {
-    if (!Storage.hasApiKey()) { show("settings"); return; }
+    if (type === "pron") { openPronPractice(); return; }   // 기초 연습 (AI 호출 없음)
+    if (type === "listen") { openListenPractice(); return; }
     state.type = type;
     if (type === "topic" || type === "roleplay" || type === "surprise") {
       startCombo(type);
     } else if (type === "mock") {
       show("mockset");
     }
+  }
+
+  // ==================== 기초 연습: 발음 ====================
+  var pronState = { tab: "general", idx: 0 };
+  var pronSession = null;
+  var PRON_SPK = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M19 5a9 9 0 0 1 0 14"/></svg>';
+
+  function pronList() {
+    var P = window.PRONUNCIATION_SENTENCES || {};
+    if (pronState.tab === "filler") return P.FILLER || [];
+    return P[Storage.getLevel()] || [];
+  }
+
+  function openPronPractice() {
+    if (pronSession) { try { pronSession.stop(); } catch (e) {} pronSession = null; }
+    pronState.tab = "general"; pronState.idx = 0;
+    renderPron();
+    show("pron");
+  }
+
+  function renderPron() {
+    var host = $("pronBody");
+    host.innerHTML = "";
+    host.appendChild(detailHeader("발음 연습", goHome));
+
+    // 카테고리 탭
+    var tabs = el("div", "pron-tabs");
+    function mkTab(key, label) {
+      var b = el("button", "pron-tab" + (pronState.tab === key ? " on" : ""), label);
+      b.type = "button";
+      b.addEventListener("click", function () {
+        if (pronState.tab === key) return;
+        pronState.tab = key; pronState.idx = 0; renderPron();
+      });
+      return b;
+    }
+    tabs.appendChild(mkTab("general", "일반 문장"));
+    tabs.appendChild(mkTab("filler", "시간벌기 표현"));
+    host.appendChild(tabs);
+
+    var list = pronList();
+    var lv = Storage.getLevel();
+    if (pronState.tab === "filler") {
+      host.appendChild(el("p", "pron-tabdesc", "생각할 시간을 벌어주는 표현이에요. 입에 붙을 때까지 반복하세요. 단, 답변당 1~2개만 — 남발하면 역효과예요."));
+    }
+    if (!list.length) { host.appendChild(el("p", "muted", "문장이 없습니다.")); return; }
+
+    // 6) 진행 표시 + 얇은 진행바
+    var prog = el("div", "pron-progress");
+    prog.appendChild(el("div", "pron-progress-label muted small",
+      (pronState.tab === "filler")
+        ? ((pronState.idx + 1) + "/" + list.length)
+        : ("문장 " + (pronState.idx + 1) + "/" + list.length + " · " + lv)));
+    var pbar = el("div", "pron-pbar");
+    var pfill = el("div", "pron-pbar-fill");
+    pfill.style.width = ((pronState.idx + 1) / list.length * 100) + "%";
+    pbar.appendChild(pfill); prog.appendChild(pbar);
+    host.appendChild(prog);
+
+    var item = list[pronState.idx];
+    var en = item.en; // 표시·TTS·비교는 영어(en) 기준
+
+    var card = el("div", "pron-card");
+    // 1) 문장 (전체 폭)
+    card.appendChild(el("p", "pron-sentence", en));
+
+    // 2) 뜻 보기 — 가벼운 텍스트 토글 + 회색 뜻 (상태 localStorage 유지)
+    var meanBtn = el("button", "pron-mean-toggle");
+    meanBtn.type = "button";
+    var meanBox = el("div", "pron-meaning", item.ko || "");
+    function applyMean(on) {
+      meanBox.hidden = !on;
+      meanBtn.classList.toggle("on", on);
+      meanBtn.setAttribute("aria-pressed", on ? "true" : "false");
+      meanBtn.textContent = on ? "뜻 숨기기 ▴" : "뜻 보기 ▾";
+    }
+    applyMean(Storage.getPronMeaning());
+    meanBtn.addEventListener("click", function () {
+      var on = !Storage.getPronMeaning();
+      Storage.setPronMeaning(on);
+      applyMean(on);
+    });
+    card.appendChild(meanBtn);
+    card.appendChild(meanBox);
+
+    // 3) 얇은 구분선
+    card.appendChild(el("div", "pron-divider"));
+
+    // 4) 동작 줄: 왼쪽 [스피커][속도], 오른쪽 [따라 말하기]
+    var action = el("div", "pron-action");
+    var leftGrp = el("div", "tts-group");
+    var tts = el("button", "icon-btn-sm icon-accent");
+    tts.type = "button"; tts.title = "문장 듣기"; tts.setAttribute("aria-label", "문장 듣기");
+    tts.innerHTML = PRON_SPK;
+    tts.addEventListener("click", function () { playWithState(tts, en); });
+    leftGrp.appendChild(tts); leftGrp.appendChild(makeSpeedBadge());
+    action.appendChild(leftGrp);
+
+    var recArea = el("div", "pron-rec");
+    if (!Speech.recordSupported()) {
+      action.appendChild(el("span", "muted small", "녹음 미지원 (Chrome/Edge 권장)"));
+    } else {
+      var speakBtn = el("button", "run-btn primary pron-speak", "🎙 따라 말하기");
+      speakBtn.type = "button";
+      speakBtn.addEventListener("click", function () { pronStartRec(recArea, en, speakBtn); });
+      action.appendChild(speakBtn);
+    }
+    card.appendChild(action);
+    card.appendChild(recArea);
+    host.appendChild(card);
+
+    // 5) 문장 내비게이션 (말하기 전에도 건너뛰기 가능)
+    var nav = el("div", "pron-nav");
+    var prev = el("button", "run-btn", "‹ 이전");
+    prev.type = "button";
+    prev.addEventListener("click", function () { pronGo(-1); });
+    var next = el("button", "run-btn", "다음 ›");
+    next.type = "button";
+    next.addEventListener("click", function () { pronGo(1); });
+    nav.appendChild(prev); nav.appendChild(next);
+    host.appendChild(nav);
+
+    host.appendChild(el("p", "eval-note", "※ 음성 인식 기반 전달력 체크예요. 정밀한 발음 평가와는 다를 수 있어요."));
+  }
+
+  // 문장 이동 (이전/다음 — 말하기 전에도 건너뛰기 가능)
+  function pronGo(delta) {
+    if (pronSession) { try { pronSession.stop(); } catch (e) {} pronSession = null; }
+    var list = pronList();
+    if (!list.length) return;
+    pronState.idx = (pronState.idx + delta + list.length) % list.length;
+    renderPron();
+  }
+
+  async function pronStartRec(recArea, en, speakBtn) {
+    if (window.speechSynthesis) window.speechSynthesis.cancel();
+    if (speakBtn) speakBtn.disabled = true;
+    recArea.innerHTML = "";
+    var bar = el("div", "rec-bar");
+    var dot = el("span", "rec-dot");
+    var stopBtn = el("button", "rec-stop", "■ 멈추기");
+    stopBtn.type = "button";
+    bar.appendChild(dot); bar.appendChild(stopBtn);
+    recArea.appendChild(bar);
+    var live = el("div", "rec-live");
+    live.innerHTML = '<span class="muted small">듣는 중… 문장을 따라 말하세요.</span>';
+    recArea.appendChild(live);
+
+    pronSession = Speech.createSession({
+      onInterim: function (fin, intr) {
+        live.innerHTML = escapeHtml(fin) + '<span class="interim">' + escapeHtml(intr) + "</span>";
+      },
+      onError: function () {},
+    });
+    try {
+      await pronSession.start();
+    } catch (e) {
+      pronSession = null;
+      if (speakBtn) speakBtn.disabled = false;
+      recArea.innerHTML = "";
+      recArea.appendChild(el("div", "error-box", "마이크를 사용할 수 없습니다. 마이크 권한을 확인하세요."));
+      return;
+    }
+    stopBtn.addEventListener("click", async function () {
+      if (!pronSession) return;
+      var s = pronSession; pronSession = null;
+      recArea.innerHTML = '<div class="muted small">분석 중…</div>';
+      var result = await s.stop();
+      renderPronResult(recArea, en, (result && result.transcript) || "", speakBtn);
+    });
+  }
+
+  // 단어 정규화: 소문자 + 문장부호 제거 (어포스트로피는 유지)
+  function pronNorm(w) { return String(w).toLowerCase().replace(/[^a-z0-9']/g, ""); }
+  function comparePron(target, said) {
+    var pool = {};
+    String(said).split(/\s+/).forEach(function (w) {
+      var n = pronNorm(w); if (n) pool[n] = (pool[n] || 0) + 1;
+    });
+    var matched = 0, total = 0;
+    var words = String(target).split(/\s+/).filter(Boolean).map(function (tw) {
+      var n = pronNorm(tw);
+      if (!n) return { text: tw, ok: true, skip: true }; // 부호만 있는 토큰
+      total++;
+      if (pool[n] > 0) { pool[n]--; matched++; return { text: tw, ok: true }; }
+      return { text: tw, ok: false };
+    });
+    return { words: words, matched: matched, total: total, pct: total ? Math.round(matched / total * 100) : 0 };
+  }
+
+  function renderPronResult(recArea, en, transcript, speakBtn) {
+    recArea.innerHTML = "";
+    var cmp = comparePron(en, transcript);
+    var vis = el("p", "pron-compare");
+    cmp.words.forEach(function (w) {
+      vis.appendChild(el("span", "pw " + (w.skip ? "" : (w.ok ? "pw-ok" : "pw-bad")), w.text));
+      vis.appendChild(document.createTextNode(" "));
+    });
+    recArea.appendChild(vis);
+    recArea.appendChild(el("div", "pron-score", cmp.pct + "% · " + cmp.matched + "/" + cmp.total + " 단어 인식 성공"));
+    if (transcript) recArea.appendChild(el("div", "muted small", "내가 말한 것: " + transcript));
+    // 재녹음은 동작 줄의 버튼으로 (라벨만 '다시 말하기'로), 다음 문장은 하단 내비로
+    if (speakBtn) { speakBtn.disabled = false; speakBtn.textContent = "🎙 다시 말하기"; }
+  }
+
+  // ==================== 기초 연습: 듣기 ====================
+  function openListenPractice() {
+    var host = $("listenBody");
+    host.innerHTML = "";
+    host.appendChild(detailHeader("듣기 연습", goHome));
+    host.appendChild(el("p", "muted small", "레벨별 실전 질문 음성으로 귀를 트이세요. 링크는 새 탭에서 열립니다."));
+    var LV = [
+      { lv: "IM2", title: "IM2 실전 질문 듣기", desc: "기초 일상 질문 위주" },
+      { lv: "IH", title: "IH 실전 질문 듣기", desc: "문단·시제·돌발 대응" },
+      { lv: "AL", title: "AL 실전 질문 듣기", desc: "고급 표현·심화 질문" },
+    ];
+    var links = window.YOUTUBE_LINKS || {};
+    var list = el("div", "listen-list");
+    LV.forEach(function (x) {
+      var a = document.createElement("a");
+      a.className = "listen-row";
+      a.href = links[x.lv] || "#";
+      a.target = "_blank"; a.rel = "noopener noreferrer";
+      var badge = el("span", "lvl-badge", x.lv);
+      badge.setAttribute("data-lv", x.lv);
+      a.appendChild(badge);
+      var body = el("div", "listen-row-body");
+      body.appendChild(el("div", "listen-row-title", x.title));
+      body.appendChild(el("div", "muted small", x.desc));
+      a.appendChild(body);
+      a.appendChild(el("span", "listen-row-ext", "↗"));
+      list.appendChild(a);
+    });
+    host.appendChild(list);
+    show("listen");
   }
 
   // 질문 카드 1개 생성 (콤보/모의 공용)
@@ -299,6 +547,7 @@
     tts.innerHTML = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M19 5a9 9 0 0 1 0 14"/></svg>';
     tts.addEventListener("click", function () { playWithState(tts, q.en); });
     actions.appendChild(tts);
+    actions.appendChild(makeSpeedBadge());
 
     var trans = el("button", "q-trans", "한글 보기");
     trans.type = "button";
@@ -317,26 +566,118 @@
     return card;
   }
 
-  // ---------- TTS (질문 읽어주기) ----------
+  // ---------- TTS (질문 읽어주기 등) — 속도·음성 공통 적용 ----------
+  var TTS_RATES = [0.75, 1, 1.25];
+  var _ttsVoices = [];
+  function loadVoices() {
+    try { _ttsVoices = ("speechSynthesis" in window) ? (window.speechSynthesis.getVoices() || []) : []; }
+    catch (e) { _ttsVoices = []; }
+    return _ttsVoices;
+  }
+  function enVoices() {
+    var list = (_ttsVoices && _ttsVoices.length) ? _ttsVoices : loadVoices();
+    return list.filter(function (v) { return /^en([-_]|$)/i.test(v.lang); });
+  }
+  // 저장된 음성 우선 → Google US English → Natural 포함 MS → 그 외 en-US → en → 기본
+  function pickVoice() {
+    var list = (_ttsVoices && _ttsVoices.length) ? _ttsVoices : loadVoices();
+    if (!list.length) return null;
+    var saved = Storage.getTtsVoice();
+    if (saved) {
+      for (var i = 0; i < list.length; i++) { if (list[i].voiceURI === saved || list[i].name === saved) return list[i]; }
+    }
+    function find(fn) { for (var j = 0; j < list.length; j++) { if (fn(list[j])) return list[j]; } return null; }
+    return find(function (v) { return /Google US English/i.test(v.name); })
+      || find(function (v) { return /Natural/i.test(v.name) && /Microsoft/i.test(v.name) && /en[-_]?US/i.test(v.lang); })
+      || find(function (v) { return /en[-_]?US/i.test(v.lang); })
+      || find(function (v) { return /^en/i.test(v.lang); })
+      || null;
+  }
+  function buildUtterance(text) {
+    var u = new SpeechSynthesisUtterance(text);
+    u.lang = "en-US";
+    u.rate = Storage.getTtsRate(); // 0.75 | 1 | 1.25
+    var v = pickVoice();
+    if (v) u.voice = v;
+    return u;
+  }
   function speak(text) {
     if (!("speechSynthesis" in window)) { toast("이 브라우저는 음성 읽기를 지원하지 않아요"); return; }
     window.speechSynthesis.cancel();
-    var u = new SpeechSynthesisUtterance(text);
-    u.lang = "en-US";
-    u.rate = 0.95;
-    window.speechSynthesis.speak(u);
+    window.speechSynthesis.speak(buildUtterance(text));
   }
-
-  // 재생 중 버튼에 .playing 표시 (저장 상세 듣기 아이콘용)
+  // 재생 중 버튼에 .playing 표시
   function playWithState(btn, text) {
     if (!("speechSynthesis" in window)) { toast("이 브라우저는 음성 읽기를 지원하지 않아요"); return; }
     window.speechSynthesis.cancel();
-    var u = new SpeechSynthesisUtterance(text);
-    u.lang = "en-US";
-    u.rate = 0.95;
+    var u = buildUtterance(text);
     u.onstart = function () { btn.classList.add("playing"); };
     u.onend = function () { btn.classList.remove("playing"); };
     window.speechSynthesis.speak(u);
+  }
+
+  // 듣기 버튼 옆 속도 배지 (0.75x → 1x → 1.25x 순환, 모든 배지 동기화)
+  function makeSpeedBadge() {
+    var b = el("button", "tts-speed", Storage.getTtsRate() + "x");
+    b.type = "button";
+    b.title = "재생 속도 (다음 재생부터 적용)";
+    b.setAttribute("aria-label", "재생 속도");
+    b.addEventListener("click", function (e) {
+      e.stopPropagation();
+      var i = TTS_RATES.indexOf(Storage.getTtsRate());
+      var next = TTS_RATES[((i < 0 ? 1 : i) + 1) % TTS_RATES.length];
+      Storage.setTtsRate(next);
+      // 화면의 모든 속도 배지 갱신 (재생 중인 음성은 중단하지 않음 → 다음 재생부터 적용)
+      var all = document.querySelectorAll(".tts-speed");
+      for (var k = 0; k < all.length; k++) all[k].textContent = next + "x";
+    });
+    return b;
+  }
+
+  // 설정 화면: 영어 음성 드롭다운 채우기 (voiceschanged로 비동기 로드 후 재호출)
+  function refreshVoiceSelect() {
+    var sel = $("ttsVoice");
+    if (!sel) return;
+    var list = enVoices();
+    var saved = Storage.getTtsVoice();
+    sel.innerHTML = "";
+    var auto = document.createElement("option");
+    auto.value = ""; auto.textContent = "자동 (권장)";
+    sel.appendChild(auto);
+    if (!list.length) {
+      var ld = document.createElement("option");
+      ld.value = ""; ld.textContent = "(음성 불러오는 중…)"; ld.disabled = true;
+      sel.appendChild(ld);
+      return;
+    }
+    list.forEach(function (v) {
+      var o = document.createElement("option");
+      o.value = v.voiceURI;
+      o.textContent = v.name + " · " + v.lang + (v.localService ? "" : " (온라인)");
+      if (saved && (v.voiceURI === saved || v.name === saved)) o.selected = true;
+      sel.appendChild(o);
+    });
+  }
+  function setupTtsSettings() {
+    var sel = $("ttsVoice");
+    if (sel) {
+      refreshVoiceSelect();
+      sel.addEventListener("change", function () { Storage.setTtsVoice(sel.value); });
+    }
+    var pv = $("ttsPreview");
+    if (pv) pv.addEventListener("click", function () {
+      if (!("speechSynthesis" in window)) { toast("이 브라우저는 음성 읽기를 지원하지 않아요"); return; }
+      window.speechSynthesis.cancel();
+      var u = new SpeechSynthesisUtterance("Hi! This is a sample of the selected voice.");
+      u.lang = "en-US";
+      u.rate = Storage.getTtsRate();
+      var want = sel ? sel.value : "";
+      var list = enVoices(), chosen = null;
+      if (want) { for (var i = 0; i < list.length; i++) { if (list[i].voiceURI === want || list[i].name === want) { chosen = list[i]; break; } } }
+      if (!chosen) chosen = pickVoice();
+      if (chosen) u.voice = chosen;
+      window.speechSynthesis.speak(u);
+    });
   }
 
   function escapeHtml(s) {
@@ -739,7 +1080,9 @@
     var tts = el("button", "q-tts", "🔊 듣기");
     tts.type = "button";
     tts.addEventListener("click", function () { speak(ma.answer); });
-    head.appendChild(tts);
+    var maListen = el("span", "tts-group");
+    maListen.appendChild(tts); maListen.appendChild(makeSpeedBadge());
+    head.appendChild(maListen);
     box.appendChild(head);
 
     var maBody = el("div", "ma-text ss-answer"); // 문장 단위 줄바꿈('저장한 스크립트'와 동일)
@@ -821,6 +1164,18 @@
     return blk;
   }
 
+  // 저장한 스크립트면 생성된 extras를 localStorage에 영구 저장 → 재진입 시 재호출 차단
+  function persistScriptExtras(sc) {
+    if (!sc || !sc.id || !sc.extras) return; // 만들기 화면(저장 전) sc에는 id가 없음
+    var list = Storage.getScripts();
+    for (var i = 0; i < list.length; i++) {
+      if (list[i].id === sc.id) {
+        if (!list[i].extras) { list[i].extras = sc.extras; Storage.setScripts(list); }
+        return;
+      }
+    }
+  }
+
   async function scriptExtraToggle(kind, sc, area, btn, otherBtn) {
     // 블록이 아직 없으면: 데이터 확보(필요 시 1회만 API) 후 두 블록을 미리 구성
     if (!area.querySelector(".ma-extra-block")) {
@@ -831,6 +1186,7 @@
           await ensureModelExtras(sc, function (sec) {
             area.innerHTML = loaderHTML("무료 한도 대기 중… " + sec + "초 후 자동 재시도");
           });
+          persistScriptExtras(sc); // 저장본이면 영구 저장
         } catch (e) {
           area.innerHTML = "";
           area.appendChild(el("div", "error-box", "✕ " + ((e && e.message) || "생성 실패")));
@@ -1004,6 +1360,7 @@
 
   // 실제 문제 생성(API 연동) — '시작' 클릭 시에만 호출
   async function runCombo() {
+    if (!requireApiKey(runCombo)) return; // 키 없으면 안내 모달 → 저장 후 이어서 진행
     var s = state.session;
     var type = s.type, topic = s.topic, level = s.level;
     $("mockStage").innerHTML = loaderHTML(
@@ -1196,7 +1553,7 @@
   function pushAll(arr, items) { items.forEach(function (x) { arr.push(x); }); }
 
   async function startMockExam(version) {
-    if (!Storage.hasApiKey()) { show("settings"); return; }
+    if (!requireApiKey(function () { startMockExam(version); })) return;
     var level = Storage.getLevel();
     if (!Storage.getSurvey().length) { toast("먼저 배경 설문에서 주제를 고르세요"); openSurvey(); return; }
 
@@ -1409,15 +1766,26 @@
       if (e.key === "Enter") { e.preventDefault(); saveKey(); }
     });
 
-    // API 키 게이트
+    // API 키 안내 모달
     $("gateSave").addEventListener("click", saveGateKey);
     $("gateKey").addEventListener("keydown", function (e) {
       if (e.key === "Enter") { e.preventDefault(); saveGateKey(); }
     });
-    // 401/403(키 오류) 발생 시 게이트로 유도
+    var kmClose = $("keyModalClose");
+    if (kmClose) kmClose.addEventListener("click", closeKeyModal);
+    var km = $("keyModal");
+    if (km) km.addEventListener("click", function (e) { if (e.target === km) closeKeyModal(); }); // 바깥 클릭 닫기
+    // 401/403(키 오류) 발생 시 같은 안내 모달로 재입력 유도
     window.addEventListener("apikey-invalid", function () {
-      showGate("API 키가 올바르지 않아요. 키를 다시 확인해 입력해 주세요.");
+      openKeyModal("API 키가 올바르지 않아요. 키를 다시 확인해 입력해 주세요.");
     });
+
+    // 듣기(TTS): 음성 비동기 로드 + 설정(음성 드롭다운/미리듣기) 연결
+    loadVoices();
+    if (("speechSynthesis" in window) && typeof window.speechSynthesis.addEventListener === "function") {
+      window.speechSynthesis.addEventListener("voiceschanged", function () { loadVoices(); refreshVoiceSelect(); });
+    }
+    setupTtsSettings();
 
     // 홈 허브 — 레벨 / 설문수정 / 유형카드 / 내역
     $("levelSeg").querySelectorAll(".level-card").forEach(function (b) {
@@ -1472,9 +1840,9 @@
       goHome();
     });
 
-    // 첫 화면: 키 없으면 게이트, 있으면 홈
+    // 첫 화면: 항상 홈 (키는 실제 호출 시점에만 안내)
     renderHub();
-    show(Storage.hasApiKey() ? "home" : "gate");
+    show("home");
   }
 
   function goHome() {
@@ -2035,6 +2403,7 @@
   async function generateScript() {
     var request = $("scriptRequest").value.trim();
     if (!request) { toast("요청사항을 입력하세요"); return; }
+    if (!requireApiKey(generateScript)) return; // 키 없으면 안내 모달 → 저장 후 이어서 생성
     var level = Storage.getLevel();
     var area = $("scriptResult");
     $("genScript").disabled = true;
@@ -2185,7 +2554,9 @@
     tts.setAttribute("aria-label", "질문 듣기");
     tts.innerHTML = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M19 5a9 9 0 0 1 0 14"/></svg>';
     tts.addEventListener("click", function () { playWithState(tts, sc.answer); });
-    head.appendChild(tts); // 카드 상단 제목 줄(제목·레벨 오른쪽 끝)
+    var scListen = el("span", "tts-group"); // 듣기 + 속도 배지 (제목 줄 오른쪽 끝)
+    scListen.appendChild(tts); scListen.appendChild(makeSpeedBadge());
+    head.appendChild(scListen);
     box.appendChild(head);
 
     // 질문 섹션 (버튼 없이 전체 폭)
@@ -2403,21 +2774,27 @@
     var lv = el("span", "lvl-badge", sc.level || "");
     lv.setAttribute("data-lv", sc.level || "");
     top.appendChild(lv);
+    if (sc.sample) top.appendChild(el("span", "sample-badge", "샘플"));
     main.appendChild(top);
     row.appendChild(main);
 
     var meta = el("div", "script-row-meta");
-    meta.appendChild(el("span", "script-row-date", shortDate(sc.ts)));
-    var del = el("button", "script-del");
-    del.type = "button";
-    del.title = "삭제";
-    del.setAttribute("aria-label", "삭제");
-    del.innerHTML = '<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>';
-    del.addEventListener("click", function (e) {
-      e.stopPropagation(); // 행 클릭(상세 이동)과 분리
-      if (window.confirm("이 스크립트를 삭제할까요?")) deleteScript(sc.id);
-    });
-    meta.appendChild(del);
+    if (sc.sample) {
+      // 샘플: 날짜·삭제 없음 (삭제 불가)
+      meta.appendChild(el("span", "script-row-date", "기본 제공"));
+    } else {
+      meta.appendChild(el("span", "script-row-date", shortDate(sc.ts)));
+      var del = el("button", "script-del");
+      del.type = "button";
+      del.title = "삭제";
+      del.setAttribute("aria-label", "삭제");
+      del.innerHTML = '<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>';
+      del.addEventListener("click", function (e) {
+        e.stopPropagation(); // 행 클릭(상세 이동)과 분리
+        if (window.confirm("이 스크립트를 삭제할까요?")) deleteScript(sc.id);
+      });
+      meta.appendChild(del);
+    }
     meta.appendChild(el("span", "script-row-chevron", "›"));
     row.appendChild(meta);
     return row;
@@ -2432,7 +2809,8 @@
     host.appendChild(detailHeader("저장한 스크립트", goHome));
 
     var list = Storage.getScripts();
-    if (!list.length) {
+    var samples = window.SAMPLE_SCRIPTS || [];
+    if (!list.length && !samples.length) {
       var empty = el("div", "scripts-empty");
       empty.appendChild(el("p", "muted", "저장한 스크립트가 없어요."));
       var go = el("button", "primary-btn", "✍️ 스크립트 만들기");
@@ -2444,24 +2822,36 @@
     }
     host.appendChild(el("div", "scripts-count muted small", list.length + "개 저장됨"));
     list.forEach(function (sc) { host.appendChild(buildScriptRow(sc)); });
+    // 기본 샘플 — 사용자 스크립트 아래, 삭제 불가 (다음 방문에도 항상 제공)
+    if (samples.length) {
+      host.appendChild(el("div", "scripts-sample-head muted small", "기본 샘플 (미리 보기)"));
+      samples.forEach(function (sc) { host.appendChild(buildScriptRow(sc)); });
+    }
   }
   function openScriptView(id) {
-    var list = Storage.getScripts();
     var sc = null;
+    var list = Storage.getScripts();
     for (var i = 0; i < list.length; i++) { if (list[i].id === id) { sc = list[i]; break; } }
+    if (!sc) { // 사용자 스크립트에 없으면 기본 샘플에서 조회
+      var samples = window.SAMPLE_SCRIPTS || [];
+      for (var j = 0; j < samples.length; j++) { if (samples[j].id === id) { sc = samples[j]; break; } }
+    }
     if (!sc) { toast("스크립트를 찾을 수 없습니다"); return; }
     var host = $("scriptsBody");
     host.innerHTML = "";
-    // 상세 헤더: 원형 ‹ 버튼 + 제목 + 우측 휴지통 (상단 '← 홈'/화면 제목은 숨김)
     $("scriptsBack").style.display = "none";
     $("scriptsTitle").style.display = "none";
-    var trash = el("button", "icon-btn-sm icon-danger");
-    trash.type = "button";
-    trash.setAttribute("aria-label", "삭제");
-    trash.innerHTML = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>';
-    trash.addEventListener("click", function () {
-      if (window.confirm("이 스크립트를 삭제할까요?")) deleteScript(sc.id);
-    });
+    // 샘플은 삭제 불가 → 우측 휴지통 없음
+    var trash = null;
+    if (!sc.sample) {
+      trash = el("button", "icon-btn-sm icon-danger");
+      trash.type = "button";
+      trash.setAttribute("aria-label", "삭제");
+      trash.innerHTML = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>';
+      trash.addEventListener("click", function () {
+        if (window.confirm("이 스크립트를 삭제할까요?")) deleteScript(sc.id);
+      });
+    }
     host.appendChild(detailHeader("저장한 스크립트", openScripts, trash));
     var area = el("div");
     host.appendChild(area);

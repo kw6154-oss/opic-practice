@@ -124,6 +124,27 @@ body {
 .gate-error { margin: 12px 0 0; color: var(--danger); font-size: .9rem; font-weight: 600; }
 .gate-note { margin-top: 14px; }
 
+/* ===== API 키 안내 모달 ===== */
+.modal-overlay {
+  position: fixed; inset: 0; z-index: 100;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(0, 0, 0, .45); padding: 16px; animation: fade .2s ease;
+}
+.modal-overlay[hidden] { display: none; }
+.modal-card {
+  position: relative; width: 100%; max-width: 440px; max-height: 90vh; overflow-y: auto;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); box-shadow: var(--shadow); padding: 24px 22px;
+}
+.modal-card .gate-title { margin-right: 32px; }
+.modal-close {
+  position: absolute; top: 12px; right: 12px;
+  width: 30px; height: 30px; border-radius: 999px; padding: 0;
+  border: 1px solid var(--border); background: var(--surface); color: var(--text-muted);
+  cursor: pointer; font-size: .85rem; display: inline-flex; align-items: center; justify-content: center;
+}
+.modal-close:hover { background: var(--surface-2); color: var(--text); }
+
 h1 { font-size: 1.9rem; margin: 0 0 6px; letter-spacing: -.02em; }
 h2 { font-size: 1.4rem; margin: 4px 0 18px; letter-spacing: -.01em; }
 h3 { font-size: 1.02rem; margin: 0 0 10px; }
@@ -490,6 +511,62 @@ button:disabled { opacity: .55; cursor: not-allowed; }
 }
 .q-tts:hover, .q-trans:hover { border-color: var(--accent); }
 
+/* 듣기 속도 배지 (조용한 톤, 듣기 버튼 옆) */
+.tts-speed {
+  flex: none; display: inline-flex; align-items: center; justify-content: center;
+  min-width: 34px; height: 30px; padding: 0 8px;
+  border: 1px solid var(--border); background: var(--surface); border-radius: 999px;
+  color: var(--text-muted); font: inherit; font-size: .78rem; font-weight: 700;
+  letter-spacing: .01em; cursor: pointer;
+  transition: background .15s, border-color .15s, color .15s;
+}
+.tts-speed:hover { background: var(--surface-2); color: var(--accent); border-color: color-mix(in srgb, var(--accent) 35%, var(--border)); }
+/* 듣기 버튼 + 속도 배지 묶음 (space-between 헤더에서 한 덩어리로) */
+.tts-group { display: inline-flex; align-items: center; gap: 6px; }
+/* 설정 화면 음성 선택 행 */
+.voice-row { display: flex; align-items: center; gap: 8px; }
+.voice-row select { flex: 1; min-width: 0; }
+.voice-row .small-btn { flex: none; white-space: nowrap; }
+
+/* ===== 기초 연습: 발음 ===== */
+.pron-tabs { display: flex; gap: 6px; background: var(--surface-2); padding: 5px; border-radius: 12px; margin-bottom: 14px; }
+.pron-tab { flex: 1; padding: 9px 0; border: none; background: transparent; color: var(--text-muted); font: inherit; font-weight: 700; font-size: .9rem; border-radius: 9px; cursor: pointer; transition: background .15s, color .15s; }
+.pron-tab.on { background: var(--accent); color: #fff; box-shadow: var(--shadow); }
+/* 진행 표시 + 얇은 진행바 */
+.pron-progress { margin: 2px 0 14px; }
+.pron-progress-label { margin-bottom: 6px; }
+.pron-pbar { height: 5px; background: var(--surface-2); border: 1px solid var(--border); border-radius: 999px; overflow: hidden; }
+.pron-pbar-fill { height: 100%; background: var(--accent); border-radius: 999px; transition: width .3s ease; }
+.pron-tabdesc { font-size: .85rem; color: var(--accent); background: var(--accent-weak); padding: 10px 12px; border-radius: var(--radius-sm); margin: 0 0 12px; line-height: 1.5; }
+.pron-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px; box-shadow: var(--shadow); }
+/* 1) 문장 (전체 폭, 크게) */
+.pron-sentence { margin: 0; font-size: 1.2rem; line-height: 1.6; font-weight: 700; color: var(--text); word-break: keep-all; }
+/* 2) 뜻 보기 — 가벼운 텍스트 토글 + 회색 뜻 */
+.pron-mean-toggle { display: inline-flex; align-items: center; gap: 4px; margin-top: 8px; background: none; border: none; padding: 2px 0; color: var(--accent); font: inherit; font-size: .82rem; font-weight: 600; cursor: pointer; }
+.pron-mean-toggle:hover { text-decoration: underline; }
+.pron-meaning { margin-top: 6px; font-size: .9rem; line-height: 1.6; color: var(--text-muted); word-break: keep-all; }
+.pron-meaning[hidden] { display: none; }
+/* 3) 얇은 구분선 */
+.pron-divider { border-top: 1px solid var(--border); margin: 14px 0; }
+/* 4) 동작 줄: [스피커][속도] ... [따라 말하기] */
+.pron-action { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.pron-rec { margin-top: 12px; }
+.pron-compare { font-size: 1.05rem; line-height: 1.9; margin: 4px 0 10px; word-break: keep-all; }
+.pw-ok { color: var(--success); font-weight: 600; }
+.pw-bad { color: var(--danger); font-weight: 600; text-decoration: underline; text-decoration-style: dashed; text-underline-offset: 3px; }
+.pron-score { font-weight: 800; font-size: 1.05rem; margin: 6px 0 2px; }
+/* 5) 문장 내비게이션 */
+.pron-nav { display: flex; gap: 10px; margin-top: 12px; }
+.pron-nav .run-btn { flex: 1; }
+
+/* ===== 기초 연습: 듣기 ===== */
+.listen-list { display: flex; flex-direction: column; gap: 10px; margin-top: 6px; }
+.listen-row { display: flex; align-items: center; gap: 12px; padding: 14px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); text-decoration: none; color: var(--text); transition: background .15s, border-color .15s; }
+.listen-row:hover { background: var(--surface-2); border-color: color-mix(in srgb, var(--accent) 30%, var(--border)); text-decoration: none; }
+.listen-row-body { flex: 1; min-width: 0; }
+.listen-row-title { font-weight: 700; font-size: .96rem; }
+.listen-row-ext { flex: none; color: var(--text-muted); font-size: 1.1rem; }
+
 .practice-foot { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 4px; }
 
 /* ===== 녹음 영역 ===== */
@@ -780,6 +857,8 @@ mark.expr-hl { background: #fde68a; color: #1f2937; border-radius: 3px; padding:
 
 /* ===== 저장한 스크립트 목록 ===== */
 .scripts-count { margin: -6px 0 12px; }
+.scripts-sample-head { margin: 18px 0 8px; font-weight: 700; }
+.sample-badge { flex: none; font-size: .68rem; font-weight: 700; color: var(--text-muted); background: var(--surface-2); border: 1px solid var(--border); padding: 1px 7px; border-radius: 999px; }
 .scripts-empty { text-align: center; padding: 40px 16px; display: flex; flex-direction: column; align-items: center; gap: 14px; }
 .scripts-empty .primary-btn { min-width: 160px; }
 

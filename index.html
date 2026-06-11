@@ -20,26 +20,6 @@
   </header>
 
   <main class="container" id="app">
-    <!-- ===== 화면: 시작하기 (API 키 게이트) ===== -->
-    <section class="screen" id="screen-gate" hidden>
-      <div class="gate">
-        <h1 class="gate-title">시작하기</h1>
-        <p class="gate-lead">이 앱은 본인의 <strong>Gemini API 키</strong>가 필요해요 <span class="gate-free">무료 발급</span></p>
-        <ol class="gate-steps">
-          <li><a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">Google AI Studio</a>에 접속해 Google 계정으로 로그인</li>
-          <li><strong>Create API key</strong>(API 키 만들기)를 눌러 키 생성</li>
-          <li>생성된 키를 복사해 아래에 붙여넣고 저장</li>
-        </ol>
-        <a class="gate-link primary-btn" href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">🔑 API 키 발급받기 (무료)</a>
-        <div class="gate-form">
-          <input type="password" id="gateKey" placeholder="여기에 API 키를 붙여넣기" autocomplete="off" spellcheck="false">
-          <button class="primary-btn" id="gateSave" type="button">저장하고 시작</button>
-        </div>
-        <p class="gate-error" id="gateError" hidden></p>
-        <p class="muted small gate-note">키는 이 브라우저(localStorage)에만 저장되며 외부로 전송되지 않아요.</p>
-      </div>
-    </section>
-
     <!-- ===== 화면: 홈 허브 ===== -->
     <section class="screen" id="screen-home" hidden>
       <div class="hub-hero">
@@ -125,6 +105,21 @@
         </button>
       </div>
 
+      <!-- 기초 연습 -->
+      <h3 class="hub-section">기초 연습</h3>
+      <div class="type-grid">
+        <button class="type-card" data-type="pron" type="button">
+          <span class="type-emoji">🗣️</span>
+          <span class="type-title">발음 연습</span>
+          <span class="type-desc">문장을 따라 말하고 전달력을 확인해요</span>
+        </button>
+        <button class="type-card" data-type="listen" type="button">
+          <span class="type-emoji">🎧</span>
+          <span class="type-title">듣기 연습</span>
+          <span class="type-desc">레벨별 실전 음성으로 귀 트이기</span>
+        </button>
+      </div>
+
       <button class="history-entry" id="openHistory" type="button">🗂 테스트 내역 보기</button>
     </section>
 
@@ -184,6 +179,18 @@
         <label class="switch-row">
           <span>다크모드</span>
           <input type="checkbox" id="darkSwitch" class="switch" />
+        </label>
+      </div>
+
+      <div class="panel">
+        <h3>듣기 (TTS)</h3>
+        <label class="field">
+          <span class="field-label">듣기 음성 (영어)</span>
+          <div class="voice-row">
+            <select id="ttsVoice"></select>
+            <button class="ghost-btn small-btn" id="ttsPreview" type="button">▶ 미리 듣기</button>
+          </div>
+          <span class="field-help">음성 목록은 기기·브라우저마다 달라요. 선택한 음성이 없는 환경에선 자동으로 골라줍니다. 재생 속도는 듣기 버튼 옆 속도 배지(예: 1x)로 조절해요.</span>
         </label>
       </div>
 
@@ -322,6 +329,16 @@
       <button class="link-btn back" id="detailBack" type="button">← 내역</button>
       <div id="detailBody"></div>
     </section>
+
+    <!-- ===== 화면: 발음 연습 ===== -->
+    <section class="screen" id="screen-pron" hidden>
+      <div id="pronBody"></div>
+    </section>
+
+    <!-- ===== 화면: 듣기 연습 ===== -->
+    <section class="screen" id="screen-listen" hidden>
+      <div id="listenBody"></div>
+    </section>
   </main>
 
   <footer class="footer">
@@ -331,8 +348,31 @@
   <!-- 토스트 -->
   <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 
+  <!-- ===== API 키 안내 모달 (필요 시점에만) ===== -->
+  <div class="modal-overlay" id="keyModal" hidden>
+    <div class="modal-card">
+      <button class="modal-close" id="keyModalClose" type="button" aria-label="닫기">✕</button>
+      <h2 class="gate-title">API 키 연동</h2>
+      <p class="gate-lead">이 기능은 본인의 <strong>Gemini API 키</strong>가 필요해요 <span class="gate-free">무료 발급</span></p>
+      <ol class="gate-steps">
+        <li><a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener noreferrer">Google AI Studio</a>에 접속해 Google 계정으로 로그인</li>
+        <li><strong>Create API key</strong>(API 키 만들기)를 눌러 키 생성</li>
+        <li>생성된 키를 복사해 아래에 붙여넣고 저장</li>
+      </ol>
+      <a class="gate-link primary-btn" href="https://aistudio.google.com/apikey" target="_blank" rel="noopener noreferrer">🔑 API 키 발급받기 (무료)</a>
+      <div class="gate-form">
+        <input type="password" id="gateKey" placeholder="여기에 API 키를 붙여넣기" autocomplete="off" spellcheck="false">
+        <button class="primary-btn" id="gateSave" type="button">저장하고 계속</button>
+      </div>
+      <p class="gate-error" id="gateError" hidden></p>
+      <p class="muted small gate-note">키는 이 브라우저(localStorage)에만 저장되며 외부로 전송되지 않아요.</p>
+    </div>
+  </div>
+
   <!-- ===== 스크립트 (역할별 분리) ===== -->
   <script src="data/topics.js"></script>
+  <script src="data/pronunciation.js"></script>
+  <script src="data/sample-scripts.js"></script>
   <script src="js/storage.js"></script>
   <script src="js/db.js"></script>
   <script src="js/api.js"></script>

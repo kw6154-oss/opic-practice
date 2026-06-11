@@ -55,6 +55,16 @@
     getModel: function () { return get(NS + "model", "gemini-2.5-flash"); },
     setModel: function (v) { return set(NS + "model", v); },
 
+    // 듣기(TTS) — 속도(0.75|1|1.25) / 음성(voiceURI 또는 name)
+    getTtsRate: function () { var v = parseFloat(get(NS + "ttsRate", "1")); return (v === 0.75 || v === 1.25) ? v : 1; },
+    setTtsRate: function (v) { return set(NS + "ttsRate", String(v)); },
+    getTtsVoice: function () { return get(NS + "ttsVoice", ""); },
+    setTtsVoice: function (v) { return set(NS + "ttsVoice", v || ""); },
+
+    // 발음 연습 '뜻 보기' 토글 (켜둔 채 유지)
+    getPronMeaning: function () { return get(NS + "pronMeaning", "0") === "1"; },
+    setPronMeaning: function (on) { return set(NS + "pronMeaning", on ? "1" : "0"); },
+
     // 테마
     getTheme: function () { return get(K.theme, null); },
     setTheme: function (v) { return set(K.theme, v); },
