@@ -2625,10 +2625,12 @@
     return markEl;
   }
 
-  // 단계 라벨 4색 매핑 (상황 파랑 / 행동 청록 / 감정 주황 / 마무리 보라), 그 외는 순서대로 순환
+  // 단계 라벨 4색 매핑 (상황 파랑 / 행동 인디고 / 감정 바이올렛 / 마무리 퍼플), 그 외는 순서대로 순환
   var STEP_COLOR = { "상황": 0, "행동": 1, "감정": 2, "마무리": 3 };
-  // 보기 모드별 모범답안 렌더 (full: 전체 / label: 단계 라벨 / keyword: 키워드 칩)
-  function renderAnswerMode(container, sc, mode) {
+  // 보기 모드별 모범답안 렌더
+  //  - keyword: 키워드 칩
+  //  - body: 단계 그룹 단위로 묶어 렌더(같은 문장에 라벨만 매핑). showSteps면 라벨+색 레일+2열, 아니면 구분선만 단일 컬럼
+  function renderAnswerMode(container, sc, mode, showSteps) {
     container.innerHTML = "";
     container.dataset.hl = "";
     if (mode === "keyword" && sc.keywords && sc.keywords.length) {
@@ -2638,20 +2640,20 @@
         wrap.appendChild(el("span", "kw-chip", k));
       });
       container.appendChild(wrap);
-      container.appendChild(el("div", "kw-note", "키워드만 보고 문장을 직접 만들어 말해보세요. 막히면 ‘단계 라벨’로 돌아가 확인하세요."));
+      container.appendChild(el("div", "kw-note", "키워드만 보고 문장을 직접 만들어 말해보세요. 막히면 ‘본문’으로 돌아가 확인하세요."));
       return;
     }
-    if (mode === "label" && sc.structure && sc.structure.length) {
-      // 전체보기와 동일한 본문을 단계 범위(range)로 묶어서 렌더 — 단계용 텍스트를 따로 두지 않음
+    // 본문: 단계 구조가 있으면 단계 범위(range)로 묶어서 렌더 — 단계용 텍스트를 따로 두지 않음
+    if (sc.structure && sc.structure.length) {
       var sents = splitSentences(sc.answer);
-      var list = el("div", "step-list");
+      var list = el("div", "step-list" + (showSteps ? " show-steps" : ""));
       sc.structure.forEach(function (st, i) {
         var ci = (STEP_COLOR[st.label] != null) ? STEP_COLOR[st.label] : (i % 4);
         var r = st.range || [];
         var from = (r[0] || 1), to = (r[1] || from);
         var text = sents.slice(from - 1, to).join(" ");
-        var row = el("div", "step-row");
-        row.appendChild(el("span", "step-label step-c" + ci, st.label));
+        var row = el("div", "step-row step-c" + ci);
+        if (showSteps) row.appendChild(el("span", "step-label step-c" + ci, st.label));
         row.appendChild(el("div", "step-text", text));
         list.appendChild(row);
       });
@@ -2778,38 +2780,61 @@
       aSec.appendChild(el("div", "ss-eyebrow", "모범답안"));
       ans = el("div", "ma-text ss-answer");
 
-      // 보기 모드 토글 (암기 보조) — structure/keywords가 있을 때만
+      // 보기 모드: [본문] [키워드만] 탭 + 본문 우상단 '단계 표시' on/off 스위치
       var hasStruct = sc.structure && sc.structure.length;
       var hasKw = sc.keywords && sc.keywords.length;
+      var stepOn = false;     // 단계 표시 기본 off
+      var curMode = "body";
+      var stepSwitch = null;
       if (hasStruct || hasKw) {
-        var modes = [["full", "전체 보기"]];
-        if (hasStruct) modes.push(["label", "단계 라벨"]);
-        if (hasKw) modes.push(["keyword", "키워드"]);
-        var seg = el("div", "view-mode-seg");
-        var ind = el("span", "vm-indicator");
-        seg.appendChild(ind);
-        var n = modes.length;
-        function moveInd(idx) {
-          ind.style.width = (100 / n) + "%";
-          ind.style.transform = "translateX(" + (idx * 100) + "%)";
-        }
-        var segBtns = [];
-        modes.forEach(function (m, i) {
-          var b = el("button", "view-mode-btn" + (i === 0 ? " on" : ""), m[1]);
-          b.type = "button";
-          b.addEventListener("click", function () {
-            segBtns.forEach(function (x, j) { x.classList.toggle("on", j === i); });
-            moveInd(i);
-            renderAnswerMode(ans, sc, m[0]);
+        var aHead = el("div", "ma-view-head");
+        // 탭 (키워드가 있을 때만 — 본문/키워드만 선택)
+        if (hasKw) {
+          var modes = [["body", "본문"], ["keyword", "키워드만"]];
+          var seg = el("div", "view-mode-seg");
+          var ind = el("span", "vm-indicator");
+          seg.appendChild(ind);
+          var n = modes.length;
+          var moveInd = function (idx) {
+            ind.style.width = (100 / n) + "%";
+            ind.style.transform = "translateX(" + (idx * 100) + "%)";
+          };
+          var segBtns = [];
+          modes.forEach(function (m, i) {
+            var b = el("button", "view-mode-btn" + (i === 0 ? " on" : ""), m[1]);
+            b.type = "button";
+            b.addEventListener("click", function () {
+              curMode = m[0];
+              segBtns.forEach(function (x, j) { x.classList.toggle("on", j === i); });
+              moveInd(i);
+              // 단계 표시 스위치는 본문 탭에서만 노출
+              if (stepSwitch) stepSwitch.style.display = (curMode === "body") ? "" : "none";
+              renderAnswerMode(ans, sc, curMode, stepOn);
+            });
+            segBtns.push(b);
+            seg.appendChild(b);
           });
-          segBtns.push(b);
-          seg.appendChild(b);
-        });
-        aSec.appendChild(seg);
-        moveInd(0);
+          aHead.appendChild(seg);
+          moveInd(0);
+        }
+        // 단계 표시 스위치 (단계 구조가 있을 때만)
+        if (hasStruct) {
+          stepSwitch = el("label", "step-switch");
+          stepSwitch.appendChild(el("span", "step-switch-text", "단계 표시"));
+          var chk = el("input", "step-switch-input");
+          chk.type = "checkbox";
+          stepSwitch.appendChild(chk);
+          stepSwitch.appendChild(el("span", "step-switch-track"));
+          chk.addEventListener("change", function () {
+            stepOn = chk.checked;
+            if (curMode === "body") renderAnswerMode(ans, sc, "body", stepOn);
+          });
+          aHead.appendChild(stepSwitch);
+        }
+        aSec.appendChild(aHead);
       }
 
-      renderAnswerMode(ans, sc, "full");
+      renderAnswerMode(ans, sc, "body", stepOn);
       aSec.appendChild(ans);
 
       // 해석 / 한글 발음 토글 (세그먼트 + 아이콘)

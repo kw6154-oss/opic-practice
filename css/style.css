@@ -968,14 +968,14 @@ mark.expr-hl { background: #fde68a; color: #1f2937; border-radius: 3px; padding:
 
 /* 질문 블록 — 좌측 그라데이션 바 + 좌→우 인디고 페이드 */
 .script-detail .script-q {
-  position: relative; border-left: 0; padding: 12px 14px 12px 18px; border-radius: 10px;
-  background: linear-gradient(90deg, var(--sd-tint), rgba(238,240,255,0) 88%);
+  position: relative; border-left: 0; padding: 15px 16px 15px 22px; border-radius: 12px;
+  background: #f1f5fc;
 }
 .script-detail .script-q::before {
-  content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 4px;
-  border-radius: 4px 0 0 4px; background: var(--sd-grad);
+  content: ""; position: absolute; left: 9px; top: 14px; bottom: 14px; width: 3px;
+  border-radius: 3px; background: #2563eb;
 }
-.script-detail .script-q-text { color: var(--sd-text); }
+.script-detail .script-q-text { color: #1c2333; font-weight: 700; font-size: 15px; line-height: 1.58; }
 .script-detail .ss-answer .ss-line { color: var(--sd-text); }
 
 /* 보기 모드 토글 — 회색 트랙 + 슬라이딩 인디케이터 */
@@ -996,19 +996,44 @@ mark.expr-hl { background: #fde68a; color: #1f2937; border-radius: 3px; padding:
 }
 .script-detail .view-mode-btn.on { color: #fff; background: transparent; }
 
-/* 단계 라벨 뷰 — 2열 그리드 + 좌측 4색 세로 레일 */
-.script-detail .step-list { position: relative; padding-left: 18px; margin-top: 2px; }
+/* 본문(단계 그룹) 뷰
+   기본: 라벨·레일 없이 단일 컬럼 전체폭 + 그룹 사이 구분선만
+   .show-steps: 좌측 4색 세로 레일 + [라벨 62px | 본문] 2열 */
+.script-detail .step-list { position: relative; padding-left: 0; margin-top: 2px; }
 .script-detail .step-list::before {
   content: ""; position: absolute; left: 5px; top: 4px; bottom: 4px; width: 3px; border-radius: 3px;
   background: linear-gradient(180deg, #2f6bed, #5a55e0 38%, #8246d8 68%, #9b3fd1);
+  display: none;
 }
-.script-detail .step-row { display: grid; grid-template-columns: 60px 1fr; gap: 10px; align-items: start; padding: 13px 0; }
+.script-detail .step-row { display: block; padding: 13px 0; }
 .script-detail .step-row + .step-row { border-top: 1px solid #f1f2f6; }
-.script-detail .step-label {
+.script-detail .step-label { display: none; }
+.script-detail .step-text { color: var(--sd-text); line-height: 1.6; }
+/* 단계 표시 ON */
+.script-detail .step-list.show-steps { padding-left: 18px; }
+.script-detail .step-list.show-steps::before { display: block; }
+.script-detail .step-list.show-steps .step-row { display: grid; grid-template-columns: 62px 1fr; gap: 10px; align-items: start; }
+.script-detail .step-list.show-steps .step-label {
   display: inline-block; width: 100%; text-align: center; font-size: .72rem; font-weight: 800;
   padding: 3px 0; border-radius: 999px; border: 1px solid; box-sizing: border-box;
 }
-.script-detail .step-text { color: var(--sd-text); line-height: 1.6; }
+
+/* 모범답안 보기 헤더 — 탭(좌) + 단계 표시 스위치(우) */
+.script-detail .ma-view-head { display: flex; align-items: center; gap: 10px; margin: 0 0 12px; }
+.script-detail .ma-view-head .view-mode-seg { margin: 0; }
+.script-detail .step-switch { margin-left: auto; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; user-select: none; }
+.script-detail .step-switch-text { font-size: .8rem; font-weight: 700; color: var(--sd-sub); }
+.script-detail .step-switch-input { position: absolute; opacity: 0; width: 0; height: 0; }
+.script-detail .step-switch-track {
+  position: relative; flex: none; width: 38px; height: 22px; border-radius: 999px;
+  background: #dfe2e8; transition: background .18s ease;
+}
+.script-detail .step-switch-track::after {
+  content: ""; position: absolute; top: 2px; left: 2px; width: 18px; height: 18px; border-radius: 50%;
+  background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.2); transition: transform .18s ease;
+}
+.script-detail .step-switch-input:checked ~ .step-switch-track { background: #2563eb; }
+.script-detail .step-switch-input:checked ~ .step-switch-track::after { transform: translateX(16px); }
 .script-detail .step-c0 { color: #2f6bed; border-color: #d3e3fd; background: #eaf1fe; }
 .script-detail .step-c1 { color: #5a55e0; border-color: #ddd9f8; background: #eeedfc; }
 .script-detail .step-c2 { color: #8246d8; border-color: #e6d9f6; background: #f3ecfb; }
