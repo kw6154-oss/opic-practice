@@ -2652,7 +2652,7 @@
         var r = st.range || [];
         var from = (r[0] || 1), to = (r[1] || from);
         var text = sents.slice(from - 1, to).join(" ");
-        var row = el("div", "step-row step-c" + ci);
+        var row = el("div", "step-row");
         if (showSteps) row.appendChild(el("span", "step-label step-c" + ci, st.label));
         row.appendChild(el("div", "step-text", text));
         list.appendChild(row);
@@ -2795,9 +2795,10 @@
           var ind = el("span", "vm-indicator");
           seg.appendChild(ind);
           var n = modes.length;
+          // 균등 버튼(각 (100%-패딩8px)/n) 기준으로 인디케이터 폭·위치 계산
           var moveInd = function (idx) {
-            ind.style.width = (100 / n) + "%";
-            ind.style.transform = "translateX(" + (idx * 100) + "%)";
+            ind.style.width = "calc((100% - 8px) / " + n + ")";
+            ind.style.left = "calc(4px + (100% - 8px) / " + n + " * " + idx + ")";
           };
           var segBtns = [];
           modes.forEach(function (m, i) {

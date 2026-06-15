@@ -984,15 +984,15 @@ mark.expr-hl { background: #fde68a; color: #1f2937; border-radius: 3px; padding:
   background: #eef0f6; border: 0; border-radius: 999px; overflow: hidden;
 }
 .script-detail .vm-indicator {
-  position: absolute; top: 4px; bottom: 4px; left: 4px; width: 33.33%;
+  position: absolute; top: 4px; bottom: 4px; left: 4px; width: calc((100% - 8px) / 2);
   border-radius: 999px; background: var(--sd-grad);
   box-shadow: 0 4px 10px -4px rgba(47,109,240,.6);
-  transition: transform .26s cubic-bezier(.4,0,.2,1), width .26s ease;
+  transition: left .26s cubic-bezier(.4,0,.2,1), width .26s ease;
 }
 .script-detail .view-mode-btn {
-  position: relative; z-index: 1; flex: 1; font: inherit; font-size: .78rem; font-weight: 600;
+  position: relative; z-index: 1; flex: 1 1 0; min-width: 0; font: inherit; font-size: .78rem; font-weight: 600;
   color: var(--sd-sub); background: transparent; border: 0; padding: 6px 10px;
-  border-radius: 999px; cursor: pointer; white-space: nowrap; transition: color .2s ease;
+  border-radius: 999px; cursor: pointer; text-align: center; white-space: nowrap; transition: color .2s ease;
 }
 .script-detail .view-mode-btn.on { color: #fff; background: transparent; }
 
@@ -1020,7 +1020,7 @@ mark.expr-hl { background: #fde68a; color: #1f2937; border-radius: 3px; padding:
 
 /* 모범답안 보기 헤더 — 탭(좌) + 단계 표시 스위치(우) */
 .script-detail .ma-view-head { display: flex; align-items: center; gap: 10px; margin: 0 0 12px; }
-.script-detail .ma-view-head .view-mode-seg { margin: 0; }
+.script-detail .ma-view-head .view-mode-seg { margin: 0; flex: 1; min-width: 0; }
 .script-detail .step-switch { margin-left: auto; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; user-select: none; }
 .script-detail .step-switch-text { font-size: .8rem; font-weight: 700; color: var(--sd-sub); }
 .script-detail .step-switch-input { position: absolute; opacity: 0; width: 0; height: 0; }
