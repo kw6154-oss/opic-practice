@@ -1,3 +1,5 @@
+@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.css');
+
 /* =========================================================
    OPIcDay — 깔끔·미니멀 테마
    라이트/다크는 :root[data-theme] 로 전환
@@ -44,8 +46,8 @@ body {
   margin: 0;
   background: var(--bg);
   color: var(--text);
-  font-family: "Pretendard", -apple-system, BlinkMacSystemFont, "Segoe UI",
-    "Apple SD Gothic Neo", "Noto Sans KR", Roboto, sans-serif;
+  font-family: 'Pretendard Variable', 'Pretendard', 'Apple SD Gothic Neo',
+    'Malgun Gothic', system-ui, sans-serif;
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   display: flex;
@@ -933,28 +935,33 @@ mark.expr-hl { background: #fde68a; color: #1f2937; border-radius: 3px; padding:
 .script-detail .ma-tag .ma-tag-ic { color: var(--sd-primary); }
 .script-detail .sd-level {
   flex: none; font-size: .72rem; font-weight: 800; letter-spacing: .02em; color: #fff;
-  background: var(--sd-grad); padding: 3px 10px; border-radius: 999px;
-  box-shadow: 0 4px 10px -4px rgba(47,109,240,.6);
+  background: #2a3268; padding: 3px 10px; border-radius: 999px;
 }
 .script-detail .tts-group { margin-left: auto; }
 
-/* 듣기 버튼 — 그라데이션 채운 라운드 사각 + 흰 아이콘 */
+/* 듣기 버튼 — 솔리드/그림자 없이 파스텔 톤 */
 .script-detail .icon-btn-sm.icon-accent {
-  color: #fff; background: var(--sd-grad); border: 0; border-radius: 12px;
-  box-shadow: 0 6px 14px -6px rgba(47,109,240,.7);
+  color: #7197e8; background: #eef4ff; border: 1px solid #dbe7ff; border-radius: 12px;
+  box-shadow: none; filter: none;
 }
-.script-detail .icon-btn-sm.icon-accent:hover { filter: brightness(1.06); background: var(--sd-grad); }
+.script-detail .icon-btn-sm.icon-accent:hover { background: #e6efff; border-color: #c5d8fb; color: #4a78dd; filter: none; }
 .script-detail .icon-btn-sm.icon-accent.playing,
-.script-detail .icon-btn-sm.icon-accent.paused { color: #fff; background: var(--sd-grad); border-style: solid; }
+.script-detail .icon-btn-sm.icon-accent.paused { color: #4a78dd; background: #e6efff; border: 1px solid #c5d8fb; }
 
-/* 속도 버튼 — 연한 인디고 + 인디고 테두리 + 작은 그라데이션 점 */
-.script-detail .tts-speed {
-  display: inline-flex; align-items: center; gap: 5px;
-  color: var(--sd-strong); background: var(--sd-tint);
-  border: 1px solid var(--sd-tint-bd); border-radius: 999px;
+/* 배속 — 점 3개 스텝 컨트롤 (연결선으로 이어진 점 + 값 텍스트) */
+.script-detail .speed-dots { display: inline-flex; align-items: center; gap: 8px; }
+.script-detail .speed-rail { position: relative; display: inline-flex; align-items: center; gap: 14px; padding: 4px 4px; }
+.script-detail .speed-line {
+  content: ""; position: absolute; left: 7px; right: 7px; top: 50%; height: 2px;
+  transform: translateY(-50%); background: #dbe7ff; border-radius: 2px;
 }
-.script-detail .tts-speed:hover { background: #fff; border-color: var(--sd-primary); color: var(--sd-strong); }
-.script-detail .tts-speed::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--sd-grad); }
+.script-detail .speed-dot {
+  position: relative; z-index: 1; width: 8px; height: 8px; padding: 0; border: 0;
+  border-radius: 50%; background: #cdd9f3; cursor: pointer;
+  transition: width .18s ease, height .18s ease, background .18s ease, box-shadow .18s ease;
+}
+.script-detail .speed-dot.on { width: 11px; height: 11px; background: #5b8def; box-shadow: 0 0 0 3px #e6efff; }
+.script-detail .speed-val { font-size: 11px; font-weight: 700; color: #4170c9; min-width: 26px; }
 
 /* eyebrow */
 .script-detail .ss-eyebrow { color: var(--sd-faint); }
@@ -993,18 +1000,19 @@ mark.expr-hl { background: #fde68a; color: #1f2937; border-radius: 3px; padding:
 .script-detail .step-list { position: relative; padding-left: 18px; margin-top: 2px; }
 .script-detail .step-list::before {
   content: ""; position: absolute; left: 5px; top: 4px; bottom: 4px; width: 3px; border-radius: 3px;
-  background: linear-gradient(180deg, #1d4ed8, #0f766e 38%, #c2410c 70%, #7c3aed);
+  background: linear-gradient(180deg, #2f6bed, #5a55e0 38%, #8246d8 68%, #9b3fd1);
 }
-.script-detail .step-row { display: grid; grid-template-columns: 60px 1fr; gap: 10px; align-items: start; padding: 7px 0; }
+.script-detail .step-row { display: grid; grid-template-columns: 60px 1fr; gap: 10px; align-items: start; padding: 13px 0; }
+.script-detail .step-row + .step-row { border-top: 1px solid #f1f2f6; }
 .script-detail .step-label {
   display: inline-block; width: 100%; text-align: center; font-size: .72rem; font-weight: 800;
   padding: 3px 0; border-radius: 999px; border: 1px solid; box-sizing: border-box;
 }
 .script-detail .step-text { color: var(--sd-text); line-height: 1.6; }
-.script-detail .step-c0 { color: #1d4ed8; border-color: #bfdbfe; background: #eff4ff; }
-.script-detail .step-c1 { color: #0f766e; border-color: #9ceee2; background: #e6faf6; }
-.script-detail .step-c2 { color: #c2410c; border-color: #fed3a8; background: #fff3ea; }
-.script-detail .step-c3 { color: #7c3aed; border-color: #ddd0fe; background: #f4edff; }
+.script-detail .step-c0 { color: #2f6bed; border-color: #d3e3fd; background: #eaf1fe; }
+.script-detail .step-c1 { color: #5a55e0; border-color: #ddd9f8; background: #eeedfc; }
+.script-detail .step-c2 { color: #8246d8; border-color: #e6d9f6; background: #f3ecfb; }
+.script-detail .step-c3 { color: #9b3fd1; border-color: #efd6f4; background: #f7ecfb; }
 
 /* 키워드 뷰 — 쿨 슬레이트 칩 + → 구분자 + 안내박스 */
 .script-detail .kw-chips { display: flex; flex-wrap: wrap; align-items: center; gap: 7px; }
@@ -1020,26 +1028,42 @@ mark.expr-hl { background: #fde68a; color: #1f2937; border-radius: 3px; padding:
 }
 .script-detail .kw-note strong { color: #3a4358; }
 
-/* 해석 / 한글발음 — 감싸던 회색 알약 블럭 제거 (버튼만 노출) */
-.script-detail .ma-actions { background: transparent; border: 0; padding: 0; gap: 8px; margin-top: 12px; }
-/* 해석 / 한글발음 버튼 — 쿨 슬레이트(흰 배경 + 슬레이트 테두리/글씨, 아이콘 별도 톤) */
+/* 해석 / 한글발음 — 감싸던 회색 컨테이너 없이 둥근 토글 칩 2개만 나란히 */
+.script-detail .ma-actions { display: flex; background: transparent; border: 0; padding: 0; gap: 8px; margin-top: 12px; }
+/* 토글 칩(pill) — 켜고 끄는 on/off를 칩 색으로 표시 */
 .script-detail .ma-sub {
-  color: #3f4757; background: #fff; border: 1px solid #e0e4ec; border-radius: 9px;
-  transition: transform .15s ease, box-shadow .15s ease, background .15s ease, border-color .15s ease;
+  display: inline-flex; align-items: center; gap: 6px;
+  color: #566073; background: #fff; border: 1px solid #e0e4ec; border-radius: 999px;
+  padding: 7px 14px; font-weight: 600;
+  transition: background .15s ease, border-color .15s ease, color .15s ease;
 }
-.script-detail .ma-sub svg { stroke: #64708a; color: #64708a; }
-.script-detail .ma-sub:hover { background: #f4f6fa; border-color: #cdd4e2; box-shadow: 0 6px 14px -9px rgba(70,80,106,.35); transform: translateY(-1px); }
-.script-detail .ma-sub.on { color: #2f3647; background: #e9edf4; border-color: #cdd4e2; }
-.script-detail .ma-sub.on svg { stroke: #51607d; color: #51607d; }
+.script-detail .ma-sub svg { stroke: #8a93a6; color: #8a93a6; }
+.script-detail .ma-sub:hover { background: #f7f9fc; border-color: #d3d9e4; box-shadow: none; transform: none; }
+.script-detail .ma-sub.on { color: #1d4ed8; background: #eef3ff; border-color: #cfe0ff; }
+.script-detail .ma-sub.on svg { stroke: #2563eb; color: #2563eb; }
 
-/* 섹션 헤더 아이콘 — 그라데이션 배지 안에 흰 라인 아이콘 */
-.script-detail .ss-tips h4 { display: flex; align-items: center; gap: 8px; color: var(--sd-text); }
-.script-detail .sd-hicon {
-  display: inline-flex; align-items: center; justify-content: center; flex: none;
-  width: 26px; height: 26px; border-radius: 8px; background: var(--sd-grad); color: #fff;
-  box-shadow: 0 5px 12px -5px rgba(47,109,240,.65);
+/* 섹션 구분 — 컬러 아이콘 배지 제거, 굵은 제목 + 위쪽 연한 구분선만 */
+.script-detail .ss-tips,
+.script-detail .script-rec-sec { border-top: 1px solid var(--sd-divider); padding-top: 16px; margin-top: 18px; }
+.script-detail .ss-tips h4 { color: var(--sd-text); font-size: .95rem; font-weight: 800; margin: 0 0 10px; }
+
+/* 녹음 연습 — 연한 패널 + 가운데 원형 녹음 버튼 */
+.script-detail .rec-panel {
+  display: flex; flex-direction: column; align-items: center; gap: 10px;
+  background: #f7f8fb; border: 1px solid #ebedf2; border-radius: 14px; padding: 20px 16px;
 }
-.script-detail .sd-hicon svg { stroke: #fff; }
+.script-detail .rec-circle {
+  width: 54px; height: 54px; padding: 0; border: 0; border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center;
+  color: #fff; background: #5b8def; cursor: pointer;
+  box-shadow: 0 6px 16px -5px rgba(91,141,239,.45);
+  transition: background .15s ease, transform .15s ease, box-shadow .15s ease;
+}
+.script-detail .rec-circle:hover { background: #4a78dd; transform: translateY(-2px); box-shadow: 0 10px 20px -6px rgba(91,141,239,.5); }
+.script-detail .rec-circle svg { stroke: #fff; }
+.script-detail .rec-cta { font-size: 13px; font-weight: 700; color: #2b3340; }
+.script-detail .rec-panel-note { margin: 2px 0 0; font-size: 11px; line-height: 1.5; color: #9aa1ad; text-align: center; }
+.script-detail .rec-panel .script-rec-status { width: 100%; }
 
 .scripts-empty { text-align: center; padding: 40px 16px; display: flex; flex-direction: column; align-items: center; gap: 14px; }
 .scripts-empty .primary-btn { min-width: 160px; }

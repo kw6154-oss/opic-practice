@@ -685,6 +685,43 @@
     return b;
   }
 
+  // 스크립트 상세: 배속 점 3개 스텝 컨트롤 (0.75x / 1x / 1.25x) — 연결선으로 이어진 점 + 값 텍스트
+  function makeSpeedDots() {
+    var wrap = el("div", "speed-dots");
+    wrap.setAttribute("role", "group");
+    wrap.setAttribute("aria-label", "재생 속도");
+    var rail = el("div", "speed-rail");
+    rail.appendChild(el("span", "speed-line"));
+    var valTxt = el("span", "speed-val");
+    var dots = [];
+    function sync() {
+      var idx = TTS_RATES.indexOf(Storage.getTtsRate());
+      if (idx < 0) idx = 1; // 기본 활성 1x(가운데)
+      dots.forEach(function (d, i) { d.classList.toggle("on", i === idx); });
+      valTxt.textContent = TTS_RATES[idx] + "x";
+    }
+    TTS_RATES.forEach(function (rate) {
+      var dot = el("button", "speed-dot");
+      dot.type = "button";
+      dot.title = rate + "x";
+      dot.setAttribute("aria-label", rate + "x 배속");
+      dot.addEventListener("click", function (e) {
+        e.stopPropagation();
+        Storage.setTtsRate(rate);
+        sync();
+        // 다른 화면의 속도 배지(.tts-speed)도 동기화 (다음 재생부터 적용)
+        var all = document.querySelectorAll(".tts-speed");
+        for (var k = 0; k < all.length; k++) all[k].textContent = rate + "x";
+      });
+      dots.push(dot);
+      rail.appendChild(dot);
+    });
+    wrap.appendChild(rail);
+    wrap.appendChild(valTxt);
+    sync();
+    return wrap;
+  }
+
   // 설정 화면: 영어 음성 드롭다운 채우기 (voiceschanged로 비동기 로드 후 재호출)
   function refreshVoiceSelect() {
     var sel = $("ttsVoice");
@@ -2631,10 +2668,11 @@
     if (scriptRec.session) { try { scriptRec.session.stop(); } catch (e) {} scriptRec.session = null; }
     if (scriptRec.url) { try { URL.revokeObjectURL(scriptRec.url); } catch (e) {} scriptRec.url = null; }
   }
-  function scriptStartRec(recBtn, statusEl) {
+  function scriptStartRec(recBtn, statusEl, labelEl) {
     stopScriptRec();
     if (window.speechSynthesis) window.speechSynthesis.cancel();
     recBtn.style.display = "none";
+    if (labelEl) labelEl.style.display = "none";
     statusEl.innerHTML = "";
     var bar = el("div", "rec-bar");
     var dot = el("span", "rec-dot");
@@ -2661,13 +2699,15 @@
           statusEl.appendChild(el("div", "muted small", "녹음을 재생할 수 없어요."));
         }
         recBtn.style.display = "";
-        recBtn.innerHTML = SD_MIC_ICON + '<span>다시 녹음</span>';
+        recBtn.innerHTML = SD_MIC_ICON; // 원형 버튼은 아이콘만 유지
+        if (labelEl) { labelEl.style.display = ""; labelEl.textContent = "탭해서 다시 녹음"; }
       });
     }).catch(function () {
       scriptRec.session = null;
       statusEl.innerHTML = "";
       statusEl.appendChild(el("div", "error-box", "마이크를 사용할 수 없습니다. 마이크 권한을 확인하세요."));
       recBtn.style.display = "";
+      if (labelEl) labelEl.style.display = "";
     });
   }
 
@@ -2678,14 +2718,13 @@
     host.innerHTML = "";
     var box = el("div", "model-answer script-result script-detail");
 
-    // 헤더 (주제·레벨 + 듣기)
+    // 헤더 (레벨 배지 → 주제 + 배속·듣기)
     var head = el("div", "ma-head");
-    var maTag = el("span", "ma-tag");
-    maTag.innerHTML = '<svg class="ma-tag-ic" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>';
-    maTag.appendChild(document.createTextNode(" " + String(sc.topicLabel || "").replace(/^✍️?\s*/, "")));
-    head.appendChild(maTag);
     if (sc.level) head.appendChild(el("span", "sd-level", sc.level));
-    // 듣기: 텍스트 없는 스피커 아이콘 버튼(연회색 테두리·hover 파랑·재생 중 파랑)
+    var maTag = el("span", "ma-tag");
+    maTag.appendChild(document.createTextNode(String(sc.topicLabel || "").replace(/^✍️?\s*/, "")));
+    head.appendChild(maTag);
+    // 듣기: 텍스트 없는 스피커 아이콘 버튼(파스텔 톤)
     var tts = el("button", "icon-btn-sm icon-accent");
     tts.type = "button";
     tts.title = "질문 듣기";
@@ -2695,8 +2734,8 @@
       var spoken = sc.answer || (sc.cards && sc.cards.map(function (c) { return c.en; }).join(" ")) || "";
       playWithState(tts, spoken);
     });
-    var scListen = el("span", "tts-group"); // 듣기 + 속도 배지 (제목 줄 오른쪽 끝)
-    scListen.appendChild(tts); scListen.appendChild(makeSpeedBadge());
+    var scListen = el("span", "tts-group"); // 배속(왼쪽) + 듣기(오른쪽), 제목 줄 오른쪽 끝
+    scListen.appendChild(makeSpeedDots()); scListen.appendChild(tts);
     head.appendChild(scListen);
     box.appendChild(head);
 
@@ -2745,7 +2784,7 @@
       if (hasStruct || hasKw) {
         var modes = [["full", "전체 보기"]];
         if (hasStruct) modes.push(["label", "단계 라벨"]);
-        if (hasKw) modes.push(["keyword", "키워드만"]);
+        if (hasKw) modes.push(["keyword", "키워드"]);
         var seg = el("div", "view-mode-seg");
         var ind = el("span", "vm-indicator");
         seg.appendChild(ind);
@@ -2793,8 +2832,7 @@
     // 주제 표현 섹션
     if (sc.expressions && sc.expressions.length) {
       var ex = el("div", "ma-tips ss-tips");
-      var exH = el("h4", null);
-      exH.innerHTML = '<span class="sd-hicon">' + ICON.tag + '</span><span>주제 표현</span>';
+      var exH = el("h4", null, "주제 표현");
       ex.appendChild(exH);
       sc.expressions.forEach(function (e) {
         // 영어(파랑) 위 / 한글 뜻(회색) 아래 — 2줄 구조
@@ -2831,8 +2869,7 @@
     // 다르게 말하기 섹션 (패러프레이즈)
     if (sc.paraphrases && sc.paraphrases.length) {
       var pp = el("div", "ma-tips ss-tips");
-      var ppH = el("h4", null);
-      ppH.innerHTML = '<span class="sd-hicon"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg></span><span>다르게 말하기</span>';
+      var ppH = el("h4", null, "다르게 말하기");
       pp.appendChild(ppH);
       sc.paraphrases.forEach(function (para) {
         var row = el("div", "para-row");
@@ -2856,8 +2893,7 @@
       var bullets = tipsToBullets(sc.tips);
       if (bullets.length) {
         var tw = el("div", "ma-tips ss-tips");
-        var twH = el("h4", null);
-        twH.innerHTML = '<span class="sd-hicon">' + ICON.bulb + '</span><span>팁</span>';
+        var twH = el("h4", null, "팁");
         tw.appendChild(twH);
         var ul = document.createElement("ul");
         bullets.forEach(function (t) { ul.appendChild(el("li", null, t)); });
@@ -2872,16 +2908,20 @@
     if (!Speech.recordSupported()) {
       recSec.appendChild(el("p", "muted small", "이 브라우저는 녹음을 지원하지 않아요. Chrome/Edge를 권장해요."));
     } else {
-      var recBox = el("div", "script-rec");
-      var recBtn = el("button", "run-btn primary", "");
-      recBtn.innerHTML = SD_MIC_ICON + '<span>녹음 시작</span>';
+      var recBox = el("div", "script-rec rec-panel");
+      var recBtn = el("button", "rec-circle", "");
+      recBtn.innerHTML = SD_MIC_ICON;
       recBtn.type = "button";
+      recBtn.title = "녹음 시작";
+      recBtn.setAttribute("aria-label", "녹음 시작");
+      var recLabel = el("div", "rec-cta", "탭해서 녹음 시작");
       var recStatus = el("div", "script-rec-status");
-      recBtn.addEventListener("click", function () { scriptStartRec(recBtn, recStatus); });
+      recBtn.addEventListener("click", function () { scriptStartRec(recBtn, recStatus, recLabel); });
       recBox.appendChild(recBtn);
+      recBox.appendChild(recLabel);
       recBox.appendChild(recStatus);
+      recBox.appendChild(el("p", "rec-panel-note", "※ 녹음은 이 화면에서만 들을 수 있어요. 저장되지 않습니다."));
       recSec.appendChild(recBox);
-      recSec.appendChild(el("p", "eval-note", "※ 녹음은 이 화면에서만 들을 수 있어요. 저장되지 않습니다."));
     }
     box.appendChild(recSec);
 
