@@ -1,70 +1,111 @@
 /* =========================================================
-   sample-scripts.js — 기본 샘플 스크립트 3개 (카페/여행/하이킹)
+   sample-scripts.js — 기본 샘플 스크립트 5개 (공원·조깅 / 카페·음악 / K-pop·콘서트 / 여행 / 쇼핑·술집)
    키 없는 사용자도 결과물을 미리 볼 수 있도록 내장.
    저장한 스크립트와 동일한 데이터 구조 (sample:true, extras 포함 → 해석/발음 오프라인).
+   원본: new_opic_scripts.md — [English Script]→answer, [한국어 뜻]→extras.ko, [원어민 발음 표기]→extras.pron
    ========================================================= */
 (function (global) {
   "use strict";
 
   var SAMPLE_SCRIPTS = [
     {
-      id: "sample-cafe", sample: true, ts: 1735689600000,
-      topicId: null, topicLabel: "단골 카페", level: "IM2",
-      question: "Let's talk about cafes. Can you describe a cafe you like to go to? What does it look like, and what do you usually do there?",
-      answer: "Sure. My favorite cafe is a small place near my house. It has big windows and a lot of plants, so it feels really cozy. I usually go there on weekends. I order an iced americano and sit by the window. Sometimes I read a book, and sometimes I just listen to music. The staff are very friendly, and they even remember my order. I like it because it is quiet and comfortable. For me, it is a perfect place to relax.",
+      id: "sample-park", sample: true, ts: 1735689600000,
+      topicId: "jogging", topicLabel: "공원 + 조깅 / 걷기", level: "IH",
+      question: "Let's talk about how you relax. What do you do to clear your mind when you feel stressed? Tell me about a place you like to go.",
+      answer: "Whenever I'm feeling overwhelmed, my go-to place is a park about ten minutes from my apartment. I'll be honest — I'm job hunting at the moment, and the constant waiting for results gets to me more than I'd like to admit. So when my head feels cluttered, I throw on my running shoes and head out. I usually start with a slow jog along the river trail and then cool down with a long walk. There's something about the rhythm of running and the cool morning air that just resets my brain. By the time I get home, the problems that felt huge an hour earlier somehow seem a lot smaller. It's honestly the cheapest therapy I know.",
       expressions: [
-        { en: "a cozy atmosphere", ko: "아늑한 분위기" },
-        { en: "sit by the window", ko: "창가에 앉다" },
-        { en: "a perfect place to relax", ko: "쉬기에 딱 좋은 곳" }
+        { en: "my go-to place", ko: "내가 늘 찾는 곳, 단골 장소" },
+        { en: "gets to me", ko: "나를 힘들게 하다, 신경 쓰이게 하다" },
+        { en: "resets my brain", ko: "머리를 리셋시켜 주다" }
       ],
       tips: [
-        "usually, sometimes, on weekends 같은 빈도 표현으로 자연스럽게 시작하세요.",
-        "there is/are와 형용사(cozy, friendly)로 묘사하면 IM2 수준에 잘 맞아요."
+        "feeling overwhelmed, gets to me 같은 감정 표현으로 도입을 자연스럽게 시작하세요.",
+        "the cheapest therapy I know 같은 비유로 마무리하면 인상이 강해져요."
       ],
-      levelNote: "단순 명료한 문장과 현재 시제 위주로 구성해 IM2 수준에 적합합니다.",
+      levelNote: "다양한 시제와 감정 묘사, 연결어로 한 문단을 자연스럽게 이어 IH 수준에 적합합니다.",
       extras: {
-        ko: "네. 제가 제일 좋아하는 카페는 집 근처에 있는 작은 곳이에요. 큰 창문과 식물이 많아서 정말 아늑한 느낌이 들어요. 저는 보통 주말에 거기 가요. 아이스 아메리카노를 시키고 창가에 앉죠. 가끔은 책을 읽고, 가끔은 그냥 음악을 들어요. 직원분들이 아주 친절하고 제 주문까지 기억해줘요. 조용하고 편안해서 좋아요. 저한테는 쉬기에 딱 좋은 곳이에요.",
-        pron: "슈어. 마이 페이버릿 카페 이즈 어 스몰 플레이스 니어 마이 하우스. 잇 해즈 빅 윈도우즈 앤 어 라럽 플랜츠, 쏘 잇 필즈 리얼리 코지. 아이 유주얼리 고우 데어 온 위켄즈. 아이 오더 언 아이스트 아메리카노 앤 씻 바이 더 윈도우. 썸타임즈 아이 리드 어 북, 앤 썸타임즈 아이 저슷 리쓴 투 뮤직. 더 스태프 아 베리 프렌들리, 앤 데이 이븐 리멤버 마이 오더. 아이 라익 잇 비커즈 잇츠 콰이엇 앤 컴퍼터블. 포 미, 잇츠 어 퍼펙트 플레이스 투 릴랙스."
+        ko: "뭔가에 압도당하는 기분이 들 때면, 제가 늘 찾는 곳은 집에서 10분쯤 떨어진 공원이에요. 솔직히 말하면 지금 취업 준비 중이라, 결과를 계속 기다리는 게 인정하고 싶은 것보다 더 힘들거든요. 그래서 머릿속이 복잡해지면 러닝화를 신고 그냥 나가요. 보통 강변 산책로를 따라 천천히 조깅하다가 긴 걷기로 마무리해요. 달리는 리듬이랑 선선한 아침 공기에는 뭔가 머리를 리셋시켜 주는 게 있어요. 집에 돌아올 때쯤이면, 한 시간 전엔 거대해 보였던 고민들이 어쩐지 훨씬 작게 느껴져요. 솔직히 제가 아는 가장 값싼 치료법이에요.",
+        pron: "웬에붤 아임 필링 오우벌웰름드, 마이 고우-투 플레이스 이저 팍 어바웃 텐 미닛츠 프럼 마이 아팟먼(트). 아일 비 아-니스트 — 아임 좝 헌팅 앳 더 모먼트, 앤 더 칸스턴트 웨이링 풔 뤼절츠 겟츠 투 미 모어 댄 아이드 라익 투 엇밋. 쏘 웬 마이 헤드 필즈 클러러드, 아이 쓰로우 온 마이 뤄닝 슈즈 앤 헤드 아웃. 아 유절리 스탓 위더 슬로우 좍 얼롱 더 뤼버 츄뤠일 앤 덴 쿨 다운 위더 롱 웤. 데얼즈 썸띵 어바웃 더 뤼듬 어브 뤄닝 앤 더 쿨 모닝 에얼 댓 저슷 뤼셋츠 마이 브뤠인. 바이 더 타임 아이 겟 홈, 더 프롸블럼즈 댓 펠트 휴-지 언 아워 얼리어 썸하우 씸 어 랏 스몰러. 이츠 아-니슬리 더 칲이스트 떼뤄피 아이 노우."
       }
     },
     {
-      id: "sample-trip", sample: true, ts: 1735603200000,
-      topicId: null, topicLabel: "여행 경험", level: "IH",
-      question: "I'd like to ask about a memorable trip. Tell me about a trip you took recently. Where did you go, who did you go with, and what made it special?",
-      answer: "Last fall, I went on a trip to Gyeongju with two of my close friends. We had been planning it for a while, so we were all really excited. We stayed for two days and visited a lot of historical places like Bulguksa Temple. What made the trip special was the atmosphere — the streets were full of golden leaves, and everything felt calm and peaceful. On the second day, it suddenly started raining, but instead of getting upset, we just found a cozy cafe and talked for hours. Honestly, that unexpected moment turned out to be my favorite part. Even though it wasn't a long trip, it was so memorable that I still talk about it with my friends. I'd love to go back someday.",
+      id: "sample-cafe", sample: true, ts: 1735603200000,
+      topicId: "cafe", topicLabel: "카페 + 음악 감상", level: "IH",
+      question: "Let's talk about cafes. Tell me about a cafe you go to and what you usually do there.",
+      answer: "I'm a bit of a cafe person, to be honest. There's this cozy little place around the corner from where I live, and I've practically become a regular there. Since I live alone, my apartment can feel a little too quiet sometimes, so the cafe is where I go to feel surrounded by people without actually having to talk to anyone. I'll grab an iced americano, put my earphones in, and lose myself in whatever playlist I'm into that week — lately it's been a lot of mellow R&B. There's a certain comfort in the background hum of the espresso machine and the quiet chatter. That hour or two completely recharges me. It's the part of my day I look forward to the most.",
       expressions: [
-        { en: "had been planning it for a while", ko: "한동안 계획해 오던 중이었다" },
-        { en: "turned out to be", ko: "결국 ~이 되었다" },
-        { en: "so memorable that ~", ko: "너무 기억에 남아서 ~할 정도다" }
+        { en: "become a regular", ko: "단골이 되다" },
+        { en: "lose myself in", ko: "~에 푹 빠져들다" },
+        { en: "recharges me", ko: "나를 재충전시켜 주다" }
       ],
       tips: [
-        "과거 시제와 과거완료(had been planning)를 섞으면 IH다운 시간 흐름이 살아나요.",
-        "even though, what made it special 같은 연결어로 문장을 유기적으로 이어보세요."
+        "become a regular, lose myself in 같은 표현으로 일상 습관을 생생하게 묘사하세요.",
+        "since I live alone처럼 이유를 덧붙이면 담화가 풍부해져요."
       ],
-      levelNote: "다양한 시제와 연결어로 한 문단을 자연스럽게 구성해 IH 수준에 적합합니다.",
+      levelNote: "구체적 상황 설명과 연결어로 자연스럽게 문단을 구성해 IH 수준에 적합합니다.",
       extras: {
-        ko: "지난 가을, 저는 친한 친구 두 명과 경주로 여행을 갔어요. 한동안 계획해 오던 거라 다들 정말 들떠 있었죠. 이틀 동안 머물면서 불국사 같은 역사적인 장소를 많이 둘러봤어요. 그 여행을 특별하게 만든 건 분위기였어요 — 거리마다 노란 단풍이 가득했고, 모든 게 차분하고 평화로웠거든요. 둘째 날에는 갑자기 비가 내렸는데, 짜증 내는 대신 그냥 아늑한 카페를 찾아 몇 시간이나 이야기했어요. 솔직히 그 예상치 못한 순간이 제일 좋았던 부분이 됐어요. 긴 여행은 아니었지만, 너무 기억에 남아서 아직도 친구들이랑 그 얘기를 해요. 언젠가 꼭 다시 가보고 싶어요.",
-        pron: "라슷 폴, 아이 웬트 온 어 트립 투 경주 윋 투 옵 마이 클로우즈 프렌즈. 위 해드 빈 플래닝 잇 포 어 와일, 쏘 위 워 올 리얼리 익사이팃. 위 스테이드 포 투 데이즈 앤 비짓팃 어 라럽 히스토리컬 플레이씨즈 라익 불국사 템플. 왓 메읻 더 트립 스페셜 워즈 디 앳모스피어 — 더 스트릿츠 워 풀 옵 골든 리브즈, 앤 에브리띵 펠트 캄 앤 피스풀. 온 더 세컨 데이, 잇 써든리 스타릿 레이닝, 벗 인스테덥 게링 업셋, 위 저슷 파운드 어 코지 카페 앤 토크트 포 아워즈. 어니슬리, 댓 언익스펙팃 모먼트 턴드 아웃 투 비 마이 페이버릿 파트. 이븐 도우 잇 워즌트 어 롱 트립, 잇 워즈 쏘 메모러블 댓 아이 스틸 토크 어바웃 잇 윋 마이 프렌즈. 아이드 럽 투 고우 백 썸데이."
+        ko: "솔직히 저는 카페를 좀 좋아하는 사람이에요. 집 모퉁이를 돌면 아늑한 작은 카페가 하나 있는데, 사실상 단골이 됐어요. 혼자 살다 보니 집이 가끔 너무 조용하게 느껴져서, 굳이 누구랑 말하지 않아도 사람들 속에 있는 기분을 느끼고 싶을 때 그 카페에 가요. 아이스 아메리카노를 한 잔 시키고 이어폰을 꽂은 다음, 그 주에 빠져 있는 플레이리스트에 푹 빠져들어요. 요즘은 잔잔한 R&B를 많이 들어요. 에스프레소 머신 소리랑 나직한 대화 소리에는 묘한 편안함이 있어요. 그 한두 시간이 저를 완전히 충전시켜 줘요. 하루 중 가장 기다려지는 시간이에요.",
+        pron: "아임 어 빗 어버 카페이 펄슨, 투비 아-니스트. 데얼즈 디스 코지 리를 플레이스 어롸운 더 코너 프럼 웨어 아이 리브, 앤 아이브 프뢕티클리 비컴 어 뤠귤러 데얼. 씬스 아이 리브 얼론, 마이 아팟먼트 캔 필 어 리를 투 콰이엇 썸타임즈, 쏘 더 카페이 이즈 웨어 아이 고 투 필 써롸운디드 바이 피플 위다웃 액츌리 해빙 투 톡 투 에니원. 아일 그뢥 언 아이스트 어메뤼카노, 풋 마이 이어폰즈 인, 앤 루즈 마이셀프 인 웟에버 플레이리슷 아임 인투 댓 윅 — 레잇리 잇츠 빈 어 라러브 멜로우 알앤비. 데얼저 써튼 컴풔트 인 더 백그롸운(드) 험 어브 디 에스프뤠소 머쉰 앤 더 콰이엇 채러. 댓 아워 오어 투 컴플릿리 뤼차쥐스 미. 이츠 더 팟 어브 마이 데이 아이 룩 풔워드 투 더 모스트."
       }
     },
     {
-      id: "sample-hike", sample: true, ts: 1735516800000,
-      topicId: null, topicLabel: "하이킹", level: "AL",
-      question: "Let's talk about hiking. Tell me about your experience with hiking. How did you get into it, and what does it mean to you these days?",
-      answer: "Honestly, I never expected to become a hiking person. A few years ago, a friend dragged me along to a nearby mountain, and to be honest, I complained the entire way up. But the moment I reached the top and saw the view, something just clicked. Ever since then, I've made it a point to hike at least twice a month, regardless of how busy I am. What I love about it isn't just the exercise — it's the sense of clarity I get when I'm surrounded by nature, with no notifications buzzing in my pocket. There's something incredibly grounding about putting one foot in front of the other for hours. Of course, not every hike goes smoothly; I've had my fair share of unexpected rain and sore knees. But if anything, those challenges have taught me patience. Looking back, what started as a reluctant favor to a friend has genuinely reshaped how I deal with stress. These days, hiking is less of a hobby and more of a ritual for me.",
+      id: "sample-kpop", sample: true, ts: 1735516800000,
+      topicId: "concert", topicLabel: "K-pop + BTS + 콘서트", level: "AL",
+      question: "Let's talk about music. What kind of music do you enjoy, and have you ever been to a concert? Tell me about it.",
+      answer: "If there's one thing I can talk about forever, it's K-pop. The production, the choreography, the way a hook gets stuck in your head for days — I'm completely hooked. BTS has been my favorite group for years, and I actually got to see them live last year. I still remember walking into that stadium and feeling the floor literally vibrate from the crowd. Listening to their songs through earphones is great, but it's nothing compared to singing every word at the top of your lungs with thousands of other fans. By the end of the night my voice was gone and my legs were sore, but I had the biggest smile on my face. If I had the chance, I'd go again in a heartbeat.",
       expressions: [
-        { en: "something just clicked", ko: "(갑자기) 딱 와닿았다 / 흥미가 생겼다" },
-        { en: "make it a point to ~", ko: "꼭 ~하려고 챙기다" },
-        { en: "if anything", ko: "오히려" }
+        { en: "completely hooked", ko: "완전히 빠져 있는, 푹 빠진" },
+        { en: "at the top of your lungs", ko: "목청껏" },
+        { en: "in a heartbeat", ko: "망설임 없이, 순식간에" }
       ],
       tips: [
-        "현재완료(I've made it a point, have taught)와 관용표현으로 정교함을 보여주세요.",
-        "단순 사실 나열을 넘어 의미·변화(reshaped how I deal with stress)로 마무리하면 AL에 어울려요."
+        "completely hooked, at the top of your lungs 같은 관용표현으로 열정을 드러내세요.",
+        "이어폰 감상과 라이브 경험을 대비(nothing compared to)시키면 AL다운 전개가 돼요."
       ],
-      levelNote: "관용구·다양한 시제·논리적 전개로 길고 정교한 담화를 구성해 AL 수준에 적합합니다.",
+      levelNote: "관용표현·생생한 묘사·논리적 전개로 길고 정교한 담화를 구성해 AL 수준에 적합합니다.",
       extras: {
-        ko: "솔직히 제가 하이킹을 즐기는 사람이 될 줄은 몰랐어요. 몇 년 전, 친구가 저를 근처 산에 끌고 갔는데, 솔직히 올라가는 내내 불평했어요. 그런데 정상에 올라 그 풍경을 본 순간, 뭔가 딱 와닿더라고요. 그때부터 저는 아무리 바빠도 한 달에 최소 두 번은 꼭 산에 가려고 챙겨요. 제가 좋아하는 건 단순히 운동만이 아니에요 — 주머니에서 알림이 울리지 않는 채로 자연에 둘러싸여 있을 때 느끼는 그 맑은 기분이죠. 몇 시간씩 한 걸음 한 걸음 내딛는 데에는 묘하게 마음을 단단하게 해주는 게 있어요. 물론 모든 산행이 순탄한 건 아니에요. 예상치 못한 비와 무릎 통증도 꽤 겪었죠. 하지만 오히려 그런 어려움이 저에게 인내심을 가르쳐줬어요. 돌이켜보면, 친구를 위한 마지못한 부탁으로 시작한 일이 제가 스트레스를 다루는 방식을 진짜로 바꿔놨어요. 요즘 하이킹은 저에게 취미라기보다 하나의 의식 같은 거예요.",
-        pron: "어니슬리, 아이 네버 익스펙팃 투 비컴 어 하이킹 펄슨. 어 퓨 이어즈 어고우, 어 프렌드 드래그드 미 얼롱 투 어 니어바이 마운튼, 앤 투 비 어니슷, 아이 컴플레인드 디 엔타이어 웨이 업. 벗 더 모먼트 아이 리치트 더 탑 앤 쏘 더 뷰, 썸띵 저슷 클릭트. 에버 씬스 덴, 아이브 메이드 잇 어 포인트 투 하익 앳 리스트 트와이스 어 먼쓰, 리가들리스 옵 하우 비지 아이 엠. 왓 아이 럽 어바웃 잇 이즌트 저슷 디 엑서사이즈 — 잇츠 더 센스 옵 클래러티 아이 겟 웬 아임 써라운딧 바이 네이처, 윋 노우 노티피케이션즈 버징 인 마이 파킷. 데어즈 썸띵 인크레더블리 그라운딩 어바웃 푸링 원 풋 인 프런트 옵 디 어더 포 아워즈. 옵 코스, 낫 에브리 하익 고우즈 스무들리; 아이브 해드 마이 페어 셰어 옵 언익스펙팃 레인 앤 쏘어 니즈. 벗 이프 에니띵, 도우즈 챌린지즈 햅 토트 미 페이션스. 루킹 백, 왓 스타릿 애즈 어 릴럭턴트 페이버 투 어 프렌드 해즈 제뉴인리 리셰입트 하우 아이 딜 윋 스트레스. 디즈 데이즈, 하이킹 이즈 레스 옵 어 하비 앤 모어 옵 어 리추얼 포 미."
+        ko: "제가 끝없이 떠들 수 있는 게 하나 있다면, 그건 K팝이에요. 그 완성도, 안무, 후렴구가 며칠씩 머릿속에 맴도는 그 느낌까지 — 완전히 빠져 있어요. BTS는 몇 년째 제가 가장 좋아하는 그룹인데, 작년에 실제로 라이브로 봤어요. 그 경기장에 들어서면서 관중 때문에 바닥이 말 그대로 울리는 걸 느꼈던 게 아직도 기억나요. 이어폰으로 노래를 듣는 것도 좋지만, 수천 명의 다른 팬들과 목청껏 모든 가사를 따라 부르는 것에 비할 바가 아니에요. 그날 밤이 끝날 때쯤엔 목이 다 쉬고 다리도 아팠지만, 얼굴엔 세상 가장 큰 미소가 걸려 있었어요. 기회가 된다면 망설임 없이 또 갈 거예요.",
+        pron: "이프 데얼즈 원 띵 아이 캔 톡 어바웃 풔레버, 이츠 케이팝. 더 프뤄덕션, 더 코뤼아그뤄피, 더 웨이 어 훅 겟츠 스턱 인 유어 헤드 풔 데이즈 — 아임 컴플릿리 훅트. 비티에스 해즈 빈 마이 페이버륏 그룹 풔 이얼즈, 앤 아이 액츌리 갓 투 씨 뎀 라이브 래스트 이어. 아이 스틸 뤼멤버 워킹 인투 댓 스테이디엄 앤 필링 더 플로어 리러뤌리 바이브뤠잇 프럼 더 크롸우드. 리스닝 투 데어 쏭즈 쓰루 이어폰즈 이즈 그뤠잇, 벗 잇츠 낫띵 컴페얼드 투 씽잉 에브뤼 워드 앳 더 탑 어브 유어 렁즈 위드 따우전즈 어브 아더 팬즈. 바이 디 엔드 어브 더 나잇 마이 보이스 워즈 곤 앤 마이 레그즈 워 쏘어, 벗 아이 해드 더 비기스트 스마일 온 마이 페이스. 이프 아이 해드 더 챈스, 아이드 고 어겐 인 어 핫빗."
+      }
+    },
+    {
+      id: "sample-trip", sample: true, ts: 1735430400000,
+      topicId: "domestic", topicLabel: "여행", level: "IH",
+      question: "I'd like to ask about travel. Tell me about your most memorable trip. Where did you go, who did you go with, and what made it special?",
+      answer: "My favorite trip so far has to be the one I took to [Busan / Japan] last year. I went with a close friend, and honestly, everything just fell into place. The weather was perfect — warm enough to walk around all day, but not so hot that we were miserable. What really made the trip, though, was the food. We wandered into this tiny local spot with no English menu, just pointed at whatever looked good, and ended up having one of the best meals of my life. We took way too many photos and laughed about the silliest things. It was exactly the kind of break I needed. I'd recommend that place to anyone without hesitation.",
+      expressions: [
+        { en: "fell into place", ko: "딱딱 맞아떨어지다" },
+        { en: "what really made the trip", ko: "그 여행을 진짜 특별하게 만든 것" },
+        { en: "without hesitation", ko: "망설임 없이" }
+      ],
+      tips: [
+        "질문에 맞춰 [Busan / Japan] 부분만 지역명으로 바꿔 사용하세요.",
+        "what really made the trip was ~ 구조로 핵심 포인트를 강조하면 좋아요."
+      ],
+      levelNote: "과거 시제와 묘사, what made it special 같은 연결어로 IH 수준에 적합합니다.",
+      extras: {
+        ko: "지금까지 제가 가장 좋아한 여행은 작년에 다녀온 [부산 / 일본] 여행이에요. 친한 친구랑 갔는데, 솔직히 모든 게 딱딱 맞아떨어졌어요. 날씨가 완벽했어요. 하루 종일 돌아다닐 만큼 따뜻하면서도, 힘들 정도로 덥지는 않았거든요. 근데 그 여행을 진짜 특별하게 만든 건 음식이었어요. 영어 메뉴도 없는 작은 현지 식당에 우연히 들어가서, 그냥 맛있어 보이는 걸 손가락으로 가리켰는데, 인생 최고의 식사 중 하나를 하게 됐어요. 사진도 정말 많이 찍고 별것 아닌 일에도 깔깔 웃었어요. 딱 제가 필요했던 그런 휴식이었어요. 누구에게든 망설임 없이 추천할 곳이에요.",
+        pron: "마이 페이버륏 츄륍 쏘 파 해즈 투 비 더 원 아이 툭 투 [부싼 / 져팬] 래스트 이어. 아이 웬 위더 클로우스 프뤤, 앤 아-니슬리, 에브뤼띵 저슷 펠 인투 플레이스. 더 웨더 워즈 펄펙트 — 웜 이너프 투 웤 어롸운드 올 데이, 벗 낫 쏘 핫 댓 위 워 미저뤄블. 웟 륄리 메이드 더 츄륍, 도우, 워즈 더 푸-드. 위 완덜드 인투 디스 타이니 로컬 스팟 위드 노 잉글리쉬 메뉴, 저슷 포인티드 앳 웟에버 룩트 굿, 앤 엔디드 업 해빙 원 어브 더 베스트 밀즈 어브 마이 라이프. 위 툭 웨이 투 메니 포토즈 앤 래프트 어바웃 더 씰리이스트 띵즈. 잇 워즈 이그잭리 더 카인드 어브 브뤠익 아이 니디드. 아이드 뤠커멘드 댓 플레이스 투 에니원 위다웃 헤지테이션."
+      }
+    },
+    {
+      id: "sample-stress", sample: true, ts: 1735344000000,
+      topicId: "bar", topicLabel: "쇼핑 / 술집 가기", level: "IH",
+      question: "Everyone has their own way to relieve stress. What do you usually do to unwind? Tell me about it in detail.",
+      answer: "Like I said, job hunting has been pretty draining lately, so I've learned to make time to unwind. When the stress really piles up, I usually go [shopping / to a bar] with my best friend. We'll talk about where we see ourselves in a few years, complain about everything under the sun, and somehow end up laughing until our stomachs hurt. There's something about [treating myself to a new outfit / sharing a cold beer] that lifts the weight off my shoulders, at least for a while. It might not solve anything, but it reminds me not to take everything so seriously. That's my go-to way to blow off steam.",
+      expressions: [
+        { en: "piles up", ko: "(스트레스가) 쌓이다" },
+        { en: "lifts the weight off my shoulders", ko: "어깨의 짐을 덜어주다" },
+        { en: "blow off steam", ko: "스트레스를 풀다" }
+      ],
+      tips: [
+        "질문에 맞춰 [shopping / to a bar], [treating myself to a new outfit / sharing a cold beer] 부분을 바꿔 쓰세요.",
+        "blow off steam, lifts the weight off my shoulders 같은 관용표현으로 마무리하세요."
+      ],
+      levelNote: "조건·습관 표현과 관용구로 한 문단을 유기적으로 이어 IH 수준에 적합합니다.",
+      extras: {
+        ko: "말씀드렸듯이 요즘 취업 준비가 꽤 진을 빼서, 저는 숨 돌릴 시간을 일부러 만드는 법을 익혔어요. 스트레스가 정말 쌓일 때면, 보통 베프랑 [쇼핑하러 / 술집에] 가요. 우리 몇 년 뒤에 어떤 모습일지 얘기하고, 세상만사 다 불평하다가, 어느새 배가 아플 때까지 웃게 돼요. [새 옷 한 벌로 저를 챙기는 것 / 시원한 맥주를 함께 나누는 것]에는 어깨의 짐을 잠시나마 덜어주는 뭔가가 있어요. 뭘 해결해 주진 않지만, 모든 걸 너무 심각하게 받아들이지 말자고 다시 일깨워 줘요. 그게 제가 스트레스를 푸는 단골 방법이에요.",
+        pron: "라익 아이 쎄드, 좝 헌팅 해즈 빈 프뤼리 드뤠이닝 레잇리, 쏘 아이브 런드 투 메익 타임 투 언와인드. 웬 더 스트뤠스 륄리 파일즈 업, 아 유절리 고 [솨핑 / 투어 바] 위드 마이 베스트 프뤤. 위일 톡 어바웃 웨어 위 씨 아워셀브즈 인 어 퓨 이얼즈, 컴플레인 어바웃 에브뤼띵 언더 더 썬, 앤 썸하우 엔드 업 래핑 언틸 아워 스토먹스 헐트. 데얼즈 썸띵 어바웃 [츄뤼링 마이셀프 투 어 뉴 아웃핏 / 쉐어링 어 콜드 비어] 댓 리프츠 더 웨잇 오프 마이 숄더즈, 앳 리스트 풔 어 와일. 잇 마잇 낫 쏠브 에니띵, 벗 잇 뤼마인즈 미 낫 투 테익 에브뤼띵 쏘 씨뤼어슬리. 댓츠 마이 고우-투 웨이 투 블로우 오프 스팀."
       }
     }
   ];
