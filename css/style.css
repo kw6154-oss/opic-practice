@@ -859,6 +859,16 @@ mark.expr-hl { background: #fde68a; color: #1f2937; border-radius: 3px; padding:
 .scripts-count { margin: -6px 0 12px; }
 .scripts-sample-head { margin: 18px 0 8px; font-weight: 700; }
 .sample-badge { flex: none; font-size: .68rem; font-weight: 700; color: var(--text-muted); background: var(--surface-2); border: 1px solid var(--border); padding: 1px 7px; border-radius: 999px; }
+.rp-badge { color: var(--accent); background: color-mix(in srgb, var(--accent) 10%, transparent); border-color: color-mix(in srgb, var(--accent) 30%, transparent); }
+
+/* ===== 롤플레이 질문 카드 ===== */
+.qcard { border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; margin-bottom: 10px; background: var(--surface-2); }
+.qcard-head { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+.qcard-label { font-size: .74rem; font-weight: 700; color: var(--text-muted); }
+.qcard-head .expr-spk { margin-left: auto; }
+.qcard-en { font-weight: 600; font-size: .95rem; color: #1d4ed8; word-break: keep-all; }
+.qcard-ko { font-size: .85rem; color: var(--text-muted); margin-top: 2px; word-break: keep-all; }
+.qcard-pron { font-size: .82rem; color: #9ca3af; margin-top: 2px; word-break: keep-all; }
 .scripts-empty { text-align: center; padding: 40px 16px; display: flex; flex-direction: column; align-items: center; gap: 14px; }
 .scripts-empty .primary-btn { min-width: 160px; }
 

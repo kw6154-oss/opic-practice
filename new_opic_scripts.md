@@ -1,4 +1,26 @@
-# OPIc 스크립트 (IH~AL 지향 개선판)
+# OPIc 스피킹 대비 스크립트 모음 (IH~AL 지향)
+
+> 묘사·서술형 5종 + 롤플레이(역할극) 세트 합본.
+> 공통 원칙: 토씨까지 외우지 말고 **굵은 핵심 표현**과 **질문 카드** 위주로 외운 뒤,
+> 살은 즉석에서 붙여 말하기. 발음 표기는 초반 암기 보조용이며 입에 붙으면 떼세요.
+
+## 목차
+- Part 1. 묘사·서술형 스크립트 (만능 답변)
+  1. 공원 + 조깅/걷기 — 기분 전환
+  2. 카페 + 음악 감상 — 혼자만의 여유
+  3. K-pop + BTS + 콘서트 — 경험과 열정
+  4. 여행 — 지역 변경 만능
+  5. 쇼핑/술집 — 스트레스 해소
+- Part 2. 롤플레이 스크립트 (역할극)
+  1. 전화 오프닝 — 첫인사 + 상황 설명
+  2. 세부 질문하기 — 질문 카드 6종
+  3. 문제 상황 + 사과 — 약속 취소
+  4. 대안 제시 — 해결책
+  · (3+4 이어 말하면 음성 메시지 남기기 유형)
+
+---
+
+## Part 1. 묘사·서술형 스크립트 (만능 답변)
 
 > 필러를 줄이고 구체적 디테일·복합 문장을 강화한 버전.
 > 토씨까지 외우기보다 **굵은 핵심 표현** 위주로 외우고 살은 즉석에서 붙이는 연습 권장.
@@ -6,7 +28,7 @@
 
 ---
 
-## 1. 공원 + 조깅 / 걷기 (만능 답변: 기분 전환)
+### 1. 공원 + 조깅 / 걷기 (만능 답변: 기분 전환)
 
 **[English Script]**
 Whenever I'm feeling overwhelmed, my go-to place is a park about ten minutes from my apartment. I'll be honest — I'm job hunting at the moment, and the constant waiting for results gets to me more than I'd like to admit. So when my head feels cluttered, I throw on my running shoes and head out. I usually start with a slow jog along the river trail and then cool down with a long walk. There's something about the rhythm of running and the cool morning air that just resets my brain. By the time I get home, the problems that felt huge an hour earlier somehow seem a lot smaller. It's honestly the cheapest therapy I know.
@@ -25,7 +47,7 @@ Whenever I'm feeling overwhelmed, my go-to place is a park about ten minutes fro
 
 ---
 
-## 2. 카페 + 음악 감상 (만능 답변: 혼자만의 여유)
+### 2. 카페 + 음악 감상 (만능 답변: 혼자만의 여유)
 
 **[English Script]**
 I'm a bit of a cafe person, to be honest. There's this cozy little place around the corner from where I live, and I've practically become a regular there. Since I live alone, my apartment can feel a little too quiet sometimes, so the cafe is where I go to feel surrounded by people without actually having to talk to anyone. I'll grab an iced americano, put my earphones in, and lose myself in whatever playlist I'm into that week — lately it's been a lot of mellow R&B. There's a certain comfort in the background hum of the espresso machine and the quiet chatter. That hour or two completely recharges me. It's the part of my day I look forward to the most.
@@ -44,7 +66,7 @@ I'm a bit of a cafe person, to be honest. There's this cozy little place around 
 
 ---
 
-## 3. K-pop + BTS + 콘서트 (만능 답변: 경험과 열정)
+### 3. K-pop + BTS + 콘서트 (만능 답변: 경험과 열정)
 
 **[English Script]**
 If there's one thing I can talk about forever, it's K-pop. The production, the choreography, the way a hook gets stuck in your head for days — I'm completely hooked. BTS has been my favorite group for years, and I actually got to see them live last year. I still remember walking into that stadium and feeling the floor literally vibrate from the crowd. Listening to their songs through earphones is great, but it's nothing compared to singing every word at the top of your lungs with thousands of other fans. By the end of the night my voice was gone and my legs were sore, but I had the biggest smile on my face. If I had the chance, I'd go again in a heartbeat.
@@ -63,7 +85,7 @@ If there's one thing I can talk about forever, it's K-pop. The production, the c
 
 ---
 
-## 4. 여행 (만능 지역 변경 스크립트)
+### 4. 여행 (만능 지역 변경 스크립트)
 
 > 팁: **[Busan / Japan]** 부분만 질문에 맞춰 지역명을 바꿔서 사용.
 
@@ -85,7 +107,7 @@ My favorite trip so far has to be the one I took to **[Busan / Japan]** last yea
 
 ---
 
-## 5. 쇼핑 / 술집 가기 (만능 답변: 스트레스 해소용)
+### 5. 쇼핑 / 술집 가기 (만능 답변: 스트레스 해소용)
 
 > 팁: **[shopping / to a bar]** 와 **[treating myself to a new outfit / sharing a cold beer]** 부분만 질문에 맞춰 변경.
 
@@ -102,3 +124,103 @@ Like I said, job hunting has been pretty draining lately, so I've learned to mak
 데얼즈 썸띵 어바웃 **[츄뤼링 마이셀프 투 어 뉴 아웃핏 / 쉐어링 어 콜드 비어]** 댓 리프츠 더 웨잇 오프 마이 숄더즈, 앳 리스트 풔 어 와일.
 잇 마잇 낫 쏠브 에니띵, 벗 잇 뤼마인즈 미 낫 투 테익 에브뤼띵 쏘 씨뤼어슬리.
 댓츠 마이 고우-투 웨이 투 블로우 오프 스팀.
+
+---
+
+## Part 2. 롤플레이 스크립트 (역할극)
+
+> 역할극은 "인사 → 본론 → 마무리" 틀이 정해져 있음. 통암기보다 **질문 카드를 골라 쓰는** 연습이 핵심.
+> 발음 표기는 초반 암기 보조용. 입에 붙으면 떼세요.
+
+---
+
+### 1. 전화 오프닝 — 첫인사 + 상황 설명 (문의/예약 만능)
+
+활용: 콘서트 티켓 예매, 식당 예약, 상점 물건 문의 등 전화 걸 때
+
+**[English Script]**
+Hi, is this **[장소 이름]**? Great. I'm hoping you can help me out — I've got a few quick questions about **[the tickets / my reservation]**. This is actually my first time, so bear with me.
+
+**[한국어 뜻]**
+안녕하세요, 거기 **[장소 이름]**이죠? 다행이네요. 좀 도와주셨으면 하는데요 — **[티켓 / 예약]**에 대해 빠르게 몇 가지 여쭤볼 게 있어서요. 사실 이번이 처음이라, 조금 양해 부탁드려요.
+
+**[원어민 발음 표기]**
+하이, 이즈 디스 **[장소 이름]**? 그뤠잇. 아임 호핑 유 캔 헲 미 아웃 — 아이브 갓 어 퓨 퀵 퀘스쳔즈 어바웃 **[더 티킷츠 / 마이 뤠절베이션]**. 디스 이즈 액츌리 마이 펄스트 타임, 쏘 베어 위드 미.
+
+---
+
+### 2. 세부 질문하기 — 질문 카드 (상황 맞춰 3~4개 골라 쓰기)
+
+활용: 오프닝 후 구체 정보 묻기. "3~4개 물어봐라" 요구에 대비해 카드처럼 장전.
+
+**① 가격**
+- (E) First off, could you tell me how much it is?
+- (K) 우선, 가격이 얼마인지 알려주시겠어요?
+- (P) 펄스트 오프, 쿠쥬 텔 미 하우 머치 잇 이즈?
+
+**② 운영 시간**
+- (E) What time do you open and close?
+- (K) 몇 시에 열고 닫나요?
+- (P) 왓 타임 두 유 오픈 앤 클로우즈?
+
+**③ 위치**
+- (E) Where exactly are you located?
+- (K) 정확히 어디에 위치해 있나요?
+- (P) 웨어 이그잭리 알 유 로케이리드?
+
+**④ 예약 방법**
+- (E) Do I need to book in advance, or can I just walk in?
+- (K) 미리 예약해야 하나요, 아니면 그냥 가도 되나요?
+- (P) 두 아이 니드 투 북 인 어드밴스, 오어 캔 아이 저슷 웍 인?
+
+**⑤ 잔여/가능 여부**
+- (E) Is it still available for this weekend?
+- (K) 이번 주말에 아직 가능한가요?
+- (P) 이즈 잇 스틸 어베일러블 풔 디스 위켄드?
+
+**⑥ 결제 수단**
+- (E) Which payment methods do you accept?
+- (K) 어떤 결제 수단을 받으세요?
+- (P) 위치 페이먼트 메똗즈 두 유 억셉트?
+
+**[옵션] 할인 묻기 (가격·구매 상황에서만, 안 맞으면 생략)**
+- (E) I'm on a pretty tight budget these days, so do you offer any discounts for students or job seekers?
+- (K) 제가 요즘 예산이 좀 빠듯해서요, 혹시 학생이나 취준생 할인이 있나요?
+- (P) 아임 온 어 프뤼리 타잇 버짓 디즈 데이즈, 쏘 두 유 오퍼 애니 디스카운츠 풔 스튜던츠 오어 잡 씨컬즈?
+
+---
+
+### 3. 문제 상황 설명 + 사과 (약속 취소 만능)
+
+활용: 친구와 약속 펑크, 산 물건 고장 등 (오픽 단골 콤보)
+
+**[English Script]**
+Hey **[친구 이름]**, it's me. Listen, I hate to do this, but something's come up. To be honest, I've been feeling awful all day — I've got a splitting headache and I can barely move. There's no way I can make it tonight, and I feel terrible about bailing on you.
+
+**[한국어 뜻]**
+야 **[친구 이름]**, 나야. 저기, 이런 말 하기 정말 싫은데, 일이 좀 생겼어. 솔직히 하루 종일 컨디션이 엉망이야 — 머리가 쪼개질 듯 아프고 거의 못 움직이겠어. 오늘 밤엔 도저히 못 갈 것 같아. 약속 펑크 내서 정말 미안해.
+
+**[원어민 발음 표기]**
+헤이 **[친구 이름]**, 이츠 미. 리슨, 아이 헤잇 투 두 디스, 벗 썸띵즈 컴 업. 투비 아-니스트, 아이브 빈 필링 어플 올 데이 — 아이브 갓 어 스플리링 헤데익 앤 아이 캔 베얼리 무브. 데얼즈 노 웨이 아이 캔 메이킷 투나잇, 앤 아이 필 테뤄블 어바웃 베일링 온 유.
+
+---
+
+### 4. 대안 제시 (해결책 만능)
+
+활용: 문제 설명 후 보상/대안 제안하며 마무리
+
+**[English Script]**
+But let me make it up to you. How about we reschedule for next weekend — are you free on Saturday? Or better yet, dinner's on me next time, my treat. Just let me know what works for you. Give me a call back when you get this. Talk soon!
+
+**[한국어 뜻]**
+근데 내가 꼭 만회할게. 우리 다음 주말로 다시 잡는 거 어때 — 토요일에 시간 돼? 아니면 더 좋은 걸로, 다음에 저녁은 내가 살게, 내가 쏠게. 너 되는 시간으로 알려줘. 이거 들으면 다시 전화 줘. 곧 보자!
+
+**[원어민 발음 표기]**
+벗 렛 미 메이킷 업 투 유. 하우 어바웃 위 뤼스케쥴 풔 넥스트 위켄드 — 알 유 프리 온 쌔러데이? 오어 베럴 옛, 디너즈 온 미 넥스트 타임, 마이 츄륏. 저슷 렛 미 노우 왓 웍스 풔 유. 기브 미어 콜 백 웬 유 겟 디스. 톡 쑨!
+
+---
+
+#### 활용 팁
+- 3 + 4번을 이어 말하면 그대로 **음성 메시지(voicemail) 남기기** 유형 답이 됩니다.
+- 질문 유형(2번)은 "가격 말고 위치·시간 물어봐"처럼 요구가 바뀌어도, 카드만 바꿔 끼우면 대응돼요.
+- 한 카드가 입에 붙으면 발음 표기 가리고 영어만 보고 말하기 → 그다음 키워드만 보고 즉석 말하기로 단계 올리세요.

@@ -290,7 +290,7 @@
   }
 
   // ==================== 기초 연습: 발음 ====================
-  var pronState = { tab: "general", idx: 0 };
+  var pronState = { tab: "filler", idx: 0 };
   var pronSession = null;
   var PRON_SPK = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M19 5a9 9 0 0 1 0 14"/></svg>';
 
@@ -302,7 +302,7 @@
 
   function openPronPractice() {
     if (pronSession) { try { pronSession.stop(); } catch (e) {} pronSession = null; }
-    pronState.tab = "general"; pronState.idx = 0;
+    pronState.tab = "filler"; pronState.idx = 0;
     renderPron();
     show("pron");
   }
@@ -323,8 +323,8 @@
       });
       return b;
     }
-    tabs.appendChild(mkTab("general", "일반 문장"));
     tabs.appendChild(mkTab("filler", "시간벌기 표현"));
+    tabs.appendChild(mkTab("general", "일반 문장"));
     host.appendChild(tabs);
 
     var list = pronList();
@@ -2553,7 +2553,10 @@
     tts.title = "질문 듣기";
     tts.setAttribute("aria-label", "질문 듣기");
     tts.innerHTML = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M19 5a9 9 0 0 1 0 14"/></svg>';
-    tts.addEventListener("click", function () { playWithState(tts, sc.answer); });
+    tts.addEventListener("click", function () {
+      var spoken = sc.answer || (sc.cards && sc.cards.map(function (c) { return c.en; }).join(" ")) || "";
+      playWithState(tts, spoken);
+    });
     var scListen = el("span", "tts-group"); // 듣기 + 속도 배지 (제목 줄 오른쪽 끝)
     scListen.appendChild(tts); scListen.appendChild(makeSpeedBadge());
     head.appendChild(scListen);
@@ -2569,28 +2572,53 @@
       box.appendChild(qSec);
     }
 
-    // 모범답안 섹션 (문장 단위 줄바꿈)
-    var aSec = el("div", "ss-sec");
-    aSec.appendChild(el("div", "ss-eyebrow", "모범답안"));
-    var ans = el("div", "ma-text ss-answer");
-    renderAnswerLines(ans, sc.answer, null);
-    aSec.appendChild(ans);
+    var ans = null;
+    if (sc.cards && sc.cards.length) {
+      // 질문 카드 섹션 (롤플레이: 단일 모범답안 대신 카드 묶음)
+      var cSec = el("div", "ss-sec");
+      cSec.appendChild(el("div", "ss-eyebrow", "질문 카드"));
+      sc.cards.forEach(function (card) {
+        var qc = el("div", "qcard");
+        var qh = el("div", "qcard-head");
+        if (card.label) qh.appendChild(el("span", "qcard-label", card.label));
+        var qspk = el("button", "expr-spk");
+        qspk.type = "button";
+        qspk.title = "카드 듣기";
+        qspk.setAttribute("aria-label", "카드 듣기");
+        qspk.innerHTML = ICON.speakerSm;
+        qspk.addEventListener("click", function (ev) { ev.stopPropagation(); speak(card.en); });
+        qh.appendChild(qspk);
+        qc.appendChild(qh);
+        qc.appendChild(el("div", "qcard-en", card.en));
+        if (card.ko) qc.appendChild(el("div", "qcard-ko", card.ko));
+        if (card.pron) qc.appendChild(el("div", "qcard-pron", card.pron));
+        cSec.appendChild(qc);
+      });
+      box.appendChild(cSec);
+    } else {
+      // 모범답안 섹션 (문장 단위 줄바꿈)
+      var aSec = el("div", "ss-sec");
+      aSec.appendChild(el("div", "ss-eyebrow", "모범답안"));
+      ans = el("div", "ma-text ss-answer");
+      renderAnswerLines(ans, sc.answer, null);
+      aSec.appendChild(ans);
 
-    // 해석 / 한글 발음 토글 (세그먼트 + 아이콘)
-    var actions = el("div", "ma-actions");
-    var transBtn = el("button", "ma-sub");
-    transBtn.type = "button";
-    transBtn.innerHTML = ICON.translate + '<span>해석</span>';
-    var pronBtn = el("button", "ma-sub");
-    pronBtn.type = "button";
-    pronBtn.innerHTML = ICON.speaker + '<span>한글 발음</span>';
-    var extraArea = el("div", "ma-extra");
-    transBtn.addEventListener("click", function () { scriptExtraToggle("ko", sc, extraArea, transBtn, pronBtn); });
-    pronBtn.addEventListener("click", function () { scriptExtraToggle("pron", sc, extraArea, pronBtn, transBtn); });
-    actions.appendChild(transBtn); actions.appendChild(pronBtn);
-    aSec.appendChild(actions);
-    aSec.appendChild(extraArea);
-    box.appendChild(aSec);
+      // 해석 / 한글 발음 토글 (세그먼트 + 아이콘)
+      var actions = el("div", "ma-actions");
+      var transBtn = el("button", "ma-sub");
+      transBtn.type = "button";
+      transBtn.innerHTML = ICON.translate + '<span>해석</span>';
+      var pronBtn = el("button", "ma-sub");
+      pronBtn.type = "button";
+      pronBtn.innerHTML = ICON.speaker + '<span>한글 발음</span>';
+      var extraArea = el("div", "ma-extra");
+      transBtn.addEventListener("click", function () { scriptExtraToggle("ko", sc, extraArea, transBtn, pronBtn); });
+      pronBtn.addEventListener("click", function () { scriptExtraToggle("pron", sc, extraArea, pronBtn, transBtn); });
+      actions.appendChild(transBtn); actions.appendChild(pronBtn);
+      aSec.appendChild(actions);
+      aSec.appendChild(extraArea);
+      box.appendChild(aSec);
+    }
 
     // 주제 표현 섹션
     if (sc.expressions && sc.expressions.length) {
@@ -2775,6 +2803,7 @@
     lv.setAttribute("data-lv", sc.level || "");
     top.appendChild(lv);
     if (sc.sample) top.appendChild(el("span", "sample-badge", "샘플"));
+    if (sc.type === "roleplay") top.appendChild(el("span", "sample-badge rp-badge", "롤플레이"));
     main.appendChild(top);
     row.appendChild(main);
 
@@ -2824,8 +2853,16 @@
     list.forEach(function (sc) { host.appendChild(buildScriptRow(sc)); });
     // 기본 샘플 — 사용자 스크립트 아래, 삭제 불가 (다음 방문에도 항상 제공)
     if (samples.length) {
-      host.appendChild(el("div", "scripts-sample-head muted small", "기본 샘플 (미리 보기)"));
-      samples.forEach(function (sc) { host.appendChild(buildScriptRow(sc)); });
+      var descSamples = samples.filter(function (s) { return s.type !== "roleplay"; });
+      var rpSamples = samples.filter(function (s) { return s.type === "roleplay"; });
+      if (descSamples.length) {
+        host.appendChild(el("div", "scripts-sample-head muted small", "기본 샘플 · 묘사·서술형"));
+        descSamples.forEach(function (sc) { host.appendChild(buildScriptRow(sc)); });
+      }
+      if (rpSamples.length) {
+        host.appendChild(el("div", "scripts-sample-head muted small", "기본 샘플 · 롤플레이"));
+        rpSamples.forEach(function (sc) { host.appendChild(buildScriptRow(sc)); });
+      }
     }
   }
   function openScriptView(id) {

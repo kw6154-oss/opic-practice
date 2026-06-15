@@ -1,15 +1,17 @@
 /* =========================================================
-   sample-scripts.js — 기본 샘플 스크립트 5개 (공원·조깅 / 카페·음악 / K-pop·콘서트 / 여행 / 쇼핑·술집)
+   sample-scripts.js — 기본 샘플 스크립트 (묘사·서술형 5 + 롤플레이 4)
    키 없는 사용자도 결과물을 미리 볼 수 있도록 내장.
-   저장한 스크립트와 동일한 데이터 구조 (sample:true, extras 포함 → 해석/발음 오프라인).
-   원본: new_opic_scripts.md — [English Script]→answer, [한국어 뜻]→extras.ko, [원어민 발음 표기]→extras.pron
+   원본: new_opic_scripts.md (합본) — Part1→type:"description", Part2→type:"roleplay"
+   매핑: [English Script]→answer, [한국어 뜻]→extras.ko, [원어민 발음 표기]→extras.pron
+   질문 카드 항목은 단일 answer 대신 cards:[{label,en,ko,pron}] 배열로 보관.
    ========================================================= */
 (function (global) {
   "use strict";
 
   var SAMPLE_SCRIPTS = [
+    /* ===================== Part 1. 묘사·서술형 ===================== */
     {
-      id: "sample-park", sample: true, ts: 1735689600000,
+      id: "sample-park", sample: true, type: "description", ts: 1735689600000,
       topicId: "jogging", topicLabel: "공원 + 조깅 / 걷기", level: "IH",
       question: "Let's talk about how you relax. What do you do to clear your mind when you feel stressed? Tell me about a place you like to go.",
       answer: "Whenever I'm feeling overwhelmed, my go-to place is a park about ten minutes from my apartment. I'll be honest — I'm job hunting at the moment, and the constant waiting for results gets to me more than I'd like to admit. So when my head feels cluttered, I throw on my running shoes and head out. I usually start with a slow jog along the river trail and then cool down with a long walk. There's something about the rhythm of running and the cool morning air that just resets my brain. By the time I get home, the problems that felt huge an hour earlier somehow seem a lot smaller. It's honestly the cheapest therapy I know.",
@@ -29,7 +31,7 @@
       }
     },
     {
-      id: "sample-cafe", sample: true, ts: 1735603200000,
+      id: "sample-cafe", sample: true, type: "description", ts: 1735603200000,
       topicId: "cafe", topicLabel: "카페 + 음악 감상", level: "IH",
       question: "Let's talk about cafes. Tell me about a cafe you go to and what you usually do there.",
       answer: "I'm a bit of a cafe person, to be honest. There's this cozy little place around the corner from where I live, and I've practically become a regular there. Since I live alone, my apartment can feel a little too quiet sometimes, so the cafe is where I go to feel surrounded by people without actually having to talk to anyone. I'll grab an iced americano, put my earphones in, and lose myself in whatever playlist I'm into that week — lately it's been a lot of mellow R&B. There's a certain comfort in the background hum of the espresso machine and the quiet chatter. That hour or two completely recharges me. It's the part of my day I look forward to the most.",
@@ -49,7 +51,7 @@
       }
     },
     {
-      id: "sample-kpop", sample: true, ts: 1735516800000,
+      id: "sample-kpop", sample: true, type: "description", ts: 1735516800000,
       topicId: "concert", topicLabel: "K-pop + BTS + 콘서트", level: "AL",
       question: "Let's talk about music. What kind of music do you enjoy, and have you ever been to a concert? Tell me about it.",
       answer: "If there's one thing I can talk about forever, it's K-pop. The production, the choreography, the way a hook gets stuck in your head for days — I'm completely hooked. BTS has been my favorite group for years, and I actually got to see them live last year. I still remember walking into that stadium and feeling the floor literally vibrate from the crowd. Listening to their songs through earphones is great, but it's nothing compared to singing every word at the top of your lungs with thousands of other fans. By the end of the night my voice was gone and my legs were sore, but I had the biggest smile on my face. If I had the chance, I'd go again in a heartbeat.",
@@ -69,7 +71,7 @@
       }
     },
     {
-      id: "sample-trip", sample: true, ts: 1735430400000,
+      id: "sample-trip", sample: true, type: "description", ts: 1735430400000,
       topicId: "domestic", topicLabel: "여행", level: "IH",
       question: "I'd like to ask about travel. Tell me about your most memorable trip. Where did you go, who did you go with, and what made it special?",
       answer: "My favorite trip so far has to be the one I took to [Busan / Japan] last year. I went with a close friend, and honestly, everything just fell into place. The weather was perfect — warm enough to walk around all day, but not so hot that we were miserable. What really made the trip, though, was the food. We wandered into this tiny local spot with no English menu, just pointed at whatever looked good, and ended up having one of the best meals of my life. We took way too many photos and laughed about the silliest things. It was exactly the kind of break I needed. I'd recommend that place to anyone without hesitation.",
@@ -89,7 +91,7 @@
       }
     },
     {
-      id: "sample-stress", sample: true, ts: 1735344000000,
+      id: "sample-stress", sample: true, type: "description", ts: 1735344000000,
       topicId: "bar", topicLabel: "쇼핑 / 술집 가기", level: "IH",
       question: "Everyone has their own way to relieve stress. What do you usually do to unwind? Tell me about it in detail.",
       answer: "Like I said, job hunting has been pretty draining lately, so I've learned to make time to unwind. When the stress really piles up, I usually go [shopping / to a bar] with my best friend. We'll talk about where we see ourselves in a few years, complain about everything under the sun, and somehow end up laughing until our stomachs hurt. There's something about [treating myself to a new outfit / sharing a cold beer] that lifts the weight off my shoulders, at least for a while. It might not solve anything, but it reminds me not to take everything so seriously. That's my go-to way to blow off steam.",
@@ -106,6 +108,77 @@
       extras: {
         ko: "말씀드렸듯이 요즘 취업 준비가 꽤 진을 빼서, 저는 숨 돌릴 시간을 일부러 만드는 법을 익혔어요. 스트레스가 정말 쌓일 때면, 보통 베프랑 [쇼핑하러 / 술집에] 가요. 우리 몇 년 뒤에 어떤 모습일지 얘기하고, 세상만사 다 불평하다가, 어느새 배가 아플 때까지 웃게 돼요. [새 옷 한 벌로 저를 챙기는 것 / 시원한 맥주를 함께 나누는 것]에는 어깨의 짐을 잠시나마 덜어주는 뭔가가 있어요. 뭘 해결해 주진 않지만, 모든 걸 너무 심각하게 받아들이지 말자고 다시 일깨워 줘요. 그게 제가 스트레스를 푸는 단골 방법이에요.",
         pron: "라익 아이 쎄드, 좝 헌팅 해즈 빈 프뤼리 드뤠이닝 레잇리, 쏘 아이브 런드 투 메익 타임 투 언와인드. 웬 더 스트뤠스 륄리 파일즈 업, 아 유절리 고 [솨핑 / 투어 바] 위드 마이 베스트 프뤤. 위일 톡 어바웃 웨어 위 씨 아워셀브즈 인 어 퓨 이얼즈, 컴플레인 어바웃 에브뤼띵 언더 더 썬, 앤 썸하우 엔드 업 래핑 언틸 아워 스토먹스 헐트. 데얼즈 썸띵 어바웃 [츄뤼링 마이셀프 투 어 뉴 아웃핏 / 쉐어링 어 콜드 비어] 댓 리프츠 더 웨잇 오프 마이 숄더즈, 앳 리스트 풔 어 와일. 잇 마잇 낫 쏠브 에니띵, 벗 잇 뤼마인즈 미 낫 투 테익 에브뤼띵 쏘 씨뤼어슬리. 댓츠 마이 고우-투 웨이 투 블로우 오프 스팀."
+      }
+    },
+
+    /* ===================== Part 2. 롤플레이 ===================== */
+    {
+      id: "rp-call-open", sample: true, type: "roleplay", ts: 1735257600000,
+      topicId: null, topicLabel: "롤플레이 · 전화 오프닝 (문의/예약)", level: "IH",
+      question: "You need to make a phone call to get some information. Call the place, greet them, and explain your situation.",
+      answer: "Hi, is this [장소 이름]? Great. I'm hoping you can help me out — I've got a few quick questions about [the tickets / my reservation]. This is actually my first time, so bear with me.",
+      expressions: [],
+      tips: [
+        "콘서트 티켓 예매, 식당 예약, 상점 물건 문의 등 전화 걸 때 활용하세요.",
+        "[장소 이름], [the tickets / my reservation] 부분만 상황에 맞춰 바꿔 쓰세요."
+      ],
+      levelNote: "인사 → 용건 → 양해 순서로 자연스럽게 전화 오프닝을 구성합니다.",
+      extras: {
+        ko: "안녕하세요, 거기 [장소 이름]이죠? 다행이네요. 좀 도와주셨으면 하는데요 — [티켓 / 예약]에 대해 빠르게 몇 가지 여쭤볼 게 있어서요. 사실 이번이 처음이라, 조금 양해 부탁드려요.",
+        pron: "하이, 이즈 디스 [장소 이름]? 그뤠잇. 아임 호핑 유 캔 헲 미 아웃 — 아이브 갓 어 퓨 퀵 퀘스쳔즈 어바웃 [더 티킷츠 / 마이 뤠절베이션]. 디스 이즈 액츌리 마이 펄스트 타임, 쏘 베어 위드 미."
+      }
+    },
+    {
+      id: "rp-q-cards", sample: true, type: "roleplay", ts: 1735171200000,
+      topicId: null, topicLabel: "롤플레이 · 세부 질문하기 (질문 카드)", level: "IH",
+      question: "Ask three or four questions to get the details you need. Pick the cards that fit the situation.",
+      cards: [
+        { label: "① 가격", en: "First off, could you tell me how much it is?", ko: "우선, 가격이 얼마인지 알려주시겠어요?", pron: "펄스트 오프, 쿠쥬 텔 미 하우 머치 잇 이즈?" },
+        { label: "② 운영 시간", en: "What time do you open and close?", ko: "몇 시에 열고 닫나요?", pron: "왓 타임 두 유 오픈 앤 클로우즈?" },
+        { label: "③ 위치", en: "Where exactly are you located?", ko: "정확히 어디에 위치해 있나요?", pron: "웨어 이그잭리 알 유 로케이리드?" },
+        { label: "④ 예약 방법", en: "Do I need to book in advance, or can I just walk in?", ko: "미리 예약해야 하나요, 아니면 그냥 가도 되나요?", pron: "두 아이 니드 투 북 인 어드밴스, 오어 캔 아이 저슷 웍 인?" },
+        { label: "⑤ 잔여/가능 여부", en: "Is it still available for this weekend?", ko: "이번 주말에 아직 가능한가요?", pron: "이즈 잇 스틸 어베일러블 풔 디스 위켄드?" },
+        { label: "⑥ 결제 수단", en: "Which payment methods do you accept?", ko: "어떤 결제 수단을 받으세요?", pron: "위치 페이먼트 메똗즈 두 유 억셉트?" },
+        { label: "옵션 · 할인 묻기", en: "I'm on a pretty tight budget these days, so do you offer any discounts for students or job seekers?", ko: "제가 요즘 예산이 좀 빠듯해서요, 혹시 학생이나 취준생 할인이 있나요?", pron: "아임 온 어 프뤼리 타잇 버짓 디즈 데이즈, 쏘 두 유 오퍼 애니 디스카운츠 풔 스튜던츠 오어 잡 씨컬즈?" }
+      ],
+      expressions: [],
+      tips: [
+        "상황에 맞춰 3~4개만 골라 쓰세요. 카드만 바꿔 끼우면 요구가 바뀌어도 대응돼요.",
+        "할인 카드는 가격·구매 상황에서만, 안 맞으면 생략하세요."
+      ],
+      levelNote: "필요한 정보를 묻는 질문 카드 모음. 상황에 맞게 3~4개를 골라 조합합니다.",
+      extras: null
+    },
+    {
+      id: "rp-apology", sample: true, type: "roleplay", ts: 1735084800000,
+      topicId: null, topicLabel: "롤플레이 · 문제 상황 + 사과 (약속 취소)", level: "IH",
+      question: "Call your friend, explain a problem that came up, and apologize for canceling your plans.",
+      answer: "Hey [친구 이름], it's me. Listen, I hate to do this, but something's come up. To be honest, I've been feeling awful all day — I've got a splitting headache and I can barely move. There's no way I can make it tonight, and I feel terrible about bailing on you.",
+      expressions: [],
+      tips: [
+        "친구와 약속 펑크, 산 물건 고장 등에 활용 (오픽 단골 콤보).",
+        "이어서 '대안 제시'(롤플레이 4)까지 말하면 음성 메시지 남기기 유형이 됩니다."
+      ],
+      levelNote: "사정 설명 → 진심 어린 사과로 문제 상황 롤플레이를 구성합니다.",
+      extras: {
+        ko: "야 [친구 이름], 나야. 저기, 이런 말 하기 정말 싫은데, 일이 좀 생겼어. 솔직히 하루 종일 컨디션이 엉망이야 — 머리가 쪼개질 듯 아프고 거의 못 움직이겠어. 오늘 밤엔 도저히 못 갈 것 같아. 약속 펑크 내서 정말 미안해.",
+        pron: "헤이 [친구 이름], 이츠 미. 리슨, 아이 헤잇 투 두 디스, 벗 썸띵즈 컴 업. 투비 아-니스트, 아이브 빈 필링 어플 올 데이 — 아이브 갓 어 스플리링 헤데익 앤 아이 캔 베얼리 무브. 데얼즈 노 웨이 아이 캔 메이킷 투나잇, 앤 아이 필 테뤄블 어바웃 베일링 온 유."
+      }
+    },
+    {
+      id: "rp-alternative", sample: true, type: "roleplay", ts: 1734998400000,
+      topicId: null, topicLabel: "롤플레이 · 대안 제시 (해결책)", level: "IH",
+      question: "After explaining the problem, offer an alternative or a way to make it up, and wrap up the call.",
+      answer: "But let me make it up to you. How about we reschedule for next weekend — are you free on Saturday? Or better yet, dinner's on me next time, my treat. Just let me know what works for you. Give me a call back when you get this. Talk soon!",
+      expressions: [],
+      tips: [
+        "문제 설명 후 보상·대안을 제안하며 마무리할 때 사용하세요.",
+        "'문제+사과'(롤플레이 3)와 이어 말하면 음성 메시지 남기기 유형 답이 됩니다."
+      ],
+      levelNote: "대안 제안 → 회신 요청으로 해결책 롤플레이를 마무리합니다.",
+      extras: {
+        ko: "근데 내가 꼭 만회할게. 우리 다음 주말로 다시 잡는 거 어때 — 토요일에 시간 돼? 아니면 더 좋은 걸로, 다음에 저녁은 내가 살게, 내가 쏠게. 너 되는 시간으로 알려줘. 이거 들으면 다시 전화 줘. 곧 보자!",
+        pron: "벗 렛 미 메이킷 업 투 유. 하우 어바웃 위 뤼스케쥴 풔 넥스트 위켄드 — 알 유 프리 온 쌔러데이? 오어 베럴 옛, 디너즈 온 미 넥스트 타임, 마이 츄륏. 저슷 렛 미 노우 왓 웍스 풔 유. 기브 미어 콜 백 웬 유 겟 디스. 톡 쑨!"
       }
     }
   ];
