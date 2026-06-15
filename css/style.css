@@ -510,6 +510,8 @@ button:disabled { opacity: .55; cursor: not-allowed; }
   font: inherit; font-size: .82rem; padding: 6px 12px; border-radius: 8px; cursor: pointer;
 }
 .q-tts:hover, .q-trans:hover { border-color: var(--accent); }
+.q-tts.playing { color: var(--accent); border-color: color-mix(in srgb, var(--accent) 45%, var(--border)); background: var(--accent-weak); }
+.q-tts.paused { color: var(--accent); border-style: dashed; border-color: color-mix(in srgb, var(--accent) 55%, var(--border)); background: var(--accent-weak); animation: tts-paused-blink 1.1s ease-in-out infinite; }
 
 /* 듣기 속도 배지 (조용한 톤, 듣기 버튼 옆) */
 .tts-speed {
@@ -820,6 +822,9 @@ button:disabled { opacity: .55; cursor: not-allowed; }
 .icon-accent:hover { color: var(--accent); border-color: color-mix(in srgb, var(--accent) 40%, var(--border)); background: color-mix(in srgb, var(--accent) 8%, transparent); }
 /* 재생 중에만 파란 활성 표시 */
 .icon-btn-sm.playing { color: var(--accent); border-color: color-mix(in srgb, var(--accent) 45%, var(--border)); background: var(--accent-weak); }
+/* 일시정지: 점선 테두리로 '이어 듣기 대기' 표시 (깜빡임으로 시선 유도) */
+.icon-btn-sm.paused { color: var(--accent); border-style: dashed; border-color: color-mix(in srgb, var(--accent) 55%, var(--border)); background: var(--accent-weak); animation: tts-paused-blink 1.1s ease-in-out infinite; }
+@keyframes tts-paused-blink { 50% { opacity: .45; } }
 .icon-btn-sm:active { transform: scale(.96); }
 
 /* 저장 상세 전용 폴리시 (script-detail) */

@@ -18,6 +18,7 @@
   function show(name) {
     // 키 없어도 모든 화면 자유 이용 — 키는 '실제 호출' 시점에만 requireApiKey로 확인
     if (typeof stopScriptRec === "function") stopScriptRec(); // 화면 이동 시 녹음 정리
+    if (typeof stopTts === "function") stopTts();             // 화면 이동 시 재생 정리
     SCREENS.forEach(function (s) {
       var el = $("screen-" + s);
       if (el) el.hidden = (s !== name);
@@ -602,19 +603,68 @@
     if (v) u.voice = v;
     return u;
   }
+  // ---------- TTS 재생 상태 (일시정지/이어듣기 토글) ----------
+  var _ttsBtn = null;        // 현재 재생/일시정지 중인 버튼
+  var _ttsState = "idle";    // idle | playing | paused
+  var TTS_ICON_PAUSE = '<svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg>';
+  var TTS_ICON_PLAY = '<svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>';
+  function _ttsSetBtnState(btn, state) {
+    if (!btn) return;
+    var labeled = btn.dataset.ttsLabel === "1"; // 텍스트 버튼: 라벨도 바꿈
+    var iconBtn = btn.classList.contains("icon-btn-sm"); // 아이콘 버튼: 아이콘도 ⏸/▶로 교체
+    if (btn.dataset.ttsTitle === undefined && btn.title) btn.dataset.ttsTitle = btn.title;
+    if (labeled && btn.dataset.ttsText === undefined) btn.dataset.ttsText = btn.textContent;
+    if (iconBtn && btn._ttsOrigHTML === undefined) btn._ttsOrigHTML = btn.innerHTML;
+    btn.classList.remove("playing", "paused");
+    if (state === "playing") {
+      btn.classList.add("playing"); btn.title = "일시정지";
+      if (labeled) btn.textContent = "⏸ 일시정지";
+      if (iconBtn) btn.innerHTML = TTS_ICON_PAUSE;
+    } else if (state === "paused") {
+      btn.classList.add("paused"); btn.title = "이어 듣기";
+      if (labeled) btn.textContent = "▶ 이어 듣기";
+      if (iconBtn) btn.innerHTML = TTS_ICON_PLAY;
+    } else {
+      if (btn.dataset.ttsTitle) btn.title = btn.dataset.ttsTitle;
+      if (labeled && btn.dataset.ttsText) btn.textContent = btn.dataset.ttsText;
+      if (iconBtn && btn._ttsOrigHTML !== undefined) btn.innerHTML = btn._ttsOrigHTML;
+    }
+  }
+  function _ttsClear() {
+    if (_ttsBtn) _ttsSetBtnState(_ttsBtn, "idle");
+    _ttsBtn = null; _ttsState = "idle";
+  }
+  // 재생을 멈추고 상태 초기화 (화면 이동·다른 음성 재생 전 호출)
+  function stopTts() {
+    if ("speechSynthesis" in window) {
+      try { window.speechSynthesis.resume(); } catch (e) {} // 일시정지 상태 해제 후 취소 (Chrome 버그 회피)
+      window.speechSynthesis.cancel();
+    }
+    _ttsClear();
+  }
   function speak(text) {
     if (!("speechSynthesis" in window)) { toast("이 브라우저는 음성 읽기를 지원하지 않아요"); return; }
-    window.speechSynthesis.cancel();
+    stopTts();
     window.speechSynthesis.speak(buildUtterance(text));
   }
-  // 재생 중 버튼에 .playing 표시
+  // 듣기 버튼: 재생 / 같은 버튼 재클릭 시 일시정지 ↔ 이어듣기 토글
   function playWithState(btn, text) {
     if (!("speechSynthesis" in window)) { toast("이 브라우저는 음성 읽기를 지원하지 않아요"); return; }
-    window.speechSynthesis.cancel();
+    var ss = window.speechSynthesis;
+    // 같은 버튼을 다시 누르면 일시정지/이어듣기
+    if (_ttsBtn === btn && _ttsState !== "idle") {
+      if (_ttsState === "playing") { ss.pause(); _ttsState = "paused"; _ttsSetBtnState(btn, "paused"); }
+      else { ss.resume(); _ttsState = "playing"; _ttsSetBtnState(btn, "playing"); }
+      return;
+    }
+    // 새 재생 (기존 재생은 정리)
+    stopTts();
     var u = buildUtterance(text);
-    u.onstart = function () { btn.classList.add("playing"); };
-    u.onend = function () { btn.classList.remove("playing"); };
-    window.speechSynthesis.speak(u);
+    // 클릭 즉시 ⏸ 상태로 반영 (onstart 지연/누락에도 아이콘이 바로 바뀌도록)
+    _ttsBtn = btn; _ttsState = "playing"; _ttsSetBtnState(btn, "playing");
+    u.onend = function () { if (_ttsBtn === btn) _ttsClear(); else _ttsSetBtnState(btn, "idle"); };
+    u.onerror = function () { if (_ttsBtn === btn) _ttsClear(); else _ttsSetBtnState(btn, "idle"); };
+    ss.speak(u);
   }
 
   // 듣기 버튼 옆 속도 배지 (0.75x → 1x → 1.25x 순환, 모든 배지 동기화)
@@ -1080,7 +1130,8 @@
     head.appendChild(el("span", "ma-tag", "📝 " + (ma.level || "") + " 모범답안"));
     var tts = el("button", "q-tts", "🔊 듣기");
     tts.type = "button";
-    tts.addEventListener("click", function () { speak(ma.answer); });
+    tts.dataset.ttsLabel = "1";
+    tts.addEventListener("click", function () { playWithState(tts, ma.answer); });
     var maListen = el("span", "tts-group");
     maListen.appendChild(tts); maListen.appendChild(makeSpeedBadge());
     head.appendChild(maListen);
@@ -1423,7 +1474,8 @@
     head.appendChild(el("span", "scenario-tag", "🎭 상황"));
     var tts = el("button", "q-tts", "🔊 듣기");
     tts.type = "button";
-    tts.addEventListener("click", function () { speak(sc.en); });
+    tts.dataset.ttsLabel = "1";
+    tts.addEventListener("click", function () { playWithState(tts, sc.en); });
     head.appendChild(tts);
     box.appendChild(head);
 
