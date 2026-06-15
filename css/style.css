@@ -880,6 +880,167 @@ mark.expr-hl { background: #fde68a; color: #1f2937; border-radius: 3px; padding:
 .script-rec .run-btn.primary { align-self: flex-start; }
 .script-rec-status:empty { display: none; }
 .script-rec-audio { width: 100%; margin-top: 2px; }
+
+/* ===== 암기 보조: 보기 모드 토글 ===== */
+.view-mode-seg { display: inline-flex; gap: 4px; margin: 0 0 10px; padding: 3px; background: var(--surface-2); border: 1px solid var(--border); border-radius: 999px; flex-wrap: wrap; }
+.view-mode-btn { font: inherit; font-size: .78rem; color: var(--text-muted); background: transparent; border: 0; padding: 5px 12px; border-radius: 999px; cursor: pointer; }
+.view-mode-btn:hover { color: var(--text); }
+.view-mode-btn.on { color: #fff; background: var(--accent); }
+/* 단계 라벨 모드 */
+.ss-line-step { margin: 6px 0; }
+.step-label { display: inline-block; font-size: .7rem; font-weight: 700; color: var(--accent); background: var(--accent-weak); border-radius: 6px; padding: 1px 7px; margin-right: 6px; vertical-align: middle; }
+/* 키워드만 모드 */
+.kw-chips { display: flex; flex-wrap: wrap; gap: 7px; }
+.kw-chip { font-size: .85rem; color: var(--text); background: var(--surface-2); border: 1px solid var(--border); border-radius: 999px; padding: 4px 11px; }
+.kw-hint { margin-top: 10px; }
+
+/* ===== 암기 보조: 다르게 말하기 ===== */
+.para-row { padding: 8px 0; border-top: 1px solid var(--border); }
+.para-row:first-of-type { border-top: 0; }
+.para-ko { font-size: .82rem; font-weight: 600; color: var(--text-muted); margin-bottom: 4px; }
+.para-opts { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.para-opt { font-size: .9rem; color: #1d4ed8; cursor: pointer; word-break: keep-all; }
+.para-opt:hover { text-decoration: underline; text-underline-offset: 2px; }
+.para-sep { color: var(--text-muted); opacity: .5; }
+
+/* =========================================================
+   스크립트 상세 화면 리디자인 (또렷하고 컬러감 있는 톤)
+   — .script-detail 범위로만 한정
+   ========================================================= */
+.script-detail {
+  --sd-grad: linear-gradient(135deg, #5b8df7, #2f6df0);
+  --sd-primary: #2f6df0;
+  --sd-strong: #1d4ed8;
+  --sd-tint: #e7eefd;
+  --sd-tint-bd: #d4e2fd;
+  --sd-text: #191c2b;
+  --sd-sub: #6b7186;
+  --sd-faint: #9aa1ad;
+  --sd-divider: #e7e8ef;
+  color: var(--sd-text);
+}
+.model-answer.script-result.script-detail {
+  background: #fff;
+  border: 1px solid var(--sd-divider);
+  border-left: 1px solid var(--sd-divider);
+  border-radius: 18px;
+  box-shadow: 0 18px 40px -22px rgba(47,109,240,.5), 0 4px 14px -8px rgba(47,109,240,.22);
+}
+
+/* 헤더 */
+.script-detail .ma-head { justify-content: flex-start; gap: 9px; }
+.script-detail .ma-tag { color: var(--sd-text); font-weight: 700; }
+.script-detail .ma-tag .ma-tag-ic { color: var(--sd-primary); }
+.script-detail .sd-level {
+  flex: none; font-size: .72rem; font-weight: 800; letter-spacing: .02em; color: #fff;
+  background: var(--sd-grad); padding: 3px 10px; border-radius: 999px;
+  box-shadow: 0 4px 10px -4px rgba(47,109,240,.6);
+}
+.script-detail .tts-group { margin-left: auto; }
+
+/* 듣기 버튼 — 그라데이션 채운 라운드 사각 + 흰 아이콘 */
+.script-detail .icon-btn-sm.icon-accent {
+  color: #fff; background: var(--sd-grad); border: 0; border-radius: 12px;
+  box-shadow: 0 6px 14px -6px rgba(47,109,240,.7);
+}
+.script-detail .icon-btn-sm.icon-accent:hover { filter: brightness(1.06); background: var(--sd-grad); }
+.script-detail .icon-btn-sm.icon-accent.playing,
+.script-detail .icon-btn-sm.icon-accent.paused { color: #fff; background: var(--sd-grad); border-style: solid; }
+
+/* 속도 버튼 — 연한 인디고 + 인디고 테두리 + 작은 그라데이션 점 */
+.script-detail .tts-speed {
+  display: inline-flex; align-items: center; gap: 5px;
+  color: var(--sd-strong); background: var(--sd-tint);
+  border: 1px solid var(--sd-tint-bd); border-radius: 999px;
+}
+.script-detail .tts-speed:hover { background: #fff; border-color: var(--sd-primary); color: var(--sd-strong); }
+.script-detail .tts-speed::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--sd-grad); }
+
+/* eyebrow */
+.script-detail .ss-eyebrow { color: var(--sd-faint); }
+
+/* 질문 블록 — 좌측 그라데이션 바 + 좌→우 인디고 페이드 */
+.script-detail .script-q {
+  position: relative; border-left: 0; padding: 12px 14px 12px 18px; border-radius: 10px;
+  background: linear-gradient(90deg, var(--sd-tint), rgba(238,240,255,0) 88%);
+}
+.script-detail .script-q::before {
+  content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 4px;
+  border-radius: 4px 0 0 4px; background: var(--sd-grad);
+}
+.script-detail .script-q-text { color: var(--sd-text); }
+.script-detail .ss-answer .ss-line { color: var(--sd-text); }
+
+/* 보기 모드 토글 — 회색 트랙 + 슬라이딩 인디케이터 */
+.script-detail .view-mode-seg {
+  position: relative; display: flex; gap: 0; margin: 0 0 12px; padding: 4px;
+  background: #eef0f6; border: 0; border-radius: 999px; overflow: hidden;
+}
+.script-detail .vm-indicator {
+  position: absolute; top: 4px; bottom: 4px; left: 4px; width: 33.33%;
+  border-radius: 999px; background: var(--sd-grad);
+  box-shadow: 0 4px 10px -4px rgba(47,109,240,.6);
+  transition: transform .26s cubic-bezier(.4,0,.2,1), width .26s ease;
+}
+.script-detail .view-mode-btn {
+  position: relative; z-index: 1; flex: 1; font: inherit; font-size: .78rem; font-weight: 600;
+  color: var(--sd-sub); background: transparent; border: 0; padding: 6px 10px;
+  border-radius: 999px; cursor: pointer; white-space: nowrap; transition: color .2s ease;
+}
+.script-detail .view-mode-btn.on { color: #fff; background: transparent; }
+
+/* 단계 라벨 뷰 — 2열 그리드 + 좌측 4색 세로 레일 */
+.script-detail .step-list { position: relative; padding-left: 18px; margin-top: 2px; }
+.script-detail .step-list::before {
+  content: ""; position: absolute; left: 5px; top: 4px; bottom: 4px; width: 3px; border-radius: 3px;
+  background: linear-gradient(180deg, #1d4ed8, #0f766e 38%, #c2410c 70%, #7c3aed);
+}
+.script-detail .step-row { display: grid; grid-template-columns: 60px 1fr; gap: 10px; align-items: start; padding: 7px 0; }
+.script-detail .step-label {
+  display: inline-block; width: 100%; text-align: center; font-size: .72rem; font-weight: 800;
+  padding: 3px 0; border-radius: 999px; border: 1px solid; box-sizing: border-box;
+}
+.script-detail .step-text { color: var(--sd-text); line-height: 1.6; }
+.script-detail .step-c0 { color: #1d4ed8; border-color: #bfdbfe; background: #eff4ff; }
+.script-detail .step-c1 { color: #0f766e; border-color: #9ceee2; background: #e6faf6; }
+.script-detail .step-c2 { color: #c2410c; border-color: #fed3a8; background: #fff3ea; }
+.script-detail .step-c3 { color: #7c3aed; border-color: #ddd0fe; background: #f4edff; }
+
+/* 키워드 뷰 — 쿨 슬레이트 칩 + → 구분자 + 안내박스 */
+.script-detail .kw-chips { display: flex; flex-wrap: wrap; align-items: center; gap: 7px; }
+.script-detail .kw-chip {
+  font-size: 13.5px; font-weight: 700; color: #2b3340; background: #f6f7fb;
+  border: 1px solid #dde3ee; border-radius: 10px; padding: 5px 13px;
+  box-shadow: 0 1px 2px rgba(30,40,80,.06);
+}
+.script-detail .kw-arrow { color: #a6aebd; font-weight: 700; }
+.script-detail .kw-note {
+  margin-top: 12px; font-size: .82rem; line-height: 1.55; color: #5a6172;
+  background: #f5f6fa; border: 1px solid #e7eaf1; border-radius: 10px; padding: 10px 12px;
+}
+.script-detail .kw-note strong { color: #3a4358; }
+
+/* 해석 / 한글발음 — 감싸던 회색 알약 블럭 제거 (버튼만 노출) */
+.script-detail .ma-actions { background: transparent; border: 0; padding: 0; gap: 8px; margin-top: 12px; }
+/* 해석 / 한글발음 버튼 — 쿨 슬레이트(흰 배경 + 슬레이트 테두리/글씨, 아이콘 별도 톤) */
+.script-detail .ma-sub {
+  color: #3f4757; background: #fff; border: 1px solid #e0e4ec; border-radius: 9px;
+  transition: transform .15s ease, box-shadow .15s ease, background .15s ease, border-color .15s ease;
+}
+.script-detail .ma-sub svg { stroke: #64708a; color: #64708a; }
+.script-detail .ma-sub:hover { background: #f4f6fa; border-color: #cdd4e2; box-shadow: 0 6px 14px -9px rgba(70,80,106,.35); transform: translateY(-1px); }
+.script-detail .ma-sub.on { color: #2f3647; background: #e9edf4; border-color: #cdd4e2; }
+.script-detail .ma-sub.on svg { stroke: #51607d; color: #51607d; }
+
+/* 섹션 헤더 아이콘 — 그라데이션 배지 안에 흰 라인 아이콘 */
+.script-detail .ss-tips h4 { display: flex; align-items: center; gap: 8px; color: var(--sd-text); }
+.script-detail .sd-hicon {
+  display: inline-flex; align-items: center; justify-content: center; flex: none;
+  width: 26px; height: 26px; border-radius: 8px; background: var(--sd-grad); color: #fff;
+  box-shadow: 0 5px 12px -5px rgba(47,109,240,.65);
+}
+.script-detail .sd-hicon svg { stroke: #fff; }
+
 .scripts-empty { text-align: center; padding: 40px 16px; display: flex; flex-direction: column; align-items: center; gap: 14px; }
 .scripts-empty .primary-btn { min-width: 160px; }
 

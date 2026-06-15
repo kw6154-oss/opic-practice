@@ -2588,7 +2588,44 @@
     return markEl;
   }
 
+  // 단계 라벨 4색 매핑 (상황 파랑 / 행동 청록 / 감정 주황 / 마무리 보라), 그 외는 순서대로 순환
+  var STEP_COLOR = { "상황": 0, "행동": 1, "감정": 2, "마무리": 3 };
+  // 보기 모드별 모범답안 렌더 (full: 전체 / label: 단계 라벨 / keyword: 키워드 칩)
+  function renderAnswerMode(container, sc, mode) {
+    container.innerHTML = "";
+    container.dataset.hl = "";
+    if (mode === "keyword" && sc.keywords && sc.keywords.length) {
+      var wrap = el("div", "kw-chips");
+      sc.keywords.forEach(function (k, i) {
+        if (i > 0) wrap.appendChild(el("span", "kw-arrow", "→"));
+        wrap.appendChild(el("span", "kw-chip", k));
+      });
+      container.appendChild(wrap);
+      container.appendChild(el("div", "kw-note", "키워드만 보고 문장을 직접 만들어 말해보세요. 막히면 ‘단계 라벨’로 돌아가 확인하세요."));
+      return;
+    }
+    if (mode === "label" && sc.structure && sc.structure.length) {
+      // 전체보기와 동일한 본문을 단계 범위(range)로 묶어서 렌더 — 단계용 텍스트를 따로 두지 않음
+      var sents = splitSentences(sc.answer);
+      var list = el("div", "step-list");
+      sc.structure.forEach(function (st, i) {
+        var ci = (STEP_COLOR[st.label] != null) ? STEP_COLOR[st.label] : (i % 4);
+        var r = st.range || [];
+        var from = (r[0] || 1), to = (r[1] || from);
+        var text = sents.slice(from - 1, to).join(" ");
+        var row = el("div", "step-row");
+        row.appendChild(el("span", "step-label step-c" + ci, st.label));
+        row.appendChild(el("div", "step-text", text));
+        list.appendChild(row);
+      });
+      container.appendChild(list);
+      return;
+    }
+    renderAnswerLines(container, sc.answer, null);
+  }
+
   // 스크립트 녹음 연습 (마이크 녹음 + 다시 듣기, 저장 안 함)
+  var SD_MIC_ICON = '<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>';
   var scriptRec = { session: null, url: null };
   function stopScriptRec() {
     if (scriptRec.session) { try { scriptRec.session.stop(); } catch (e) {} scriptRec.session = null; }
@@ -2624,7 +2661,7 @@
           statusEl.appendChild(el("div", "muted small", "녹음을 재생할 수 없어요."));
         }
         recBtn.style.display = "";
-        recBtn.textContent = "🎙 다시 녹음";
+        recBtn.innerHTML = SD_MIC_ICON + '<span>다시 녹음</span>';
       });
     }).catch(function () {
       scriptRec.session = null;
@@ -2645,8 +2682,9 @@
     var head = el("div", "ma-head");
     var maTag = el("span", "ma-tag");
     maTag.innerHTML = '<svg class="ma-tag-ic" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>';
-    maTag.appendChild(document.createTextNode(" " + String(sc.topicLabel || "").replace(/^✍️?\s*/, "") + " · " + (sc.level || "")));
+    maTag.appendChild(document.createTextNode(" " + String(sc.topicLabel || "").replace(/^✍️?\s*/, "")));
     head.appendChild(maTag);
+    if (sc.level) head.appendChild(el("span", "sd-level", sc.level));
     // 듣기: 텍스트 없는 스피커 아이콘 버튼(연회색 테두리·hover 파랑·재생 중 파랑)
     var tts = el("button", "icon-btn-sm icon-accent");
     tts.type = "button";
@@ -2700,7 +2738,39 @@
       var aSec = el("div", "ss-sec");
       aSec.appendChild(el("div", "ss-eyebrow", "모범답안"));
       ans = el("div", "ma-text ss-answer");
-      renderAnswerLines(ans, sc.answer, null);
+
+      // 보기 모드 토글 (암기 보조) — structure/keywords가 있을 때만
+      var hasStruct = sc.structure && sc.structure.length;
+      var hasKw = sc.keywords && sc.keywords.length;
+      if (hasStruct || hasKw) {
+        var modes = [["full", "전체 보기"]];
+        if (hasStruct) modes.push(["label", "단계 라벨"]);
+        if (hasKw) modes.push(["keyword", "키워드만"]);
+        var seg = el("div", "view-mode-seg");
+        var ind = el("span", "vm-indicator");
+        seg.appendChild(ind);
+        var n = modes.length;
+        function moveInd(idx) {
+          ind.style.width = (100 / n) + "%";
+          ind.style.transform = "translateX(" + (idx * 100) + "%)";
+        }
+        var segBtns = [];
+        modes.forEach(function (m, i) {
+          var b = el("button", "view-mode-btn" + (i === 0 ? " on" : ""), m[1]);
+          b.type = "button";
+          b.addEventListener("click", function () {
+            segBtns.forEach(function (x, j) { x.classList.toggle("on", j === i); });
+            moveInd(i);
+            renderAnswerMode(ans, sc, m[0]);
+          });
+          segBtns.push(b);
+          seg.appendChild(b);
+        });
+        aSec.appendChild(seg);
+        moveInd(0);
+      }
+
+      renderAnswerMode(ans, sc, "full");
       aSec.appendChild(ans);
 
       // 해석 / 한글 발음 토글 (세그먼트 + 아이콘)
@@ -2724,7 +2794,7 @@
     if (sc.expressions && sc.expressions.length) {
       var ex = el("div", "ma-tips ss-tips");
       var exH = el("h4", null);
-      exH.innerHTML = ICON.tag + '<span>주제 표현</span>';
+      exH.innerHTML = '<span class="sd-hicon">' + ICON.tag + '</span><span>주제 표현</span>';
       ex.appendChild(exH);
       sc.expressions.forEach(function (e) {
         // 영어(파랑) 위 / 한글 뜻(회색) 아래 — 2줄 구조
@@ -2758,13 +2828,36 @@
       box.appendChild(ex);
     }
 
+    // 다르게 말하기 섹션 (패러프레이즈)
+    if (sc.paraphrases && sc.paraphrases.length) {
+      var pp = el("div", "ma-tips ss-tips");
+      var ppH = el("h4", null);
+      ppH.innerHTML = '<span class="sd-hicon"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg></span><span>다르게 말하기</span>';
+      pp.appendChild(ppH);
+      sc.paraphrases.forEach(function (para) {
+        var row = el("div", "para-row");
+        row.appendChild(el("div", "para-ko", para.ko));
+        var opts = el("div", "para-opts");
+        (para.options || []).forEach(function (o, i) {
+          if (i > 0) opts.appendChild(el("span", "para-sep", "/"));
+          var chip = el("span", "para-opt", o);
+          chip.title = "듣기";
+          chip.addEventListener("click", function () { speak(o); });
+          opts.appendChild(chip);
+        });
+        row.appendChild(opts);
+        pp.appendChild(row);
+      });
+      box.appendChild(pp);
+    }
+
     // 팁 섹션 (짧은 불릿 2~4개)
     if (sc.tips && sc.tips.length) {
       var bullets = tipsToBullets(sc.tips);
       if (bullets.length) {
         var tw = el("div", "ma-tips ss-tips");
         var twH = el("h4", null);
-        twH.innerHTML = ICON.bulb + '<span>팁</span>';
+        twH.innerHTML = '<span class="sd-hicon">' + ICON.bulb + '</span><span>팁</span>';
         tw.appendChild(twH);
         var ul = document.createElement("ul");
         bullets.forEach(function (t) { ul.appendChild(el("li", null, t)); });
@@ -2780,7 +2873,8 @@
       recSec.appendChild(el("p", "muted small", "이 브라우저는 녹음을 지원하지 않아요. Chrome/Edge를 권장해요."));
     } else {
       var recBox = el("div", "script-rec");
-      var recBtn = el("button", "run-btn primary", "🎙 녹음 시작");
+      var recBtn = el("button", "run-btn primary", "");
+      recBtn.innerHTML = SD_MIC_ICON + '<span>녹음 시작</span>';
       recBtn.type = "button";
       var recStatus = el("div", "script-rec-status");
       recBtn.addEventListener("click", function () { scriptStartRec(recBtn, recStatus); });
