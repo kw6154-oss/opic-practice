@@ -869,6 +869,12 @@ mark.expr-hl { background: #fde68a; color: #1f2937; border-radius: 3px; padding:
 .qcard-en { font-weight: 600; font-size: .95rem; color: #1d4ed8; word-break: keep-all; }
 .qcard-ko { font-size: .85rem; color: var(--text-muted); margin-top: 2px; word-break: keep-all; }
 .qcard-pron { font-size: .82rem; color: #9ca3af; margin-top: 2px; word-break: keep-all; }
+
+/* ===== 스크립트 녹음 연습 ===== */
+.script-rec { display: flex; flex-direction: column; gap: 10px; }
+.script-rec .run-btn.primary { align-self: flex-start; }
+.script-rec-status:empty { display: none; }
+.script-rec-audio { width: 100%; margin-top: 2px; }
 .scripts-empty { text-align: center; padding: 40px 16px; display: flex; flex-direction: column; align-items: center; gap: 14px; }
 .scripts-empty .primary-btn { min-width: 160px; }
 

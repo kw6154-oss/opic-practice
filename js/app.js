@@ -17,6 +17,7 @@
   var SCREENS = ["home", "settings", "survey", "practice", "mockset", "mock", "history", "detail", "stats", "script", "scripts", "pron", "listen"];
   function show(name) {
     // 키 없어도 모든 화면 자유 이용 — 키는 '실제 호출' 시점에만 requireApiKey로 확인
+    if (typeof stopScriptRec === "function") stopScriptRec(); // 화면 이동 시 녹음 정리
     SCREENS.forEach(function (s) {
       var el = $("screen-" + s);
       if (el) el.hidden = (s !== name);
@@ -2535,9 +2536,56 @@
     return markEl;
   }
 
+  // 스크립트 녹음 연습 (마이크 녹음 + 다시 듣기, 저장 안 함)
+  var scriptRec = { session: null, url: null };
+  function stopScriptRec() {
+    if (scriptRec.session) { try { scriptRec.session.stop(); } catch (e) {} scriptRec.session = null; }
+    if (scriptRec.url) { try { URL.revokeObjectURL(scriptRec.url); } catch (e) {} scriptRec.url = null; }
+  }
+  function scriptStartRec(recBtn, statusEl) {
+    stopScriptRec();
+    if (window.speechSynthesis) window.speechSynthesis.cancel();
+    recBtn.style.display = "none";
+    statusEl.innerHTML = "";
+    var bar = el("div", "rec-bar");
+    var dot = el("span", "rec-dot");
+    var stopBtn = el("button", "rec-stop", "■ 멈추기");
+    stopBtn.type = "button";
+    bar.appendChild(dot); bar.appendChild(stopBtn);
+    statusEl.appendChild(bar);
+    statusEl.appendChild(el("div", "rec-live muted small", "녹음 중… 스크립트를 보고 말해보세요."));
+
+    scriptRec.session = Speech.createSession({ onError: function () {} });
+    scriptRec.session.start().then(function () {
+      stopBtn.addEventListener("click", async function () {
+        if (!scriptRec.session) return;
+        var s = scriptRec.session; scriptRec.session = null;
+        statusEl.innerHTML = '<div class="muted small">마무리 중…</div>';
+        var result = await s.stop();
+        statusEl.innerHTML = "";
+        if (result && result.url) {
+          scriptRec.url = result.url;
+          var audio = document.createElement("audio");
+          audio.controls = true; audio.src = result.url; audio.className = "script-rec-audio";
+          statusEl.appendChild(audio);
+        } else {
+          statusEl.appendChild(el("div", "muted small", "녹음을 재생할 수 없어요."));
+        }
+        recBtn.style.display = "";
+        recBtn.textContent = "🎙 다시 녹음";
+      });
+    }).catch(function () {
+      scriptRec.session = null;
+      statusEl.innerHTML = "";
+      statusEl.appendChild(el("div", "error-box", "마이크를 사용할 수 없습니다. 마이크 권한을 확인하세요."));
+      recBtn.style.display = "";
+    });
+  }
+
   // 스크립트 1개 렌더 (생성 결과 / 저장본 공용)
   function renderScriptView(host, sc, opts) {
     opts = opts || {};
+    stopScriptRec();
     host.innerHTML = "";
     var box = el("div", "model-answer script-result script-detail");
 
@@ -2672,6 +2720,25 @@
         box.appendChild(tw);
       }
     }
+
+    // 녹음하며 연습 (마이크 녹음 + 다시 듣기, 저장 안 함)
+    var recSec = el("div", "ss-sec script-rec-sec");
+    recSec.appendChild(el("div", "ss-eyebrow", "녹음 연습"));
+    if (!Speech.recordSupported()) {
+      recSec.appendChild(el("p", "muted small", "이 브라우저는 녹음을 지원하지 않아요. Chrome/Edge를 권장해요."));
+    } else {
+      var recBox = el("div", "script-rec");
+      var recBtn = el("button", "run-btn primary", "🎙 녹음 시작");
+      recBtn.type = "button";
+      var recStatus = el("div", "script-rec-status");
+      recBtn.addEventListener("click", function () { scriptStartRec(recBtn, recStatus); });
+      recBox.appendChild(recBtn);
+      recBox.appendChild(recStatus);
+      recSec.appendChild(recBox);
+      recSec.appendChild(el("p", "eval-note", "※ 녹음은 이 화면에서만 들을 수 있어요. 저장되지 않습니다."));
+    }
+    box.appendChild(recSec);
+
     host.appendChild(box);
 
     // 저장(만들기 화면만). 저장 상세의 삭제는 헤더 우측 휴지통 아이콘으로 이동.
