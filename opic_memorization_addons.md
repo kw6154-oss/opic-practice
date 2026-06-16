@@ -11,12 +11,12 @@
 ## 1. 공원 + 조깅 / 걷기
 
 **[키워드 뼈대]**
-overwhelmed → go-to park → job hunting → running shoes → jog + walk → resets my brain → problems smaller → cheapest therapy
+overwhelmed → go-to park → job hunting → running shoes → jog + walk → resets my brain → no big deal → cheapest therapy
 
 **[단계 라벨]**
 - 상황 — Whenever I'm feeling overwhelmed, my go-to place is a park ten minutes away. I'm job hunting, and the waiting gets to me.
-- 행동 — When my head feels cluttered, I throw on my running shoes — a slow jog, then a long walk.
-- 감정 — The rhythm and the cool morning air just reset my brain; the problems feel a lot smaller.
+- 행동 — When I get stressed, I throw on my running shoes — start by running slowly, then a long walk.
+- 감정 — The rhythm and the cool morning air just reset my brain; the problems are no big deal anymore.
 - 마무리 — It's honestly the cheapest therapy I know.
 
 **[다르게 말하기]**

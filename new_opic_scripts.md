@@ -31,18 +31,18 @@
 ### 1. 공원 + 조깅 / 걷기 (만능 답변: 기분 전환)
 
 **[English Script]**
-Whenever I'm feeling overwhelmed, my go-to place is a park about ten minutes from my apartment. I'll be honest — I'm job hunting at the moment, and the constant waiting for results gets to me more than I'd like to admit. So when my head feels cluttered, I throw on my running shoes and head out. I usually start with a slow jog along the river trail and then cool down with a long walk. There's something about the rhythm of running and the cool morning air that just resets my brain. By the time I get home, the problems that felt huge an hour earlier somehow seem a lot smaller. It's honestly the cheapest therapy I know.
+Whenever I'm feeling overwhelmed, my go-to place is a park about ten minutes from my apartment. I'll be honest — I'm job hunting at the moment, and the waiting for results gets to me more than I'd like to admit. So when I get stressed, I throw on my running shoes and head out. I usually start by running slowly along the river trail and then cool down with a long walk. There's something about the rhythm of running and the cool morning air that just resets my brain. By the time I get home, the problems that felt huge an hour ago are not a big deal anymore. It's honestly the cheapest therapy I know.
 
 **[한국어 뜻]**
-뭔가에 압도당하는 기분이 들 때면, 제가 늘 찾는 곳은 집에서 10분쯤 떨어진 공원이에요. 솔직히 말하면 지금 취업 준비 중이라, 결과를 계속 기다리는 게 인정하고 싶은 것보다 더 힘들거든요. 그래서 머릿속이 복잡해지면 러닝화를 신고 그냥 나가요. 보통 강변 산책로를 따라 천천히 조깅하다가 긴 걷기로 마무리해요. 달리는 리듬이랑 선선한 아침 공기에는 뭔가 머리를 리셋시켜 주는 게 있어요. 집에 돌아올 때쯤이면, 한 시간 전엔 거대해 보였던 고민들이 어쩐지 훨씬 작게 느껴져요. 솔직히 제가 아는 가장 값싼 치료법이에요.
+뭔가에 압도당하는 기분이 들 때면, 제가 늘 찾는 곳은 집에서 10분쯤 떨어진 공원이에요. 솔직히 말하면 지금 취업 준비 중이라, 결과를 기다리는 게 인정하고 싶은 것보다 더 힘들거든요. 그래서 스트레스를 받으면 러닝화를 신고 그냥 나가요. 보통 강변 산책로를 따라 천천히 달리기 시작해서 긴 걷기로 마무리해요. 달리는 리듬이랑 선선한 아침 공기에는 뭔가 머리를 리셋시켜 주는 게 있어요. 집에 돌아올 때쯤이면, 한 시간 전엔 거대해 보였던 고민들이 더 이상 별일 아니게 느껴져요. 솔직히 제가 아는 가장 값싼 치료법이에요.
 
 **[원어민 발음 표기]**
 웬에붤 아임 필링 오우벌웰름드, 마이 고우-투 플레이스 이저 팍 어바웃 텐 미닛츠 프럼 마이 아팟먼(트).
-아일 비 아-니스트 — 아임 좝 헌팅 앳 더 모먼트, 앤 더 칸스턴트 웨이링 풔 뤼절츠 겟츠 투 미 모어 댄 아이드 라익 투 엇밋.
-쏘 웬 마이 헤드 필즈 클러러드, 아이 쓰로우 온 마이 뤄닝 슈즈 앤 헤드 아웃.
-아 유절리 스탓 위더 슬로우 좍 얼롱 더 뤼버 츄뤠일 앤 덴 쿨 다운 위더 롱 웤.
+아일 비 아-니스트 — 아임 좝 헌팅 앳 더 모먼트, 앤 더 웨이링 풔 뤼절츠 겟츠 투 미 모어 댄 아이드 라익 투 엇밋.
+쏘 웬 아이 겟 스트뤠스트, 아이 쓰로우 온 마이 뤄닝 슈즈 앤 헤드 아웃.
+아이 유절리 스탓 바이 뤄닝 슬로울리 얼롱 더 뤼버 츄뤠일 앤 덴 쿨 다운 위더 롱 웤.
 데얼즈 썸띵 어바웃 더 뤼듬 어브 뤄닝 앤 더 쿨 모닝 에얼 댓 저슷 뤼셋츠 마이 브뤠인.
-바이 더 타임 아이 겟 홈, 더 프롸블럼즈 댓 펠트 휴-지 언 아워 얼리어 썸하우 씸 어 랏 스몰러.
+바이 더 타임 아이 겟 홈, 더 프롸블럼즈 댓 펠트 휴-지 언 아워 어고우 아 낫 어 빅 딜 애니모어.
 이츠 아-니슬리 더 칲이스트 떼뤄피 아이 노우.
 
 ---
