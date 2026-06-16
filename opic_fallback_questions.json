@@ -1,0 +1,167 @@
+{
+  "_comment": "API 호출 실패(토큰 소진/할당량 초과/네트워크 오류) 시 사용할 기본 질문 뱅크. 토픽별 3문제 콤보(묘사 → 습관/경험 → 비교/문제해결). 앱의 실제 질문 데이터 구조에 맞춰 필드명을 조정해서 쓰세요.",
+  "version": 1,
+  "topics": {
+    "home": {
+      "label": "집",
+      "questions": [
+        {
+          "tag": "묘사",
+          "sub": "대상의 모습·현재 상태",
+          "en": "I'd like to know about where you live. Can you describe your home for me? Tell me what it looks like and what rooms it has.",
+          "ko": "당신이 사는 곳이 궁금해요. 집을 한번 묘사해 줄래요? 어떻게 생겼는지, 어떤 방들이 있는지 말해 주세요."
+        },
+        {
+          "tag": "일상·습관",
+          "sub": "평소 하는 일",
+          "en": "What's your favorite room in your home, and what do you usually do there? Walk me through a typical day at home.",
+          "ko": "집에서 가장 좋아하는 방은 어디고, 거기서 보통 뭘 하나요? 집에서 보내는 평범한 하루를 들려주세요."
+        },
+        {
+          "tag": "비교·변화",
+          "sub": "과거와 비교",
+          "en": "Think about the home you live in now and a place you lived before. How are they different? Which one do you prefer, and why?",
+          "ko": "지금 사는 집과 예전에 살던 곳을 떠올려 보세요. 둘은 어떻게 다른가요? 어느 쪽이 더 좋고, 왜 그런가요?"
+        }
+      ]
+    },
+    "cafe": {
+      "label": "카페",
+      "questions": [
+        {
+          "tag": "묘사",
+          "sub": "대상의 모습·분위기",
+          "en": "You said you like going to cafes. Can you describe your favorite cafe? What does it look like, and what's the atmosphere like there?",
+          "ko": "카페 가는 걸 좋아한다고 했죠. 가장 좋아하는 카페를 묘사해 줄래요? 어떻게 생겼고, 분위기는 어떤가요?"
+        },
+        {
+          "tag": "경험",
+          "sub": "과거 경험",
+          "en": "Tell me about the last time you went to a cafe. Who did you go with, what did you order, and what did you do there?",
+          "ko": "마지막으로 카페에 갔던 때를 말해 주세요. 누구와 갔고, 뭘 주문했고, 거기서 뭘 했나요?"
+        },
+        {
+          "tag": "문제·해결",
+          "sub": "문제 상황·대처",
+          "en": "Have you ever run into a problem at a cafe, like a wrong order or a place being too crowded? What happened, and how did you deal with it?",
+          "ko": "카페에서 문제를 겪은 적 있나요? 주문이 잘못됐거나 너무 붐볐다거나요. 무슨 일이었고, 어떻게 대처했나요?"
+        }
+      ]
+    },
+    "park": {
+      "label": "공원",
+      "questions": [
+        {
+          "tag": "묘사",
+          "sub": "대상의 모습·현재 상태",
+          "en": "You mentioned you like going to parks. Can you describe a park you often visit? What does it look like, and what can people do there?",
+          "ko": "공원 가는 걸 좋아한다고 했죠. 자주 가는 공원을 묘사해 줄래요? 어떻게 생겼고, 사람들은 거기서 뭘 할 수 있나요?"
+        },
+        {
+          "tag": "일상·습관",
+          "sub": "평소 하는 일",
+          "en": "What do you usually do when you go to the park? Walk me through your routine from the moment you arrive to when you leave.",
+          "ko": "공원에 가면 보통 뭘 하나요? 도착해서 떠날 때까지의 루틴을 들려주세요."
+        },
+        {
+          "tag": "비교·변화",
+          "sub": "과거와 비교",
+          "en": "Has the way you spend time at parks changed over the years? Compare what you used to do with what you do now.",
+          "ko": "공원에서 시간 보내는 방식이 몇 년 사이 바뀌었나요? 예전에 하던 것과 지금 하는 것을 비교해 주세요."
+        }
+      ]
+    },
+    "music": {
+      "label": "음악 감상",
+      "questions": [
+        {
+          "tag": "묘사",
+          "sub": "대상의 특징",
+          "en": "You said you enjoy listening to music. What kind of music do you like, and can you describe one of your favorite artists or songs?",
+          "ko": "음악 듣는 걸 좋아한다고 했죠. 어떤 음악을 좋아하고, 가장 좋아하는 아티스트나 곡 하나를 묘사해 줄래요?"
+        },
+        {
+          "tag": "일상·습관",
+          "sub": "평소 하는 일",
+          "en": "When and where do you usually listen to music? Tell me how music fits into your daily routine.",
+          "ko": "보통 언제 어디서 음악을 듣나요? 음악이 당신의 일상에 어떻게 들어와 있는지 말해 주세요."
+        },
+        {
+          "tag": "경험",
+          "sub": "기억에 남는 경험",
+          "en": "Tell me about a memorable experience related to music, like a concert you went to or a song that meant a lot to you.",
+          "ko": "음악과 관련해 기억에 남는 경험을 말해 주세요. 다녀온 콘서트나, 당신에게 큰 의미가 있던 곡 같은 거요."
+        }
+      ]
+    },
+    "movie": {
+      "label": "영화 보기",
+      "questions": [
+        {
+          "tag": "묘사",
+          "sub": "대상의 특징",
+          "en": "You mentioned you like watching movies. What kind of movies do you enjoy, and can you describe one that you really liked?",
+          "ko": "영화 보는 걸 좋아한다고 했죠. 어떤 영화를 즐겨 보고, 정말 좋았던 영화 하나를 묘사해 줄래요?"
+        },
+        {
+          "tag": "일상·습관",
+          "sub": "평소 하는 일",
+          "en": "How do you usually watch movies these days, at home or at the theater? Walk me through how you pick a movie and watch it.",
+          "ko": "요즘은 보통 어떻게 영화를 보나요? 집에서, 아니면 극장에서요? 영화를 고르고 보는 과정을 들려주세요."
+        },
+        {
+          "tag": "비교·변화",
+          "sub": "비교",
+          "en": "How is watching a movie at home different from watching one at the theater? Which do you prefer, and why?",
+          "ko": "집에서 영화 보는 것과 극장에서 보는 건 어떻게 다른가요? 어느 쪽이 더 좋고, 왜 그런가요?"
+        }
+      ]
+    },
+    "no_exercise": {
+      "label": "운동 안 함",
+      "questions": [
+        {
+          "tag": "묘사",
+          "sub": "대상의 모습·현재 상태",
+          "en": "You mentioned that you don't really exercise. Can you tell me what you usually do to relax or spend your free time instead?",
+          "ko": "운동을 잘 안 한다고 했죠. 대신 보통 어떻게 쉬거나 자유 시간을 보내는지 말해 줄래요?"
+        },
+        {
+          "tag": "일상·습관",
+          "sub": "평소 하는 일",
+          "en": "Describe a typical day off for you. From morning to night, how do you usually spend it?",
+          "ko": "당신의 평범한 쉬는 날을 묘사해 주세요. 아침부터 밤까지 보통 어떻게 보내나요?"
+        },
+        {
+          "tag": "비교·변화",
+          "sub": "과거와 비교",
+          "en": "Has the way you spend your free time changed compared to a few years ago? What's different now, and why?",
+          "ko": "자유 시간을 보내는 방식이 몇 년 전과 비교해 바뀌었나요? 지금은 뭐가 다르고, 왜 그런가요?"
+        }
+      ]
+    }
+  },
+  "generic": {
+    "label": "기본",
+    "questions": [
+      {
+        "tag": "묘사",
+        "sub": "대상의 모습·현재 상태",
+        "en": "Let's talk about something you enjoy doing in your free time. Can you describe it and tell me why you like it?",
+        "ko": "자유 시간에 즐겨 하는 것에 대해 이야기해 봐요. 그게 뭔지 묘사하고, 왜 좋아하는지 말해 줄래요?"
+      },
+      {
+        "tag": "일상·습관",
+        "sub": "평소 하는 일",
+        "en": "How often do you do this, and what does a typical time doing it look like? Walk me through it from start to finish.",
+        "ko": "그걸 얼마나 자주 하고, 할 때는 보통 어떤 모습인가요? 처음부터 끝까지 한번 들려주세요."
+      },
+      {
+        "tag": "경험",
+        "sub": "기억에 남는 경험",
+        "en": "Tell me about a memorable experience you had while doing this. What happened, and why does it stand out to you?",
+        "ko": "그걸 하다가 겪은 기억에 남는 경험을 말해 주세요. 무슨 일이 있었고, 왜 특별히 기억에 남나요?"
+      }
+    ]
+  }
+}

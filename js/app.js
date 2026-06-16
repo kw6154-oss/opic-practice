@@ -1461,10 +1461,47 @@
   }
 
   // 실제 문제 생성(API 연동) — '시작' 클릭 시에만 호출
+  // ---------- 로컬 기본 질문 폴백 (API 실패·키 없음 시) ----------
+  var FB_TYPES = ["description", "experience", "compare"];
+  function fallbackKeyFor(topic) {
+    var map = window.FALLBACK_TOPIC_MAP || {};
+    return (topic && topic.id && map[topic.id]) ? map[topic.id] : "generic";
+  }
+  function buildFallbackItems(topic) {
+    var data = window.FALLBACK_QUESTIONS || {};
+    var key = fallbackKeyFor(topic);
+    var set = (data[key] && data[key].questions) ? data[key] : data.generic;
+    var qs = (set && set.questions) || [];
+    return qs.map(function (q, i) {
+      return { type: FB_TYPES[i] || "description", label: q.tag || "질문", hint: q.sub || "", en: q.en || "", ko: q.ko || "" };
+    });
+  }
+  function comboLooksValid(items) {
+    return Array.isArray(items) && items.length >= 1 &&
+      items.every(function (it) { return it && it.en && String(it.en).trim(); });
+  }
+  // 401(키 만료/무효)·429(한도) 등은 조용히 로그만 남김 (진행은 폴백으로 끊김 없이)
+  function noteApiIssue(e) {
+    if (e && (e.code === "BAD_KEY" || e.code === "RATE_LIMIT")) {
+      try { console.warn("[OPIc] API 사용 불가(" + e.code + ") → 기본 제공 질문으로 진행. " + (e.message || "")); } catch (_) {}
+    }
+  }
+  function useFallbackCombo(s) {
+    s.items = buildFallbackItems(s.topic);
+    s.index = 0;
+    s.fallback = true;
+    $("mockNavBar").style.display = "flex";
+    renderRunItem();
+  }
+
   async function runCombo() {
-    if (!requireApiKey(runCombo)) return; // 키 없으면 안내 모달 → 저장 후 이어서 진행
     var s = state.session;
     var type = s.type, topic = s.topic, level = s.level;
+    s.fallback = false;
+
+    // API 키가 없으면 호출하지 않고 바로 로컬 기본 질문으로 진행
+    if (!Storage.hasApiKey()) { useFallbackCombo(s); return; }
+
     $("mockStage").innerHTML = loaderHTML(
       "AI가 " + level + " 난이도 " + (type === "roleplay" ? "상황극을" : "콤보 질문을") + " 만들고 있어요…");
 
@@ -1486,17 +1523,17 @@
           topic: topic, level: level, type: type, selected: true, signal: sessionAbort.signal, onRetry: onRetry,
         });
       }
+      // 파싱 실패·질문 부족 등도 폴백 대상
+      if (!comboLooksValid(items)) throw new Error("질문 형식이 올바르지 않습니다.");
       state.session.items = items;
       state.session.index = 0;
       $("mockNavBar").style.display = "flex";
       renderRunItem();
     } catch (e) {
       if (e && e.code === "ABORTED") return;
-      $("mockStage").innerHTML = "";
-      $("mockStage").appendChild(el("div", "error-box", "✕ " + ((e && e.message) || "문제 생성 실패")));
-      var retry = el("button", "ghost-btn", "다시 시도");
-      retry.addEventListener("click", function () { runCombo(); });
-      $("mockStage").appendChild(retry);
+      // 네트워크·타임아웃·401·429·4xx/5xx·파싱실패 → 모두 로컬 기본 질문으로 폴백
+      noteApiIssue(e);
+      useFallbackCombo(s);
     }
   }
 
@@ -1510,6 +1547,7 @@
 
     var stage = $("mockStage");
     stage.innerHTML = "";
+    if (s.fallback) stage.appendChild(el("div", "fallback-note", "기본 제공 질문으로 진행합니다"));
     if (qs[i].scenario && qs[i].scenario.en) stage.appendChild(scenarioBanner(qs[i].scenario));
     stage.appendChild(buildQuestionCard(qs[i], i, { showEval: false, perQFeedback: s.type !== "mock" }));
 

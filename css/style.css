@@ -1346,6 +1346,8 @@ mark.expr-hl { background: #fde68a; color: #1f2937; border-radius: 3px; padding:
 #mockStage .rec-type svg { stroke: #7a8294; }
 #mockStage .rec-type:hover { border-color: #d4e4ff; background: #f7f9fd; color: #2563eb; }
 #mockStage .rec-type:hover svg { stroke: #2563eb; }
+/* 폴백(로컬 기본 질문) 안내 한 줄 */
+#mockStage .fallback-note { font-size: 12px; color: #9aa1ad; margin: 0 0 8px; }
 
 /* 종합 리포트 */
 .report { margin-top: 8px; }
