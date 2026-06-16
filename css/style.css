@@ -950,20 +950,20 @@ mark.expr-hl { background: #fde68a; color: #1f2937; border-radius: 3px; padding:
 .script-detail .icon-btn-sm.icon-accent.playing,
 .script-detail .icon-btn-sm.icon-accent.paused { color: #4a78dd; background: #e6efff; border: 1px solid #c5d8fb; }
 
-/* 배속 — 점 3개 스텝 컨트롤 (연결선으로 이어진 점 + 값 텍스트) */
-.script-detail .speed-dots { display: inline-flex; align-items: center; gap: 8px; }
-.script-detail .speed-rail { position: relative; display: inline-flex; align-items: center; gap: 14px; padding: 4px 4px; }
-.script-detail .speed-line {
+/* 배속 — 점 3개 스텝 컨트롤 (연결선으로 이어진 점 + 값 텍스트). 스크립트 상세·런너 공용 */
+.speed-dots { display: inline-flex; align-items: center; gap: 8px; }
+.speed-rail { position: relative; display: inline-flex; align-items: center; gap: 14px; padding: 4px 4px; }
+.speed-line {
   content: ""; position: absolute; left: 7px; right: 7px; top: 50%; height: 2px;
   transform: translateY(-50%); background: #dbe7ff; border-radius: 2px;
 }
-.script-detail .speed-dot {
+.speed-dot {
   position: relative; z-index: 1; width: 8px; height: 8px; padding: 0; border: 0;
   border-radius: 50%; background: #cdd9f3; cursor: pointer;
   transition: width .18s ease, height .18s ease, background .18s ease, box-shadow .18s ease;
 }
-.script-detail .speed-dot.on { width: 11px; height: 11px; background: #5b8def; box-shadow: 0 0 0 3px #e6efff; }
-.script-detail .speed-val { font-size: 11px; font-weight: 700; color: #4170c9; min-width: 26px; }
+.speed-dot.on { width: 11px; height: 11px; background: #5b8def; box-shadow: 0 0 0 3px #e6efff; }
+.speed-val { font-size: 11px; font-weight: 700; color: #4170c9; min-width: 26px; }
 
 /* eyebrow */
 .script-detail .ss-eyebrow { color: var(--sd-faint); }
@@ -1261,11 +1261,17 @@ mark.expr-hl { background: #fde68a; color: #1f2937; border-radius: 3px; padding:
 /* ===== 모의시험 ===== */
 /* 주제 배지 ── 진행바 ── 카운터 한 줄 */
 .mock-head { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
-.mock-head .topic-pill { margin-bottom: 0; flex: none; }
+/* 주제·레벨 칩: 블루 틴트 + 라인 아이콘 */
+.mock-head .topic-pill {
+  margin-bottom: 0; flex: none; display: inline-flex; align-items: center; gap: 6px;
+  background: #eef3ff; border: 1px solid #d4e4ff; color: #1d4ed8;
+  font-size: .8rem; font-weight: 700; padding: 5px 11px; border-radius: 999px;
+}
+.mock-head .topic-pill svg { flex: none; }
 .mock-progress { display: flex; align-items: center; gap: 12px; margin-top: 8px; }
-.mock-counter { font-size: .85rem; font-weight: 700; color: var(--text-muted); white-space: nowrap; flex: none; }
-.mbar { flex: 1; height: 8px; background: var(--surface-2); border: 1px solid var(--border); border-radius: 999px; overflow: hidden; }
-.mbar-fill { height: 100%; width: 33%; background: var(--accent); border-radius: 999px; transition: width .35s ease; }
+.mock-counter { font-size: .85rem; font-weight: 700; color: #9aa1ad; white-space: nowrap; flex: none; }
+.mbar { flex: 1; height: 6px; background: #e6e9f0; border: 0; border-radius: 999px; overflow: hidden; }
+.mbar-fill { height: 100%; width: 33%; background: #2563eb; border-radius: 999px; transition: width .35s ease; }
 
 /* 콤보 시작 전 준비 화면 (선택주제/롤플레이/돌발) */
 .combo-ready {
@@ -1294,8 +1300,52 @@ mark.expr-hl { background: #fde68a; color: #1f2937; border-radius: 3px; padding:
 .combo-ready-btns .primary-btn { min-width: 120px; }
 
 .mock-nav { display: flex; gap: 10px; margin-top: 4px; }
-.mock-nav .ghost-btn { flex: 0 0 auto; }
-.mock-nav .primary-btn { flex: 1; }
+.mock-nav .ghost-btn {
+  flex: 0 0 auto; min-width: 84px; height: 48px; border-radius: 12px;
+  background: #fff; border: 1px solid #d9dde6; color: #3f4757;
+  font: inherit; font-weight: 700; cursor: pointer; transition: border-color .15s, background .15s, color .15s;
+}
+.mock-nav .ghost-btn:hover { border-color: #d4e4ff; background: #f7f9fd; color: #2563eb; }
+.mock-nav .primary-btn {
+  flex: 1; height: 48px; border-radius: 12px;
+  background: #2563eb; border: 1px solid #2563eb; color: #fff;
+  font: inherit; font-weight: 700; cursor: pointer;
+  box-shadow: 0 6px 14px -6px rgba(37,99,235,.55); transition: background .15s, transform .15s, box-shadow .15s;
+}
+.mock-nav .primary-btn:hover { background: #1d4ed8; border-color: #1d4ed8; transform: translateY(-1px); box-shadow: 0 10px 22px -8px rgba(37,99,235,.6); }
+.mock-nav .ghost-btn:disabled { opacity: .5; cursor: default; }
+
+/* ===== 풀이 화면(#mockStage) 컨트롤 톤 ===== */
+/* 카드 상단 태그 칩(슬레이트) — 번호/부제는 공용 스타일 유지 */
+#mockStage .q-type { background: #eef0f5; color: #4a5568; }
+/* 듣기: 파스텔 고스트 */
+#mockStage .icon-btn-sm.icon-accent {
+  color: #7197e8; background: #eef4ff; border: 1px solid #dbe7ff; box-shadow: none;
+}
+#mockStage .icon-btn-sm.icon-accent:hover { background: #e6efff; border-color: #c5d8fb; color: #4a78dd; }
+#mockStage .icon-btn-sm.icon-accent.playing,
+#mockStage .icon-btn-sm.icon-accent.paused { color: #4a78dd; background: #e6efff; border: 1px solid #c5d8fb; }
+/* 한글 보기: 토글 칩 */
+#mockStage .q-trans {
+  background: #fff; border: 1px solid #e0e4ec; color: #566073; border-radius: 999px;
+  font-weight: 600; padding: 6px 13px;
+}
+#mockStage .q-trans:hover { border-color: #d4e4ff; }
+#mockStage .q-trans.on { background: #eef3ff; color: #1d4ed8; border-color: #d4e4ff; }
+/* 답변 버튼: 두 개 균등, 높이 48 */
+#mockStage .idle-row { display: flex; gap: 10px; flex-wrap: nowrap; }
+#mockStage .rec-start, #mockStage .rec-type {
+  flex: 1 1 0; min-width: 0; height: 48px; border-radius: 12px;
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  font: inherit; font-size: .92rem; font-weight: 700; cursor: pointer;
+  transition: background .15s, border-color .15s, color .15s, transform .15s, box-shadow .15s;
+}
+#mockStage .rec-start { background: #2563eb; border: 1px solid #2563eb; color: #fff; box-shadow: 0 6px 14px -6px rgba(37,99,235,.55); }
+#mockStage .rec-start:hover { background: #1d4ed8; border-color: #1d4ed8; transform: translateY(-1px); box-shadow: 0 10px 22px -8px rgba(37,99,235,.6); opacity: 1; }
+#mockStage .rec-type { background: #fff; border: 1px solid #d9dde6; color: #3f4757; }
+#mockStage .rec-type svg { stroke: #7a8294; }
+#mockStage .rec-type:hover { border-color: #d4e4ff; background: #f7f9fd; color: #2563eb; }
+#mockStage .rec-type:hover svg { stroke: #2563eb; }
 
 /* 종합 리포트 */
 .report { margin-top: 8px; }
@@ -1454,32 +1504,71 @@ mark.expr-hl { background: #fde68a; color: #1f2937; border-radius: 3px; padding:
 #detailBody .rubric-row:last-child { border-bottom: none; }
 .detail-sub { margin: -8px 0 14px; }
 
-/* 내역 상세 — 문항별: 녹음 듣기(아이콘+라벨) + 작은 링크 + 접힌 섹션(▸) */
-.hist-item .icon-btn-sm { margin-top: 8px; }
-.hist-audio-btn {
-  display: inline-flex; align-items: center; gap: 6px; margin-top: 8px;
-  background: var(--surface); border: 1px solid var(--border); border-radius: 999px;
-  padding: 6px 12px; color: var(--text); font: inherit; font-size: .82rem; font-weight: 600;
-  cursor: pointer; transition: background .15s, border-color .15s, color .15s;
+/* 내역 상세 — 상단 메타: 번호(회색) · 태그 칩(슬레이트) · 레벨(블루) */
+.hist-item .q-type { background: #eef0f5; color: #4a5568; }
+.hist-lv-badge {
+  flex: none; font-size: .72rem; font-weight: 800; letter-spacing: .02em;
+  background: #eef3ff; color: #1d4ed8; border: 1px solid #d4e4ff;
+  border-radius: 6px; padding: 2px 8px;
 }
-.hist-audio-btn:hover { background: var(--surface-2); border-color: color-mix(in srgb, var(--accent) 35%, var(--border)); color: var(--accent); }
-.hist-audio-btn.playing { opacity: .65; }
-.hist-link-btn {
-  display: inline-block; margin: 10px 14px 0 0;
-  background: none; border: none; padding: 2px 0;
-  color: var(--accent); font: inherit; font-size: .84rem; font-weight: 600;
-  cursor: pointer; text-decoration: none;
+
+/* 내 녹음 → 오디오 플레이어 칩 */
+.audio-chip {
+  display: flex; align-items: center; gap: 10px; height: 46px;
+  margin: 4px 0 12px; padding: 0 14px 0 6px;
+  background: #fff; border: 1px solid #e0e4ec; border-radius: 999px;
+  transition: background .15s, border-color .15s;
 }
-.hist-link-btn:hover { text-decoration: underline; }
-.hist-collapse { margin-top: 10px; border-top: 1px solid var(--border); padding-top: 6px; }
+.audio-chip:hover { border-color: #d4e4ff; background: #fafbff; }
+.audio-chip-play {
+  flex: none; width: 34px; height: 34px; border: 0; border-radius: 50%;
+  background: #2563eb; color: #fff; cursor: pointer;
+  display: inline-flex; align-items: center; justify-content: center;
+  box-shadow: 0 4px 10px -3px rgba(37,99,235,.5); transition: background .15s;
+}
+.audio-chip-play:hover { background: #1d4ed8; }
+.audio-chip-label { flex: none; font-size: 13.5px; font-weight: 700; color: #3f4757; }
+.audio-chip-wave { flex: 1; min-width: 0; display: inline-flex; align-items: center; gap: 3px; overflow: hidden; }
+.audio-bar { flex: none; width: 3px; border-radius: 2px; background: #c3ccdb; }
+.audio-chip-dur { flex: none; font-size: 12.5px; color: #9aa1ad; }
+
+/* 결과 액션 버튼: 발화 분석(아웃라인) · 모범답안(채움) 균등 분할 */
+.hist-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; }
+.hist-action-btn {
+  flex: 1 1 0; min-width: 0;
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  height: 46px; border-radius: 12px; padding: 0 14px;
+  font: inherit; font-size: .9rem; font-weight: 700; cursor: pointer;
+  transition: background .15s, border-color .15s, color .15s, transform .15s, box-shadow .15s;
+}
+.hist-action-btn svg { flex: none; }
+.hist-action-btn.outline { background: #fff; border: 1px solid #d9dde6; color: #3f4757; }
+.hist-action-btn.outline svg { stroke: #7a8294; }
+.hist-action-btn.outline:hover { border-color: #d4e4ff; background: #f7f9fd; color: #2563eb; }
+.hist-action-btn.outline:hover svg { stroke: #2563eb; }
+.hist-action-btn.primary { background: #2563eb; border: 1px solid #2563eb; color: #fff; box-shadow: 0 6px 14px -6px rgba(37,99,235,.55); }
+.hist-action-btn.primary:hover { background: #1d4ed8; border-color: #1d4ed8; transform: translateY(-1px); box-shadow: 0 10px 22px -8px rgba(37,99,235,.6); }
+.hist-action-btn:disabled { opacity: .55; cursor: default; box-shadow: none; transform: none; }
+.hist-btn-lv { flex: none; font-size: .72rem; font-weight: 800; background: rgba(255,255,255,.22); color: #fff; border-radius: 6px; padding: 2px 7px; }
+
+/* 접이식 행: 좌 아이콘/배지 + 라벨 + 우 셰브론 */
+.hist-actions .hist-collapse { flex-basis: 100%; }
+.hist-collapse { margin-top: 0; border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 4px 12px; }
 .hist-collapse > summary {
-  cursor: pointer; list-style: none; padding: 4px 0;
-  font-size: .86rem; font-weight: 700; color: var(--text);
-  display: flex; align-items: center; gap: 6px;
+  cursor: pointer; list-style: none; padding: 8px 0;
+  font-size: .9rem; font-weight: 700; color: var(--text);
+  display: flex; align-items: center; gap: 8px;
 }
 .hist-collapse > summary::-webkit-details-marker { display: none; }
-.hist-collapse > summary::before { content: "▸"; color: var(--text-muted); transition: transform .15s ease; }
-.hist-collapse[open] > summary::before { transform: rotate(90deg); }
+.hist-collapse > summary svg:not(.hist-sum-chev) { flex: none; stroke: #7a8294; }
+.hist-sum-label { flex: 1; min-width: 0; }
+.hist-sum-chev { flex: none; color: var(--text-muted); transition: transform .15s ease; }
+.hist-collapse[open] .hist-sum-chev { transform: rotate(90deg); }
+.lvl-badge-sm {
+  flex: none; font-size: .72rem; font-weight: 800;
+  background: #eef3ff; color: #1d4ed8; border: 1px solid #d4e4ff;
+  border-radius: 6px; padding: 2px 7px;
+}
 
 /* 테스트 내역 — 미니 통계 + 헤더 전체삭제 */
 .hist-clear-btn {

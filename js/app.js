@@ -563,7 +563,7 @@
     tts.innerHTML = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M19 5a9 9 0 0 1 0 14"/></svg>';
     tts.addEventListener("click", function () { playWithState(tts, q.en); });
     actions.appendChild(tts);
-    actions.appendChild(makeSpeedBadge());
+    actions.appendChild(makeSpeedDots());
 
     var trans = el("button", "q-trans", "한글 보기");
     trans.type = "button";
@@ -826,13 +826,17 @@
       if (q.recording) { renderDone(); return; }
 
       var row = el("div", "idle-row");
-      var btn = el("button", "rec-start", "🎙 답변 녹음 시작");
+      var MIC_SVG = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>';
+      var PENCIL_SVG = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>';
+      var btn = el("button", "rec-start");
       btn.type = "button";
+      btn.innerHTML = MIC_SVG + "<span>답변 녹음 시작</span>";
       btn.addEventListener("click", startRec);
       row.appendChild(btn);
 
-      var typeBtn = el("button", "ghost-btn", "⌨️ 녹음 없이 직접 입력");
+      var typeBtn = el("button", "rec-type");
       typeBtn.type = "button";
+      typeBtn.innerHTML = PENCIL_SVG + "<span>녹음 없이 직접 입력</span>";
       typeBtn.addEventListener("click", function () {
         q.recording = { blob: null, url: null, transcript: "" };
         renderDone();
@@ -1349,7 +1353,7 @@
 
     show("mock"); // 런너 화면 재사용
     $("mockTitle").textContent = TYPE_LABEL[type] || "실전 풀이";
-    $("mockTopicPill").textContent = state.session.topicLabel + " · " + level;
+    setTopicPill(state.session.topicLabel + " · " + level);
     $("mockReport").innerHTML = "";
     $("mockNavBar").style.display = "none";
     renderComboReady(type); // '시작' 버튼 화면 — 여기서는 API를 부르지 않음
@@ -1411,7 +1415,7 @@
     s.topicLabel = sit.emoji + " " + sit.label;
     s.title = "돌발 롤플레이 · " + sit.label;
     $("mockTitle").textContent = "돌발 롤플레이";
-    $("mockTopicPill").textContent = "🎲 돌발 롤플레이 · " + sit.label + " · " + s.level;
+    setTopicPill("돌발 롤플레이 · " + sit.label + " · " + s.level);
     renderComboReady("roleplay");
   }
 
@@ -1510,17 +1514,29 @@
     stage.appendChild(buildQuestionCard(qs[i], i, { showEval: false, perQFeedback: s.type !== "mock" }));
 
     $("mockPrev").disabled = (i === 0);
-    $("mockNext").textContent = (i === qs.length - 1) ? "채점하기 ✓" : "다음 문제 →";
+    $("mockNext").textContent = (i === qs.length - 1) ? "채점하기" : "다음 문제";
   }
 
   // 롤플레이 상황(시나리오) 배너
+  // 상단 진행 바의 주제·레벨 칩: 라인 아이콘 + 앞쪽 이모지/기호 제거한 텍스트
+  function setTopicPill(text) {
+    var clean = String(text || "").replace(/^[^\w가-힣]+/, "").trim();
+    $("mockTopicPill").innerHTML =
+      '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3.5"/></svg>' +
+      '<span>' + escapeHtml(clean) + "</span>";
+  }
+
   function scenarioBanner(sc) {
     var box = el("div", "scenario");
     var head = el("div", "scenario-head");
-    head.appendChild(el("span", "scenario-tag", "🎭 상황"));
-    var tts = el("button", "q-tts", "🔊 듣기");
+    var tag = el("span", "scenario-tag");
+    tag.innerHTML = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 16.1A5 5 0 0 1 5.9 20M2 12.05A9 9 0 0 1 9.95 20M2 8V6a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-6"/><circle cx="4" cy="20" r="1"/></svg><span>상황</span>';
+    head.appendChild(tag);
+    var tts = el("button", "icon-btn-sm icon-accent");
     tts.type = "button";
-    tts.dataset.ttsLabel = "1";
+    tts.title = "상황 듣기";
+    tts.setAttribute("aria-label", "상황 듣기");
+    tts.innerHTML = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M19 5a9 9 0 0 1 0 14"/></svg>';
     tts.addEventListener("click", function () { playWithState(tts, sc.en); });
     head.appendChild(tts);
     box.appendChild(head);
@@ -1697,7 +1713,7 @@
 
     show("mock");
     $("mockTitle").textContent = "모의고사";
-    $("mockTopicPill").textContent = "📝 모의고사 · " + modeLabel + " · " + level;
+    setTopicPill("모의고사 · " + modeLabel + " · " + level);
     var _mh = document.querySelector(".mock-head"); if (_mh) _mh.style.display = ""; // 진행 행 표시(연습 시작화면에서 숨겼을 수 있음)
     $("mockReport").innerHTML = "";
     $("mockNavBar").style.display = "none";
@@ -2162,13 +2178,78 @@
     }
   }
 
-  // 저장본 있으면 접힌 섹션(표시만), 없으면 작은 링크 → 1회 호출 → 결과 표시 + 기록 저장.
+  // 결과 카드용 라인 아이콘
+  var ICON_BARCHART = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="6" y1="20" x2="6" y2="14"/><line x1="12" y1="20" x2="12" y2="9"/><line x1="18" y1="20" x2="18" y2="4"/></svg>';
+  var ICON_AUDIO_PLAY = '<svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor" aria-hidden="true"><polygon points="6 4 20 12 6 20 6 4"/></svg>';
+  var ICON_AUDIO_PAUSE = '<svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor" aria-hidden="true"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg>';
+  var HIST_CHEVRON = '<svg class="hist-sum-chev" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 18 15 12 9 6"/></svg>';
+
+  // 내 녹음 → 오디오 플레이어 칩(원형 재생 + 라벨 + 파형 + 길이)
+  function buildAudioChip(audioId) {
+    var chip = el("div", "audio-chip");
+    var play = el("button", "audio-chip-play");
+    play.type = "button";
+    play.setAttribute("aria-label", "내 녹음 재생");
+    play.innerHTML = ICON_AUDIO_PLAY;
+    var label = el("span", "audio-chip-label", "내 녹음");
+    var wave = el("span", "audio-chip-wave");
+    [9, 15, 6, 17, 11, 19, 7, 13, 8].forEach(function (h) {
+      var b = el("span", "audio-bar"); b.style.height = h + "px"; wave.appendChild(b);
+    });
+    var dur = el("span", "audio-chip-dur", "0:00");
+    chip.appendChild(play); chip.appendChild(label); chip.appendChild(wave); chip.appendChild(dur);
+
+    var audio = null, playing = false, ready = false;
+    function setDur() {
+      var d = audio && audio.duration;
+      if (d && isFinite(d)) dur.textContent = fmtTime(Math.round(d));
+    }
+    RecDB.get(audioId).then(function (blob) {
+      if (!blob) return;
+      audio = new Audio();
+      audio.preload = "metadata";
+      audio.src = URL.createObjectURL(blob);
+      ready = true;
+      audio.addEventListener("loadedmetadata", function () {
+        if (!isFinite(audio.duration)) { // webm 길이 미산정 회피
+          audio.currentTime = 1e101;
+          audio.addEventListener("timeupdate", function fix() {
+            audio.removeEventListener("timeupdate", fix);
+            audio.currentTime = 0; setDur();
+          });
+        } else setDur();
+      });
+      audio.addEventListener("ended", function () { playing = false; play.innerHTML = ICON_AUDIO_PLAY; play.classList.remove("on"); });
+    }).catch(function () {});
+
+    play.addEventListener("click", function () {
+      if (!ready || !audio) return;
+      if (window.speechSynthesis) window.speechSynthesis.cancel();
+      if (playing) { audio.pause(); playing = false; play.innerHTML = ICON_AUDIO_PLAY; play.classList.remove("on"); }
+      else { audio.play().then(function () { playing = true; play.innerHTML = ICON_AUDIO_PAUSE; play.classList.add("on"); }).catch(function () {}); }
+    });
+    return chip;
+  }
+
+  function histLead(o, ctx) {
+    if (o.icon) return o.icon;
+    if (o.lv) return ctx === "btn"
+      ? '<span class="hist-btn-lv">' + escapeHtml(o.lv) + '</span>'
+      : '<span class="lvl-badge-sm">' + escapeHtml(o.lv) + '</span>';
+    return "";
+  }
+  function histSummary(o) {
+    var sum = el("summary", null);
+    sum.innerHTML = histLead(o, "sum") + '<span class="hist-sum-label">' + escapeHtml(o.openLabel) + '</span>' + HIST_CHEVRON;
+    return sum;
+  }
+
+  // 저장본 있으면 접힌 섹션(표시만), 없으면 버튼 → 1회 호출 → 결과 표시 + 기록 저장.
   // 한 번 받아온 뒤로는 접기 토글만 동작 — 닫았다 열어도 재호출 없음.
   function attachResultSection(card, o) {
     if (o.saved) {
-      console.log(o.logName + ": cache hit");
       var det = el("details", "hist-collapse");
-      det.appendChild(el("summary", null, o.openLabel));
+      det.appendChild(histSummary(o));
       var body = el("div");
       o.render(body, o.saved);
       det.appendChild(body);
@@ -2176,39 +2257,43 @@
       return;
     }
     var area = el("div");
-    var link = el("button", "hist-link-btn", o.getLabel);
-    link.type = "button";
-    link.addEventListener("click", async function () {
-      link.disabled = true;
-      area.innerHTML = loaderHTML(o.openLabel + " 생성 중…");
+    var btn = el("button", "hist-action-btn " + (o.variant === "primary" ? "primary" : "outline"));
+    btn.type = "button";
+    btn.innerHTML = histLead(o, "btn") + "<span>" + escapeHtml(o.getLabel) + "</span>";
+    btn.addEventListener("click", async function () {
+      btn.disabled = true;
+      var prev = btn.innerHTML;
+      btn.innerHTML = "<span>" + escapeHtml(o.openLabel) + " 생성 중…</span>";
       try {
-        console.log(o.logName + ": API call");
         var data = await o.generate();
         o.persist(data); // it.* + localStorage 영구 저장
         var det2 = el("details", "hist-collapse");
         det2.open = true;
-        det2.appendChild(el("summary", null, o.openLabel));
+        det2.appendChild(histSummary(o));
         var body2 = el("div");
         o.render(body2, data);
         det2.appendChild(body2);
-        area.innerHTML = "";
-        link.replaceWith(det2); // 링크 → 접기 토글로 교체
+        area.remove();
+        btn.replaceWith(det2); // 버튼 → 접기 토글로 교체
       } catch (e) {
+        btn.innerHTML = prev;
+        btn.disabled = false;
         area.innerHTML = "";
         area.appendChild(el("div", "error-box", "✕ " + ((e && e.message) || "실패")));
-        link.disabled = false;
       }
     });
-    card.appendChild(link);
+    card.appendChild(btn);
     card.appendChild(area);
   }
 
   function buildHistoryItem(it, pq, level, recId, idx) {
+    var lv = level || Storage.getLevel();
     var card = el("div", "hist-item");
     var top = el("div", "q-top");
     top.innerHTML =
       '<span class="q-num">' + ((it.idx != null ? it.idx : 0) + 1) + "</span>" +
       '<span class="q-type" data-t="' + it.type + '">' + escapeHtml(it.label) + "</span>" +
+      '<span class="hist-lv-badge">' + escapeHtml(lv) + "</span>" +
       (pq && pq.grade ? '<span class="q-type-hint">' + escapeHtml(pq.grade) + "</span>" : "");
     card.appendChild(top);
 
@@ -2221,26 +2306,22 @@
     card.appendChild(el("p", "hist-transcript", it.transcript || "(무응답)"));
 
     if (it.audioId) {
-      var holder = el("div");
-      var playBtn = el("button", "hist-audio-btn");
-      playBtn.type = "button";
-      playBtn.setAttribute("aria-label", "내 녹음 듣기");
-      playBtn.innerHTML = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="6 4 20 12 6 20 6 4"/></svg><span>내 녹음</span>';
-      playBtn.addEventListener("click", function () { loadAudio(it.audioId, holder, playBtn); });
-      card.appendChild(playBtn);
-      card.appendChild(holder);
+      card.appendChild(buildAudioChip(it.audioId));
     }
     if (pq && pq.note) card.appendChild(el("p", "pq-note", pq.note));
 
-    var lv = level || Storage.getLevel();
 
-    // 발화 분석 — 저장본 있으면 표시만, 없으면 1회 생성+저장(전사 있을 때만)
+    var acts = el("div", "hist-actions");
+
+    // 발화 분석 — 아웃라인 버튼(저장본 있으면 접이식). 전사 있을 때만
     if (it.analysis || (it.transcript && it.transcript.trim())) {
-      attachResultSection(card, {
+      attachResultSection(acts, {
         logName: "speechAnalysis",
         saved: it.analysis || null,
-        openLabel: "📊 발화 분석",
-        getLabel: "📊 발화 분석 받기",
+        openLabel: "발화 분석",
+        getLabel: "발화 분석 받기",
+        variant: "outline",
+        icon: ICON_BARCHART,
         generate: async function () {
           var blob = null;
           if (it.audioId && RecDB.supported()) { try { blob = await RecDB.get(it.audioId); } catch (e) { blob = null; } }
@@ -2251,12 +2332,14 @@
       });
     }
 
-    // 모범답안 — 저장본 있으면 표시만, 없으면 1회 생성+저장
-    attachResultSection(card, {
+    // 모범답안 — 채운 기본 버튼(레벨 배지). 저장본 있으면 접이식
+    attachResultSection(acts, {
       logName: "modelAnswer",
       saved: it.modelAnswer || null,
-      openLabel: lv + " 모범답안",
-      getLabel: lv + " 모범답안 받기",
+      openLabel: "모범답안",
+      getLabel: "모범답안 받기",
+      variant: "primary",
+      lv: lv,
       generate: function () { return QuestionGen.generateModelAnswer({ en: it.question, type: it.type }, lv); },
       render: function (body, data) {
         renderModelAnswer(body, data, function (ex) { // 해석/발음을 나중에 생성하면 내역에 저장 → 재진입 시 재호출 없음
@@ -2267,6 +2350,7 @@
       persist: function (data) { it.modelAnswer = data; persistItemField(recId, idx, "modelAnswer", data); },
     });
 
+    card.appendChild(acts);
     return card;
   }
 
