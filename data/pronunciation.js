@@ -95,7 +95,8 @@
   var YOUTUBE_LINKS = {
     IM2: "https://www.youtube.com/watch?v=OWYGBBG2hys",
     IH:  "https://www.youtube.com/watch?v=FhAXowYcV3Q",
-    AL:  "https://www.youtube.com/watch?v=4jej5i7dbTA"
+    AL:  "https://www.youtube.com/watch?v=4jej5i7dbTA",
+    tip: "https://www.youtube.com/watch?v=Ivwc3Ou0Z9E"
   };
 
   global.PRONUNCIATION_SENTENCES = PRONUNCIATION_SENTENCES;

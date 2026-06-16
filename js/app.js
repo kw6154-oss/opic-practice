@@ -522,6 +522,20 @@
       a.appendChild(el("span", "listen-row-ext", "↗"));
       list.appendChild(a);
     });
+    // 추천 듣기 영상(팁)
+    if (links.tip) {
+      var tipA = document.createElement("a");
+      tipA.className = "listen-row listen-tip-row";
+      tipA.href = links.tip;
+      tipA.target = "_blank"; tipA.rel = "noopener noreferrer";
+      tipA.appendChild(el("span", "listen-tip-badge", "💡 팁"));
+      var tipBody = el("div", "listen-row-body");
+      tipBody.appendChild(el("div", "listen-row-title", "추천 듣기 영상"));
+      tipBody.appendChild(el("div", "muted small", "OPIc 듣기 감 잡기에 도움 되는 영상"));
+      tipA.appendChild(tipBody);
+      tipA.appendChild(el("span", "listen-row-ext", "↗"));
+      list.appendChild(tipA);
+    }
     host.appendChild(list);
     show("listen");
   }
@@ -564,7 +578,7 @@
     card.appendChild(actions);
 
     // 녹음 + 전사 (+ 연습 모드에서만 개별 평가 버튼)
-    attachRecorder(card, q, { showEval: opts.showEval !== false });
+    attachRecorder(card, q, { showEval: opts.showEval !== false, perQFeedback: opts.perQFeedback !== false });
     return card;
   }
 
@@ -796,6 +810,7 @@
   function attachRecorder(card, q, opts) {
     opts = opts || {};
     var showEval = opts.showEval !== false;
+    var perQFeedback = opts.perQFeedback !== false; // 모의고사 풀이 중엔 false (마지막 일괄 피드백)
     var box = el("div", "rec");
     card.appendChild(box);
 
@@ -936,12 +951,15 @@
 
       // AI 평가(연습 모드 전용)는 호출 시 별도 — 그룹과 분리해 영역만 둠
       var evalArea = el("div");
-
-      var corrBtn = el("button", "run-btn primary", q.correction ? "✏️ 첨삭 다시" : "✏️ 답변 첨삭");
-      corrBtn.type = "button";
-      var corrArea = el("div");
-      corrBtn.addEventListener("click", function () { runCorrection(q, corrArea, corrBtn); });
-      grp.appendChild(corrBtn);
+      // 모의고사 풀이 중에는 문제별 첨삭/모범답안 버튼을 숨김(피드백은 마지막에 일괄)
+      var corrArea = null, maArea = null;
+      if (perQFeedback) {
+        var corrBtn = el("button", "run-btn primary", q.correction ? "✏️ 첨삭 다시" : "✏️ 답변 첨삭");
+        corrBtn.type = "button";
+        corrArea = el("div");
+        corrBtn.addEventListener("click", function () { runCorrection(q, corrArea, corrBtn); });
+        grp.appendChild(corrBtn);
+      }
 
       var anaBtn = el("button", "run-btn", "📊 발화 분석");
       anaBtn.type = "button";
@@ -949,11 +967,13 @@
       anaBtn.addEventListener("click", function () { runSpeechAnalysis(q.recording, anaArea, anaBtn, q); });
       grp.appendChild(anaBtn);
 
-      var maBtn = el("button", "run-btn", q.modelAnswer ? "📝 모범답안 다시 보기" : "📝 모범답안 보기");
-      maBtn.type = "button";
-      var maArea = el("div");
-      maBtn.addEventListener("click", function () { runModelAnswer(q, maArea, maBtn, Storage.getLevel()); });
-      grp.appendChild(maBtn);
+      if (perQFeedback) {
+        var maBtn = el("button", "run-btn", q.modelAnswer ? "📝 모범답안 다시 보기" : "📝 모범답안 보기");
+        maBtn.type = "button";
+        maArea = el("div");
+        maBtn.addEventListener("click", function () { runModelAnswer(q, maArea, maBtn, Storage.getLevel()); });
+        grp.appendChild(maBtn);
+      }
 
       box.appendChild(grp);
 
@@ -966,11 +986,11 @@
         box.appendChild(evalArea);
         if (q.evaluation) renderEval(evalArea, q.evaluation);
       }
-      box.appendChild(corrArea);
+      if (corrArea) box.appendChild(corrArea);
       box.appendChild(anaArea);
-      box.appendChild(maArea);
-      if (q.correction) renderCorrection(corrArea, q.correction);
-      if (q.modelAnswer) renderModelAnswer(maArea, q.modelAnswer);
+      if (maArea) box.appendChild(maArea);
+      if (corrArea && q.correction) renderCorrection(corrArea, q.correction);
+      if (maArea && q.modelAnswer) renderModelAnswer(maArea, q.modelAnswer);
     }
 
     renderIdle();
@@ -1160,47 +1180,13 @@
     }
   }
 
-  function renderModelAnswer(area, ma) {
-    area.innerHTML = "";
-    var box = el("div", "model-answer");
-    var head = el("div", "ma-head");
-    head.appendChild(el("span", "ma-tag", "📝 " + (ma.level || "") + " 모범답안"));
-    var tts = el("button", "q-tts", "🔊 듣기");
-    tts.type = "button";
-    tts.dataset.ttsLabel = "1";
-    tts.addEventListener("click", function () { playWithState(tts, ma.answer); });
-    var maListen = el("span", "tts-group");
-    maListen.appendChild(tts); maListen.appendChild(makeSpeedBadge());
-    head.appendChild(maListen);
-    box.appendChild(head);
-
-    var maBody = el("div", "ma-text ss-answer"); // 문장 단위 줄바꿈('저장한 스크립트'와 동일)
-    renderAnswerLines(maBody, ma.answer, null);
-    box.appendChild(maBody);
-
-    // 해석 / 한글 발음 (on-demand, 한 번에 생성·캐시)
-    var actions = el("div", "ma-actions");
-    var transBtn = el("button", "ma-sub", "🇰🇷 해석");
-    transBtn.type = "button";
-    var pronBtn = el("button", "ma-sub", "🗣️ 한글 발음");
-    pronBtn.type = "button";
-    var extraArea = el("div", "ma-extra");
-    transBtn.addEventListener("click", function () { showExtra("ko", ma, extraArea, transBtn, pronBtn); });
-    pronBtn.addEventListener("click", function () { showExtra("pron", ma, extraArea, pronBtn, transBtn); });
-    actions.appendChild(transBtn);
-    actions.appendChild(pronBtn);
-    box.appendChild(actions);
-    box.appendChild(extraArea);
-
-    if (ma.tips && ma.tips.length) {
-      var tipWrap = el("div", "ma-tips");
-      tipWrap.appendChild(el("h4", null, "💡 표현·구성 팁"));
-      var ul = document.createElement("ul");
-      ma.tips.forEach(function (t) { ul.appendChild(el("li", null, t)); });
-      tipWrap.appendChild(ul);
-      box.appendChild(tipWrap);
-    }
-    area.appendChild(box);
+  // 모범답안을 저장 스크립트 상세와 동일한 형태로 렌더(듣기·배속·해석·한글발음·팁)
+  // ma를 그대로 sc로 사용 → 해석/발음을 1회 생성하면 ma.extras에 캐시됨(재호출 없음)
+  function renderModelAnswer(area, ma, onExtras) {
+    ma = ma || {};
+    ma.type = ma.type || "description";
+    if (ma.topicLabel == null) ma.topicLabel = ""; // 헤더는 레벨 배지만, 섹션 eyebrow가 '모범답안' 표시
+    renderScriptView(area, ma, { embed: true, onExtras: onExtras });
   }
 
   function ensureModelExtras(ma, onRetry) {
@@ -1261,6 +1247,29 @@
       if (list[i].id === sc.id) {
         if (!list[i].extras) { list[i].extras = sc.extras; Storage.setScripts(list); }
         return;
+      }
+    }
+  }
+
+  // 저장본에 암기 보조(키워드/단계 구조)가 없으면 1회 생성해 채움
+  function ensureScriptAids(sc, onRetry) {
+    var hasKw = sc.keywords && sc.keywords.length;
+    var hasStruct = sc.structure && sc.structure.length;
+    if (hasKw && hasStruct) return Promise.resolve(sc);
+    return QuestionGen.generateScriptAids(sc.answer, { onRetry: onRetry }).then(function (aids) {
+      if (!hasKw && aids.keywords && aids.keywords.length) sc.keywords = aids.keywords;
+      if (!hasStruct && aids.structure && aids.structure.length) sc.structure = aids.structure;
+      return sc;
+    });
+  }
+  // 생성된 키워드/단계 구조를 저장본에 영구 저장
+  function persistScriptAids(sc) {
+    if (!sc || !sc.id) return;
+    var list = Storage.getScripts();
+    for (var i = 0; i < list.length; i++) {
+      if (list[i].id === sc.id) {
+        list[i].keywords = sc.keywords; list[i].structure = sc.structure;
+        Storage.setScripts(list); return;
       }
     }
   }
@@ -1498,7 +1507,7 @@
     var stage = $("mockStage");
     stage.innerHTML = "";
     if (qs[i].scenario && qs[i].scenario.en) stage.appendChild(scenarioBanner(qs[i].scenario));
-    stage.appendChild(buildQuestionCard(qs[i], i, { showEval: false }));
+    stage.appendChild(buildQuestionCard(qs[i], i, { showEval: false, perQFeedback: s.type !== "mock" }));
 
     $("mockPrev").disabled = (i === 0);
     $("mockNext").textContent = (i === qs.length - 1) ? "채점하기 ✓" : "다음 문제 →";
@@ -1542,6 +1551,28 @@
     if (s && s.index > 0) { s.index -= 1; renderRunItem(); }
   }
 
+  // 모의고사 종합 채점 후: 답변한 문항의 첨삭+모범답안을 일괄(청크) 생성해 각 문항에 부착
+  async function attachMockReviews(s) {
+    var answered = [];
+    s.items.forEach(function (q) {
+      var tr = (q.recording && q.recording.transcript || "").trim();
+      if (tr) answered.push({ q: q, question: q.en, transcript: tr });
+    });
+    if (!answered.length) return;
+    try {
+      var reviews = await QuestionGen.reviewAnswers(
+        answered.map(function (a) { return { question: a.question, transcript: a.transcript }; }),
+        { level: s.level, onRetry: function (sec) { $("mockReport").innerHTML = loaderHTML("무료 한도 대기 중… " + sec + "초 후 자동 재시도"); } }
+      );
+      answered.forEach(function (a, idx) {
+        var r = reviews[idx]; if (!r) return;
+        a.q.review = { corrections: r.corrections, improved: r.improved, modelAnswer: { answer: r.modelAnswer, tips: r.tips, level: s.level, extras: r.modelExtras || null }, forTranscript: a.transcript };
+        a.q.correction = { corrections: r.corrections, improved: r.improved };
+        a.q.modelAnswer = a.q.review.modelAnswer;
+      });
+    } catch (e) { /* 비치명적: 종합 리포트는 그대로 표시 */ }
+  }
+
   async function gradeSession() {
     if (window.speechSynthesis) window.speechSynthesis.cancel();
     var s = state.session;
@@ -1567,6 +1598,11 @@
         },
       });
       s.result = result;
+      // 모의고사: 마지막에 문제별 첨삭+모범답안을 일괄 생성(연습은 문제별 개별 유지)
+      if (s.type === "mock") {
+        report.innerHTML = loaderHTML("문제별 첨삭·모범답안 생성 중…");
+        await attachMockReviews(s);
+      }
       var saved = await saveSession(s, result);
       renderReport(result, { saved: saved });
     } catch (e) {
@@ -1596,6 +1632,7 @@
         audioId: audioId,
         analysis: q.analysis || null,       // 풀이 중 생성된 발화 분석(있으면 재사용)
         modelAnswer: q.modelAnswer || null, // 풀이 중 생성된 모범답안(있으면 재사용)
+        correction: q.correction || null,   // 모의고사 일괄 첨삭(있으면 재사용)
       });
     }
     var record = {
@@ -1781,6 +1818,20 @@
       pqBox.appendChild(row);
     });
     wrap.appendChild(pqBox);
+
+    // 문제별 첨삭 & 모범답안 (모의고사: 마지막에 일괄 생성된 결과를 펼침으로 표시)
+    var sess = state.session || {};
+    if (sess.items && sess.items.some(function (q) { return q.correction || q.modelAnswer; })) {
+      wrap.appendChild(el("div", "report-section-title", "문제별 첨삭 & 모범답안"));
+      sess.items.forEach(function (q, i) {
+        if (!(q.correction || q.modelAnswer)) return;
+        var det = el("details", "pq-review");
+        det.appendChild(el("summary", "pq-review-sum", (i + 1) + ". " + (q.label || q.en || "")));
+        if (q.correction) { var ca = el("div"); renderCorrection(ca, q.correction); det.appendChild(ca); }
+        if (q.modelAnswer) { var ma = el("div"); renderModelAnswer(ma, q.modelAnswer); det.appendChild(ma); }
+        wrap.appendChild(det);
+      });
+    }
 
     // 강점/개선
     if (r.strengths.length || r.improvements.length) {
@@ -2207,7 +2258,12 @@
       openLabel: lv + " 모범답안",
       getLabel: lv + " 모범답안 받기",
       generate: function () { return QuestionGen.generateModelAnswer({ en: it.question, type: it.type }, lv); },
-      render: function (body, data) { renderModelAnswer(body, data); },
+      render: function (body, data) {
+        renderModelAnswer(body, data, function (ex) { // 해석/발음을 나중에 생성하면 내역에 저장 → 재진입 시 재호출 없음
+          data.extras = ex;
+          persistItemField(recId, idx, "modelAnswer", data);
+        });
+      },
       persist: function (data) { it.modelAnswer = data; persistItemField(recId, idx, "modelAnswer", data); },
     });
 
@@ -2596,6 +2652,26 @@
     speakerSm: '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>',
   };
 
+  // 단락 1개에 phrase 첫 일치를 <mark>로 하이라이트하며 채움(없으면 평문). 매칭 mark 반환
+  function fillPhrase(pEl, text, phrase) {
+    text = String(text || "");
+    var lower = phrase ? String(phrase).toLowerCase() : null;
+    if (lower) {
+      var idx = text.toLowerCase().indexOf(lower);
+      if (idx !== -1) {
+        pEl.appendChild(document.createTextNode(text.slice(0, idx)));
+        var mk = document.createElement("mark");
+        mk.className = "expr-hl";
+        mk.textContent = text.slice(idx, idx + phrase.length);
+        pEl.appendChild(mk);
+        pEl.appendChild(document.createTextNode(text.slice(idx + phrase.length)));
+        return mk;
+      }
+    }
+    pEl.textContent = text;
+    return null;
+  }
+
   // 모범답안 줄 렌더 (phrase 있으면 첫 일치를 <mark>로 하이라이트, 매칭된 mark 반환)
   function renderAnswerLines(container, text, phrase) {
     container.innerHTML = "";
@@ -2630,9 +2706,9 @@
   // 보기 모드별 모범답안 렌더
   //  - keyword: 키워드 칩
   //  - body: 단계 그룹 단위로 묶어 렌더(같은 문장에 라벨만 매핑). showSteps면 라벨+색 레일+2열, 아니면 구분선만 단일 컬럼
-  function renderAnswerMode(container, sc, mode, showSteps) {
+  function renderAnswerMode(container, sc, mode, showSteps, hl) {
     container.innerHTML = "";
-    container.dataset.hl = "";
+    container.dataset.hl = hl || "";
     if (mode === "keyword" && sc.keywords && sc.keywords.length) {
       var wrap = el("div", "kw-chips");
       sc.keywords.forEach(function (k, i) {
@@ -2643,24 +2719,39 @@
       container.appendChild(el("div", "kw-note", "키워드만 보고 문장을 직접 만들어 말해보세요. 막히면 ‘본문’으로 돌아가 확인하세요."));
       return;
     }
-    // 본문: 단계 구조가 있으면 단계 범위(range)로 묶어서 렌더 — 단계용 텍스트를 따로 두지 않음
+    // 본문: 영어 + 해석 + 발음을 같은 문장 매핑에서 청크 단위로 인터리브 렌더
+    //  - 청크 = structure 단계 범위(없으면 문장별). 라벨/색 레일은 영어 쪽에만 한 번.
+    //  - 해석(.chunk-ko)·발음(.chunk-pron)은 항상 DOM에 넣되 .show-ko/.show-pron 클래스로 표시 제어
+    var ens = splitSentences(sc.answer);
+    if (!ens.length) { renderAnswerLines(container, sc.answer, hl || null); return; }
+    var kos = (sc.extras && sc.extras.ko) ? splitSentences(sc.extras.ko) : [];
+    var prons = (sc.extras && sc.extras.pron) ? splitSentences(sc.extras.pron) : [];
+    var chunks = [];
     if (sc.structure && sc.structure.length) {
-      var sents = splitSentences(sc.answer);
-      var list = el("div", "step-list" + (showSteps ? " show-steps" : ""));
       sc.structure.forEach(function (st, i) {
-        var ci = (STEP_COLOR[st.label] != null) ? STEP_COLOR[st.label] : (i % 4);
         var r = st.range || [];
-        var from = (r[0] || 1), to = (r[1] || from);
-        var text = sents.slice(from - 1, to).join(" ");
-        var row = el("div", "step-row");
-        if (showSteps) row.appendChild(el("span", "step-label step-c" + ci, st.label));
-        row.appendChild(el("div", "step-text", text));
-        list.appendChild(row);
+        chunks.push({ label: st.label, ci: (STEP_COLOR[st.label] != null ? STEP_COLOR[st.label] : (i % 4)), from: (r[0] || 1), to: (r[1] || (r[0] || 1)) });
       });
-      container.appendChild(list);
-      return;
+    } else {
+      ens.forEach(function (_, i) { chunks.push({ label: null, ci: 0, from: i + 1, to: i + 1 }); });
     }
-    renderAnswerLines(container, sc.answer, null);
+    var list = el("div", "step-list" + (showSteps ? " show-steps" : ""));
+    chunks.forEach(function (c) {
+      var enText = ens.slice(c.from - 1, c.to).join(" ");
+      var koText = kos.slice(c.from - 1, c.to).join(" ");
+      var pronText = prons.slice(c.from - 1, c.to).join(" ");
+      var row = el("div", "step-row");
+      if (showSteps && c.label) row.appendChild(el("span", "step-label step-c" + c.ci, c.label));
+      var bodyEl = el("div", "step-text");
+      var pEn = el("p", "chunk-en");
+      fillPhrase(pEn, enText, hl); // 주제표현 클릭 시 현재 본문에서 하이라이트
+      bodyEl.appendChild(pEn);
+      if (koText) bodyEl.appendChild(el("p", "chunk-ko", koText));
+      if (pronText) bodyEl.appendChild(el("p", "chunk-pron", pronText));
+      row.appendChild(bodyEl);
+      list.appendChild(row);
+    });
+    container.appendChild(list);
   }
 
   // 스크립트 녹음 연습 (마이크 녹음 + 다시 듣기, 저장 안 함)
@@ -2783,14 +2874,24 @@
       // 보기 모드: [본문] [키워드만] 탭 + 본문 우상단 '단계 표시' on/off 스위치
       var hasStruct = sc.structure && sc.structure.length;
       var hasKw = sc.keywords && sc.keywords.length;
+      // 저장본인데 키워드/단계 데이터가 없으면 1회 자동 생성 후 다시 렌더 → 탭·단계 표시 노출
+      if (opts.saved && sc.answer && (!hasStruct || !hasKw) && !sc._aidsTried && Storage.hasApiKey() && QuestionGen.generateScriptAids) {
+        sc._aidsTried = true;
+        ensureScriptAids(sc).then(function () {
+          persistScriptAids(sc);
+          renderScriptView(host, sc, opts);
+        }).catch(function () { /* 생성 실패 시 조용히 무시(탭 없이 표시) */ });
+      }
       var stepOn = false;     // 단계 표시 기본 off
       var curMode = "body";
+      var showKo = false, showPron = false; // 해석/한글발음 인터리브 표시 (독립 토글)
+      var curHl = ""; // 주제표현 클릭 하이라이트 (현재 모드/해석·발음 상태 유지)
       var stepSwitch = null;
       if (hasStruct || hasKw) {
         var aHead = el("div", "ma-view-head");
         // 탭 (키워드가 있을 때만 — 본문/키워드만 선택)
         if (hasKw) {
-          var modes = [["body", "본문"], ["keyword", "키워드만"]];
+          var modes = [["body", "본문"], ["keyword", "키워드"]];
           var seg = el("div", "view-mode-seg");
           var ind = el("span", "vm-indicator");
           seg.appendChild(ind);
@@ -2810,7 +2911,7 @@
               moveInd(i);
               // 단계 표시 스위치는 본문 탭에서만 노출
               if (stepSwitch) stepSwitch.style.display = (curMode === "body") ? "" : "none";
-              renderAnswerMode(ans, sc, curMode, stepOn);
+              renderAns();
             });
             segBtns.push(b);
             seg.appendChild(b);
@@ -2828,17 +2929,27 @@
           stepSwitch.appendChild(el("span", "step-switch-track"));
           chk.addEventListener("change", function () {
             stepOn = chk.checked;
-            if (curMode === "body") renderAnswerMode(ans, sc, "body", stepOn);
+            if (curMode === "body") renderAns();
           });
           aHead.appendChild(stepSwitch);
         }
         aSec.appendChild(aHead);
       }
 
-      renderAnswerMode(ans, sc, "body", stepOn);
+      // 표시상태(해석/발음) 반영 + 현재 모드/단계로 다시 렌더
+      var applyExtraVis = function () {
+        ans.classList.toggle("show-ko", showKo);
+        ans.classList.toggle("show-pron", showPron);
+      };
+      var renderAns = function () {
+        renderAnswerMode(ans, sc, curMode, stepOn, curHl);
+        applyExtraVis();
+      };
+
+      renderAns();
       aSec.appendChild(ans);
 
-      // 해석 / 한글 발음 토글 (세그먼트 + 아이콘)
+      // 해석 / 한글 발음 — 각 청크 아래 인터리브로 표시되는 독립 토글 칩
       var actions = el("div", "ma-actions");
       var transBtn = el("button", "ma-sub");
       transBtn.type = "button";
@@ -2846,12 +2957,36 @@
       var pronBtn = el("button", "ma-sub");
       pronBtn.type = "button";
       pronBtn.innerHTML = ICON.speaker + '<span>한글 발음</span>';
-      var extraArea = el("div", "ma-extra");
-      transBtn.addEventListener("click", function () { scriptExtraToggle("ko", sc, extraArea, transBtn, pronBtn); });
-      pronBtn.addEventListener("click", function () { scriptExtraToggle("pron", sc, extraArea, pronBtn, transBtn); });
+
+      var toggleExtra = async function (kind, chip) {
+        var turningOn = !chip.classList.contains("on");
+        // 켜는데 extras가 아직 없으면 최초 1회 생성(해석+발음 함께)
+        if (turningOn && !sc.extras) {
+          var prevHtml = chip.innerHTML;
+          transBtn.disabled = true; pronBtn.disabled = true;
+          chip.innerHTML = '<span>생성 중…</span>';
+          try {
+            await ensureModelExtras(sc, function (sec) { chip.innerHTML = '<span>한도 대기 ' + sec + 's…</span>'; });
+            persistScriptExtras(sc);
+            if (opts.onExtras) { try { opts.onExtras(sc.extras); } catch (e2) {} } // 내역 모범답안 등 외부 저장 훅
+          } catch (e) {
+            chip.innerHTML = prevHtml;
+            transBtn.disabled = false; pronBtn.disabled = false;
+            toast((e && e.message) || "생성 실패");
+            return;
+          }
+          chip.innerHTML = prevHtml;
+          transBtn.disabled = false; pronBtn.disabled = false;
+          renderAns(); // 청크에 해석·발음 줄이 포함되도록 다시 렌더
+        }
+        if (kind === "ko") showKo = turningOn; else showPron = turningOn;
+        chip.classList.toggle("on", turningOn);
+        applyExtraVis();
+      };
+      transBtn.addEventListener("click", function () { toggleExtra("ko", transBtn); });
+      pronBtn.addEventListener("click", function () { toggleExtra("pron", pronBtn); });
       actions.appendChild(transBtn); actions.appendChild(pronBtn);
       aSec.appendChild(actions);
-      aSec.appendChild(extraArea);
       box.appendChild(aSec);
     }
 
@@ -2869,15 +3004,12 @@
         row.appendChild(txt);
         // 표현 텍스트 클릭 → 모범답안에서 해당 표현 하이라이트(토글)
         txt.addEventListener("click", function () {
-          var cur = ans.dataset.hl || "";
-          if (cur === e.en) { ans.dataset.hl = ""; renderAnswerLines(ans, sc.answer, null); return; }
-          var mk = renderAnswerLines(ans, sc.answer, e.en);
-          if (mk) {
-            ans.dataset.hl = e.en;
-            mk.scrollIntoView({ behavior: "smooth", block: "center" });
-          } else {
-            renderAnswerLines(ans, sc.answer, cur || null); // 답안에 없으면 이전 상태로 복원(무시)
-          }
+          curHl = (curHl === e.en) ? "" : e.en; // 토글
+          if (typeof renderAns === "function") renderAns(); // 현재 모드·해석·발음 상태 유지하며 다시 렌더
+          else if (ans) renderAnswerLines(ans, sc.answer, curHl || null);
+          var mk = ans && ans.querySelector(".expr-hl");
+          if (mk) mk.scrollIntoView({ behavior: "smooth", block: "center" });
+          else if (curHl) curHl = ""; // 본문에 없으면 하이라이트 해제
         });
         // 표현 개별 듣기 (기존 TTS 재사용)
         var spk = el("button", "expr-spk");
@@ -2928,7 +3060,8 @@
       }
     }
 
-    // 녹음하며 연습 (마이크 녹음 + 다시 듣기, 저장 안 함)
+    // 녹음하며 연습 (마이크 녹음 + 다시 듣기, 저장 안 함). embed(테스트 모범답안)에선 생략
+    if (!opts.embed) {
     var recSec = el("div", "ss-sec script-rec-sec");
     recSec.appendChild(el("div", "ss-eyebrow", "녹음 연습"));
     if (!Speech.recordSupported()) {
@@ -2950,11 +3083,12 @@
       recSec.appendChild(recBox);
     }
     box.appendChild(recSec);
+    }
 
     host.appendChild(box);
 
     // 저장(만들기 화면만). 저장 상세의 삭제는 헤더 우측 휴지통 아이콘으로 이동.
-    if (!opts.saved) {
+    if (!opts.saved && !opts.embed) {
       var act = el("div", "report-actions");
       var save = el("button", "primary-btn", "⭐ 저장");
       save.addEventListener("click", function () { saveScript(sc, save); });
@@ -2984,17 +3118,24 @@
     return out.length ? out : [s];
   }
 
-  // 팁: 배열/긴 문단 → 짧은 불릿 2~4개 (끝의 영어 번역 괄호 제거 + 문장 분리)
-  // 팁: 배열/긴 문단 → 짧은 불릿 2~4개 (끝의 영어 번역 괄호 제거 + 문장 분리)
+  // 팁 → 글머리(<li>) 목록
+  //  - 항목 내부의 줄바꿈/연속 공백은 한 칸으로 합침(줄바꿈만으로는 새 글머리를 만들지 않음).
+  //  - 문장 끝(.?! + 공백)에서만 분리 → 서로 다른 조언은 각각 한 글머리.
+  //    말줄임표('어..어..', '음...')는 뒤에 공백이 없어 쪼개지지 않음.
+  //  - 끝에 붙은 영어 번역 괄호는 제거(괄호 안이 한글이면 유지).
   function tipsToBullets(tips) {
+    var arr = Array.isArray(tips) ? tips : (tips != null && tips !== "" ? [String(tips)] : []);
     var out = [];
-    (tips || []).forEach(function (t) {
-      var clean = String(t).replace(/s*(([^)]*))s*$/, function (m, inner) {
-        return /[가-힣]/.test(inner) ? m : "";
-      }).trim();
+    arr.forEach(function (t) {
+      var clean = String(t).replace(/\s+/g, " ").trim();
       if (!clean) return;
-      var sents = clean.match(/[^.?!]+[.?!]*/g) || [clean];
-      sents.forEach(function (p) { p = p.trim(); if (p) out.push(p); });
+      // 문장 끝 부호 뒤에 공백이 올 때만 분리(마커 삽입 후 split)
+      clean.replace(/([.?!])\s+/g, "$1").split("").forEach(function (s) {
+        s = s.replace(/\s*\(([^)]*)\)\s*$/, function (m, inner) {
+          return /[가-힣]/.test(inner) ? m : "";
+        }).trim();
+        if (s) out.push(s);
+      });
     });
     return out.slice(0, 4);
   }
@@ -3003,10 +3144,13 @@
     var rec = {
       id: "s_" + Date.now() + "_" + Math.floor(Math.random() * 1000),
       ts: Date.now(),
+      type: sc.type, stage: sc.stage,
       topicId: sc.topicId, topicLabel: sc.topicLabel, level: sc.level,
       question: sc.question, answer: sc.answer,
       expressions: sc.expressions || [], tips: sc.tips || [],
       levelNote: sc.levelNote || "",
+      keywords: sc.keywords || [], structure: sc.structure || [],
+      paraphrases: sc.paraphrases || [], cards: sc.cards || null,
       extras: sc.extras || null,
     };
     var list = Storage.getScripts();
@@ -3190,7 +3334,7 @@
       var r = await QuestionGen.reviewAnswer(q, transcript, { level: level, onRetry: onRetry });
       review = {
         corrections: r.corrections, improved: r.improved,
-        modelAnswer: { answer: r.modelAnswer, tips: r.tips, level: level },
+        modelAnswer: { answer: r.modelAnswer, tips: r.tips, level: level, extras: r.modelExtras || null },
         forTranscript: transcript,
       };
     } catch (e) {

@@ -402,16 +402,19 @@
       (MODEL_LEN[level] || MODEL_LEN.IM2) + "\n" +
       "Make it sound natural, first-person, and SPOKEN (not a written essay). " +
       "It should realistically be sayable in about 1.5-2 minutes.\n" +
-      "Then give 2-3 short KOREAN tips about useful expressions or the structure used.\n" +
-      'Return ONLY JSON: { "answer":"...", "tips":["...","..."] }';
+      "Then give 2-3 tips, each WRITTEN AS A KOREAN sentence. Use English ONLY for quoted words/expressions; never write a tip as an English sentence.\n" +
+      "Also provide ko (natural KOREAN translation of the answer) and pron (HANGUL pronunciation of the answer mimicking natural native connected speech with linking/reductions, not letter-by-letter). Write ko and pron sentence-by-sentence in the SAME order and count as the answer.\n" +
+      'Return ONLY JSON: { "answer":"...", "tips":["...","..."], "ko":"...", "pron":"..." }';
 
     var d = await AI.generateJSON(prompt, {
       system: SYSTEM, temperature: 0.7, signal: opts.signal, onRetry: opts.onRetry,
     });
+    var mko = (d.ko || "").trim(), mpron = (d.pron || "").trim();
     return {
       answer: (d.answer || "").trim(),
       tips: Array.isArray(d.tips) ? d.tips.filter(Boolean).map(function (t) { return String(t).trim(); }) : [],
       level: level,
+      extras: (mko && mpron) ? { ko: mko, pron: mpron } : null, // 해석·발음 동봉 → 클릭 시 추가 호출 없음
     };
   }
 
@@ -451,9 +454,26 @@
       : "- 'You know', 'I mean', 'Well', 'Honestly' 같은 원어민 필러(Filler Words)를 아주 자연스럽게 사용. 다양한 시제와 구동사(Phrasal verbs)를 활용할 것. (약 180단어)";
   }
 
+  // 암기 보조(키워드 뼈대 + 단계 구조) 정규화 — 생성/즉석 보강 공용
+  function normalizeAids(d) {
+    d = d || {};
+    return {
+      keywords: Array.isArray(d.keywords)
+        ? d.keywords.map(function (k) { return String(k || "").trim(); }).filter(Boolean) : [],
+      structure: Array.isArray(d.structure)
+        ? d.structure.filter(function (s) { return s && s.label && Array.isArray(s.range); })
+            .map(function (s) {
+              var a = Number(s.range[0]) || 1, b = Number(s.range[1]) || a;
+              return { label: String(s.label).trim(), range: [a, b] };
+            }) : [],
+    };
+  }
+
   // AI 응답(JSON) → UI 호환 스크립트 객체로 정규화
   function normalizeScript(d, level) {
     d = d || {};
+    var aids = normalizeAids(d);
+    var ko = (d.ko || "").trim(), pron = (d.pron || "").trim();
     return {
       stage: (d.stage || "").trim(),
       question: (d.question || "").trim(),
@@ -463,8 +483,29 @@
       tips: Array.isArray(d.tips) ? d.tips.filter(Boolean).map(function (t) { return String(t).trim(); })
         : (d.tips ? [String(d.tips).trim()] : []),
       levelNote: (d.levelNote || "").trim(),
+      keywords: aids.keywords,
+      structure: aids.structure,
+      // 해석·발음을 생성에 합쳐 받음 → 둘 다 있으면 extras로(추가 호출 없음). 없으면 null로 두어 lazy 폴백 유지
+      extras: (ko && pron) ? { ko: ko, pron: pron } : null,
       level: level,
     };
+  }
+
+  // 기존 스크립트(답변만 있는 저장본)에 암기 보조 데이터만 즉석 생성
+  async function generateScriptAids(answer, opts) {
+    opts = opts || {};
+    var prompt =
+      "아래 영어 OPIc 답변에 대해 암기 보조 데이터를 만들어 줘.\n" +
+      "1) keywords: 답변 흐름을 떠올릴 수 있는 6~8개의 짧은 영어 키워드(핵심 단어/구).\n" +
+      "2) structure: 답변을 문장 순서대로 4단계(상황/행동/감정/마무리)로 묶기. " +
+      "range는 1부터 시작하는 문장 번호 [시작,끝]이고, 답변의 모든 문장을 빠짐없이 연속으로 덮어야 함(실제 문장 수에 맞게 조정).\n\n" +
+      "[답변]\n" + answer + "\n\n" +
+      "반드시 아래 JSON만:\n" +
+      '{ "keywords": ["...", "..."], "structure": [{"label":"상황","range":[1,2]},{"label":"행동","range":[3,4]},{"label":"감정","range":[5,6]},{"label":"마무리","range":[7,7]}] }';
+    var d = await AI.generateJSON(prompt, {
+      system: SYSTEM, temperature: 0.4, signal: opts.signal, onRetry: opts.onRetry,
+    });
+    return normalizeAids(d);
   }
 
   async function generateScript(opts) {
@@ -488,8 +529,19 @@
       '    {"en": "본문에 사용된 핵심 영어 표현 3", "ko": "한국어 뜻"}\n' +
       "  ],\n" +
       '  "tips": "이 스크립트를 말할 때 주의할 발음·억양·연기 꿀팁. 반드시 한국어 문장으로 설명하고, 영어는 인용하는 단어나 표현에만 사용할 것 (예: \'really\'는 길게 늘여 발음하세요). 영어 문장으로 쓰지 말 것.",\n' +
-      '  "levelNote": "이 스크립트가 ' + level + ' 등급을 받기에 적합한 이유 (한국어)"\n' +
-      "}";
+      '  "levelNote": "이 스크립트가 ' + level + ' 등급을 받기에 적합한 이유 (한국어)",\n' +
+      '  "keywords": ["답변 흐름을 떠올릴 수 있는 6~8개의 짧은 영어 키워드(핵심 단어/구)"],\n' +
+      '  "structure": [\n' +
+      '    {"label": "상황", "range": [1, 2]},\n' +
+      '    {"label": "행동", "range": [3, 4]},\n' +
+      '    {"label": "감정", "range": [5, 6]},\n' +
+      '    {"label": "마무리", "range": [7, 7]}\n' +
+      "  ],\n" +
+      '  "ko": "answer 전체의 자연스러운 한국어 해석(의역, 직역체 금지)",\n' +
+      '  "pron": "answer를 원어민이 실제로 말하는 느낌의 한글 발음 표기(연음·축약 반영: \'want to\'→\'워너\' 등, 글자 하나씩 로마자화 금지)"\n' +
+      "}\n\n" +
+      "structure는 answer를 문장 순서대로 4단계(상황/행동/감정/마무리)로 묶어. range는 1부터 시작하는 문장 번호 [시작,끝]이고, answer의 모든 문장을 빠짐없이 연속으로 덮어야 해(실제 문장 수에 맞게 범위를 조정).\n" +
+      "ko와 pron은 answer와 같은 문장 수·같은 순서로 문장 단위로 작성해(문장마다 마침표로 구분) — 단계별 인터리브 정렬에 사용돼.";
     var d = await AI.generateJSON(prompt, {
       system: SYSTEM, temperature: 0.8, signal: opts.signal, onRetry: opts.onRetry,
     });
@@ -573,20 +625,87 @@
       " (keep their content, make it natural and spoken).\n" +
       "3) modelAnswer: a fresh MODEL answer for this question at level " + level + ". " +
       (MODEL_LEN[level] || MODEL_LEN.IM2) + " Natural, first-person, SPOKEN (not an essay).\n" +
-      "4) tips: 2-3 short KOREAN tips about useful expressions or structure.\n\n" +
+      "4) tips: 2-3 tips, each WRITTEN AS A KOREAN sentence (use English ONLY for quoted words/expressions; never write a tip as an English sentence).\n" +
+      "5) modelKo: natural KOREAN translation of modelAnswer; modelPron: HANGUL pronunciation of modelAnswer (native connected speech, not letter-by-letter). Sentence-by-sentence, same order/count as modelAnswer.\n\n" +
       "Return ONLY JSON:\n" +
-      '{ "corrections":[{"original":"...","fixed":"...","why":"..."}], "improved":"...", "modelAnswer":"...", "tips":["...","..."] }';
+      '{ "corrections":[{"original":"...","fixed":"...","why":"..."}], "improved":"...", "modelAnswer":"...", "modelKo":"...", "modelPron":"...", "tips":["...","..."] }';
     // AI.generateJSON 은 ```json 펜스를 제거하고 파싱(parseLooseJSON), 실패 시 PARSE 에러를 던짐
     var d = await AI.generateJSON(prompt, {
       system: SYSTEM, temperature: 0.45, signal: opts.signal, onRetry: opts.onRetry,
     });
+    var mko = (d.modelKo || "").trim(), mpron = (d.modelPron || "").trim();
     return {
       corrections: Array.isArray(d.corrections) ? d.corrections.filter(function (c) { return c && (c.original || c.fixed); }) : [],
       improved: (d.improved || "").trim(),
       modelAnswer: (d.modelAnswer || "").trim(),
+      modelExtras: (mko && mpron) ? { ko: mko, pron: mpron } : null,
       tips: Array.isArray(d.tips) ? d.tips.filter(Boolean).map(function (t) { return String(t).trim(); }) : [],
       level: level,
     };
+  }
+
+  function normReview(r) {
+    r = r || {};
+    var mko = (r.modelKo || "").trim(), mpron = (r.modelPron || "").trim();
+    return {
+      corrections: Array.isArray(r.corrections) ? r.corrections.filter(function (c) { return c && (c.original || c.fixed); }) : [],
+      improved: (r.improved || "").trim(),
+      modelAnswer: (r.modelAnswer || "").trim(),
+      modelExtras: (mko && mpron) ? { ko: mko, pron: mpron } : (r.modelExtras || null),
+      tips: Array.isArray(r.tips) ? r.tips.filter(Boolean).map(function (t) { return String(t).trim(); }) : [],
+    };
+  }
+
+  // 청크(최대 4문항)를 한 번의 호출로 첨삭+모범답안 일괄 생성. 실패 시 null 반환(상위에서 폴백)
+  async function reviewChunk(chunk, level, opts) {
+    var pairs = chunk.map(function (it, i) { return { n: i + 1, question: it.question, answer: it.transcript }; });
+    var prompt =
+      "A Korean learner answered OPIc questions. For EACH question-answer pair, do ALL of:\n" +
+      "1) corrections: up to 5 {original phrase, fixed phrase, SHORT Korean reason(why)}\n" +
+      "2) improved: an improved version of THEIR answer at level " + level + " (keep content, natural & spoken)\n" +
+      "3) modelAnswer: a fresh MODEL answer for that question at level " + level + " (natural, first-person, spoken)\n" +
+      "4) tips: 2-3 tips, each WRITTEN AS A KOREAN sentence (English ONLY for quoted words/expressions; never an English sentence).\n" +
+      "5) modelKo: KOREAN translation of modelAnswer; modelPron: HANGUL pronunciation of modelAnswer (native connected speech). Sentence-by-sentence, same order/count as modelAnswer.\n\n" +
+      "PAIRS:\n" + JSON.stringify(pairs) + "\n\n" +
+      "Return ONLY a JSON array with one object per pair IN THE SAME ORDER:\n" +
+      '[{"corrections":[{"original":"...","fixed":"...","why":"..."}],"improved":"...","modelAnswer":"...","modelKo":"...","modelPron":"...","tips":["...","..."]}]';
+    var d = await AI.generateJSON(prompt, {
+      system: SYSTEM, temperature: 0.45, signal: opts.signal, onRetry: opts.onRetry,
+    });
+    var arr = Array.isArray(d) ? d : (d && Array.isArray(d.reviews) ? d.reviews : null);
+    if (!arr || arr.length !== chunk.length) return null; // 형식·개수 불일치 → 폴백
+    return arr.map(normReview);
+  }
+
+  /**
+   * 여러 답변 일괄 첨삭+모범답안 (모의고사 종합 피드백용)
+   * - 최대 4문항씩 묶어 호출(응답 잘림 방지), 청크 실패 시 문제별 개별 호출로 폴백
+   * @param {Array<{question,transcript}>} items
+   * @returns {Promise<Array<{corrections,improved,modelAnswer,tips}>>} items와 같은 순서·길이
+   */
+  async function reviewAnswers(items, opts) {
+    opts = opts || {};
+    var level = opts.level || "IM2";
+    var CHUNK = 4;
+    var out = [];
+    for (var start = 0; start < items.length; start += CHUNK) {
+      var chunk = items.slice(start, start + CHUNK);
+      var reviews = null;
+      try { reviews = await reviewChunk(chunk, level, opts); } catch (e) { reviews = null; }
+      if (!reviews) {
+        reviews = [];
+        for (var j = 0; j < chunk.length; j++) {
+          try {
+            var r = await reviewAnswer({ en: chunk[j].question }, chunk[j].transcript, { level: level, signal: opts.signal, onRetry: opts.onRetry });
+            reviews.push(normReview(r));
+          } catch (e2) {
+            reviews.push({ corrections: [], improved: "", modelAnswer: "", tips: [] });
+          }
+        }
+      }
+      out = out.concat(reviews);
+    }
+    return out;
   }
 
   function byType(list, type) {
@@ -603,9 +722,11 @@
     generateModelAnswer: generateModelAnswer,
     generateModelExtras: generateModelExtras,
     generateScript: generateScript,
+    generateScriptAids: generateScriptAids,
     generateComboScript: generateComboScript,
     correctAnswer: correctAnswer,
     reviewAnswer: reviewAnswer,
+    reviewAnswers: reviewAnswers,
     FLOWS: FLOWS,
   };
 })(window);

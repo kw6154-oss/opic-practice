@@ -55,7 +55,13 @@
         });
       } catch (e) {
         if (e && e.name === "AbortError") throw new ApiError("ABORTED", "요청이 취소되었습니다.");
-        throw new ApiError("NETWORK", "네트워크 오류로 AI에 연결하지 못했습니다.");
+        // fetch 자체 실패(연결 끊김·리셋 등)는 일시적인 경우가 많아 짧게 자동 재시도
+        if (attempt < maxRetry) {
+          try { await delay(Math.min(6000, 800 * Math.pow(2, attempt)), opts.signal); }
+          catch (e2) { throw new ApiError("ABORTED", "요청이 취소되었습니다."); }
+          continue;
+        }
+        throw new ApiError("NETWORK", "네트워크 오류로 AI에 연결하지 못했습니다. 인터넷 연결, 광고 차단·확장 프로그램, 회사/학교 방화벽(VPN)을 확인한 뒤 다시 시도해 주세요.");
       }
 
       if (resp.ok) {
