@@ -1,0 +1,246 @@
+{
+  "_comment": "선택주제 질문 뱅크 (풀 방식). 토픽마다 combo = 슬롯 3개[묘사 → 습관/경험 → 비교/문제]를 순서대로 가짐. 각 슬롯에 options 후보 3개. 시작 시 각 슬롯에서 1개씩 순서대로 뽑아 3문제 콤보를 조립 → 토픽당 3x3x3 = 27조합. 슬롯의 tag/sub는 그 슬롯에서 뽑힌 문제에 그대로 사용. 앱의 실제 필드명에 맞춰 조정해 쓰세요.",
+  "version": 2,
+  "topics": {
+    "home": {
+      "label": "집", "category": "여가",
+      "combo": [
+        {"tag":"묘사","sub":"집의 모습","options":[
+          {"en":"I'd like to know about where you live. Can you describe your home for me? Tell me what it looks like and what rooms it has.","ko":"당신이 사는 곳이 궁금해요. 집을 한번 묘사해 줄래요? 어떻게 생겼는지, 어떤 방들이 있는지 말해 주세요."},
+          {"en":"Tell me about the neighborhood your home is in. What's around it, and what do you like about the area?","ko":"당신 집이 있는 동네에 대해 말해 주세요. 주변에 뭐가 있고, 그 지역의 어떤 점이 마음에 드나요?"},
+          {"en":"Is there a particular spot in your home that feels special to you? Describe it and tell me why you like it.","ko":"집에서 특별하게 느껴지는 공간이 있나요? 그곳을 묘사하고, 왜 좋아하는지 말해 주세요."}
+        ]},
+        {"tag":"일상·습관","sub":"집에서 하는 일","options":[
+          {"en":"What's your favorite room in your home, and what do you usually do there? Walk me through a typical day at home.","ko":"집에서 가장 좋아하는 방은 어디고, 거기서 보통 뭘 하나요? 집에서 보내는 평범한 하루를 들려주세요."},
+          {"en":"What kinds of chores or housework do you usually do at home? Tell me how you keep your place the way you like it.","ko":"집에서 보통 어떤 집안일을 하나요? 집을 원하는 상태로 유지하기 위해 어떻게 하는지 말해 주세요."},
+          {"en":"How do you usually spend your evenings at home after a long day? Walk me through what you do.","ko":"긴 하루를 보낸 뒤 집에서 저녁 시간을 보통 어떻게 보내나요? 뭘 하는지 들려주세요."}
+        ]},
+        {"tag":"비교·변화","sub":"과거와 비교","options":[
+          {"en":"Think about the home you live in now and a place you lived before. How are they different? Which one do you prefer, and why?","ko":"지금 사는 집과 예전에 살던 곳을 떠올려 보세요. 둘은 어떻게 다른가요? 어느 쪽이 더 좋고, 왜 그런가요?"},
+          {"en":"Has your home changed much since you first moved in? Tell me what's different now and what you've added or changed.","ko":"처음 이사 온 뒤로 집이 많이 바뀌었나요? 지금 뭐가 다르고, 무엇을 더하거나 바꿨는지 말해 주세요."},
+          {"en":"If you could change one thing about your home, what would it be and why?","ko":"집에서 딱 한 가지를 바꿀 수 있다면, 무엇을 바꾸고 왜 그럴까요?"}
+        ]}
+      ]
+    },
+    "show": {
+      "label": "공연", "category": "여가",
+      "combo": [
+        {"tag":"묘사","sub":"공연·공연장","options":[
+          {"en":"You said you enjoy going to see live performances. What kind of shows do you usually go to, and can you describe a venue you like?","ko":"공연 보러 가는 걸 좋아한다고 했죠. 보통 어떤 공연을 보러 가고, 좋아하는 공연장을 묘사해 줄래요?"},
+          {"en":"Describe the kind of performance you enjoy most. What is it about that type of show that appeals to you?","ko":"가장 즐기는 공연 종류를 묘사해 주세요. 그런 공연의 어떤 점이 마음에 드나요?"},
+          {"en":"Who do you usually go to see performances with, and what's it like going together?","ko":"공연은 보통 누구와 보러 가고, 함께 가면 어떤가요?"}
+        ]},
+        {"tag":"경험","sub":"과거 경험","options":[
+          {"en":"Tell me about the last performance you went to see. What was it, who did you go with, and how was it?","ko":"마지막으로 본 공연에 대해 말해 주세요. 무슨 공연이었고, 누구와 갔고, 어땠나요?"},
+          {"en":"Tell me about the most impressive performance you've ever seen. What happened, and why does it stay with you?","ko":"지금까지 본 공연 중 가장 인상적이었던 것을 말해 주세요. 무슨 일이 있었고, 왜 기억에 남나요?"},
+          {"en":"Walk me through a typical time you go to see a show, from arriving at the venue to heading home.","ko":"공연을 보러 갈 때의 보통 흐름을 들려주세요. 공연장에 도착해서 집에 돌아갈 때까지요."}
+        ]},
+        {"tag":"비교·변화","sub":"비교","options":[
+          {"en":"How is seeing a live performance different from watching something on a screen at home? Which do you prefer, and why?","ko":"공연을 직접 보는 것과 집에서 화면으로 보는 건 어떻게 다른가요? 어느 쪽이 더 좋고, 왜 그런가요?"},
+          {"en":"Has the kind of performances you enjoy changed over the years? Compare what you liked before with now.","ko":"즐기는 공연 종류가 몇 년 사이 바뀌었나요? 예전에 좋아하던 것과 지금을 비교해 주세요."},
+          {"en":"Some people love live shows while others find them too expensive or crowded. What's your take, and why?","ko":"어떤 사람은 공연을 정말 좋아하고, 어떤 사람은 너무 비싸거나 붐빈다고 해요. 당신 생각은 어떻고 왜 그런가요?"}
+        ]}
+      ]
+    },
+    "concert": {
+      "label": "콘서트", "category": "여가",
+      "combo": [
+        {"tag":"묘사","sub":"콘서트·분위기","options":[
+          {"en":"You mentioned you like going to concerts. What kind of music concerts do you go to, and can you describe what the atmosphere is usually like?","ko":"콘서트 가는 걸 좋아한다고 했죠. 어떤 음악 콘서트에 가고, 분위기는 보통 어떤지 묘사해 줄래요?"},
+          {"en":"Describe your favorite concert venue. What does it look like, and what makes it a good place to see live music?","ko":"가장 좋아하는 콘서트 공연장을 묘사해 주세요. 어떻게 생겼고, 라이브 음악을 보기 좋은 곳인 이유가 뭔가요?"},
+          {"en":"What kind of crowd do you usually see at the concerts you go to? Describe the atmosphere among the audience.","ko":"당신이 가는 콘서트엔 보통 어떤 관객들이 있나요? 관객들 사이의 분위기를 묘사해 주세요."}
+        ]},
+        {"tag":"경험","sub":"기억에 남는 경험","options":[
+          {"en":"Tell me about the most memorable concert you've ever been to. Where was it, who performed, and what made it special?","ko":"지금까지 가 본 콘서트 중 가장 기억에 남는 것을 말해 주세요. 어디였고, 누가 공연했고, 뭐가 특별했나요?"},
+          {"en":"Tell me about the first concert you ever went to. How did it feel, and what do you remember most?","ko":"처음으로 가 본 콘서트에 대해 말해 주세요. 어떤 기분이었고, 가장 기억에 남는 건 뭔가요?"},
+          {"en":"Has anything unexpected ever happened at a concert you attended? Tell me what happened.","ko":"다녀온 콘서트에서 예상치 못한 일이 일어난 적 있나요? 무슨 일이었는지 말해 주세요."}
+        ]},
+        {"tag":"일상·습관","sub":"준비 과정","options":[
+          {"en":"Walk me through what you usually do to get ready for a concert, from booking tickets to the day of the show.","ko":"콘서트를 준비하는 과정을 들려주세요. 티켓 예매부터 공연 당일까지 보통 어떻게 하나요?"},
+          {"en":"How do you usually find out about concerts and decide which ones to go to?","ko":"콘서트 정보를 보통 어떻게 알게 되고, 어떤 공연에 갈지 어떻게 정하나요?"},
+          {"en":"What do you usually do right after a concert ends? Tell me how you wrap up the night.","ko":"콘서트가 끝난 직후엔 보통 뭘 하나요? 그날 밤을 어떻게 마무리하는지 말해 주세요."}
+        ]}
+      ]
+    },
+    "cafe": {
+      "label": "카페", "category": "여가",
+      "combo": [
+        {"tag":"묘사","sub":"카페의 모습","options":[
+          {"en":"You said you like going to cafes. Can you describe your favorite cafe? What does it look like, and what's the atmosphere like there?","ko":"카페 가는 걸 좋아한다고 했죠. 가장 좋아하는 카페를 묘사해 줄래요? 어떻게 생겼고, 분위기는 어떤가요?"},
+          {"en":"Describe what you usually order at a cafe. Do you have a go-to drink or snack, and why do you like it?","ko":"카페에서 보통 뭘 주문하는지 묘사해 주세요. 늘 시키는 음료나 간식이 있나요? 왜 그걸 좋아하나요?"},
+          {"en":"What makes a cafe a good place to spend time, in your opinion? Describe your ideal cafe.","ko":"당신 생각에 시간 보내기 좋은 카페는 어떤 곳인가요? 이상적인 카페를 묘사해 주세요."}
+        ]},
+        {"tag":"경험","sub":"과거 경험","options":[
+          {"en":"Tell me about the last time you went to a cafe. Who did you go with, what did you order, and what did you do there?","ko":"마지막으로 카페에 갔던 때를 말해 주세요. 누구와 갔고, 뭘 주문했고, 거기서 뭘 했나요?"},
+          {"en":"Tell me about a time you spent several hours at a cafe. What were you doing, and how was it?","ko":"카페에서 몇 시간을 보냈던 때를 말해 주세요. 뭘 하고 있었고, 어땠나요?"},
+          {"en":"How did you first discover your favorite cafe? Tell me the story of how you started going there.","ko":"가장 좋아하는 카페를 어떻게 처음 알게 됐나요? 그곳에 다니기 시작한 이야기를 들려주세요."}
+        ]},
+        {"tag":"문제·해결","sub":"문제 상황·대처","options":[
+          {"en":"Have you ever run into a problem at a cafe, like a wrong order or a place being too crowded? What happened, and how did you deal with it?","ko":"카페에서 문제를 겪은 적 있나요? 주문이 잘못됐거나 너무 붐볐다거나요. 무슨 일이었고, 어떻게 대처했나요?"},
+          {"en":"Have you ever gone to a cafe and found it closed or completely full? What did you do instead?","ko":"카페에 갔는데 문을 닫았거나 자리가 꽉 찼던 적 있나요? 대신 어떻게 했나요?"},
+          {"en":"Has the service or a drink at a cafe ever disappointed you? Tell me what happened and how you handled it.","ko":"카페의 서비스나 음료가 실망스러웠던 적 있나요? 무슨 일이었고 어떻게 대처했는지 말해 주세요."}
+        ]}
+      ]
+    },
+    "bar": {
+      "label": "술집", "category": "여가",
+      "combo": [
+        {"tag":"묘사","sub":"술집의 모습","options":[
+          {"en":"You said you enjoy going to bars or pubs. Can you describe a place you like to go to? What does it look like, and what's the atmosphere like?","ko":"술집에 가는 걸 좋아한다고 했죠. 즐겨 가는 곳을 묘사해 줄래요? 어떻게 생겼고, 분위기는 어떤가요?"},
+          {"en":"Describe what you usually order at a bar and the kind of place you feel most comfortable in.","ko":"술집에서 보통 뭘 주문하고, 어떤 분위기의 가게가 가장 편한지 묘사해 주세요."},
+          {"en":"What kind of bar would you take a friend to for the first time? Describe it and explain why.","ko":"친구를 처음 데려간다면 어떤 술집에 데려가고 싶나요? 그곳을 묘사하고 이유를 설명해 주세요."}
+        ]},
+        {"tag":"경험","sub":"과거 경험","options":[
+          {"en":"Tell me about the last time you went out to a bar. Who were you with, what did you order, and what did you talk about?","ko":"마지막으로 술집에 갔던 때를 말해 주세요. 누구와 있었고, 뭘 주문했고, 무슨 이야기를 나눴나요?"},
+          {"en":"Tell me about a particularly fun night you had at a bar. What happened, and who were you with?","ko":"술집에서 특히 즐거웠던 밤에 대해 말해 주세요. 무슨 일이 있었고, 누구와 함께였나요?"},
+          {"en":"Tell me about a time you celebrated something special at a bar. What was the occasion, and how did it go?","ko":"술집에서 특별한 일을 축하했던 때를 말해 주세요. 무슨 일을 축하했고, 어땠나요?"}
+        ]},
+        {"tag":"비교·변화","sub":"비교·변화","options":[
+          {"en":"Has the way you spend time at bars changed over the years? Compare how it was when you were younger with how it is now.","ko":"술집에서 시간 보내는 방식이 몇 년 사이 바뀌었나요? 더 어렸을 때와 지금을 비교해 주세요."},
+          {"en":"How is going to a bar with close friends different from going with coworkers or new people?","ko":"친한 친구들과 술집에 가는 것과 직장 동료나 처음 보는 사람들과 가는 것은 어떻게 다른가요?"},
+          {"en":"Some people love a lively, crowded bar while others prefer a quiet one. Which do you prefer, and why?","ko":"어떤 사람은 활기차고 붐비는 술집을 좋아하고, 어떤 사람은 조용한 곳을 선호해요. 당신은 어느 쪽이 좋고 왜 그런가요?"}
+        ]}
+      ]
+    },
+    "music": {
+      "label": "음악듣기", "category": "여가",
+      "combo": [
+        {"tag":"묘사","sub":"음악 취향","options":[
+          {"en":"You said you enjoy listening to music. What kind of music do you like, and can you describe one of your favorite artists or songs?","ko":"음악 듣는 걸 좋아한다고 했죠. 어떤 음악을 좋아하고, 가장 좋아하는 아티스트나 곡 하나를 묘사해 줄래요?"},
+          {"en":"Describe the device or app you usually use to listen to music. How do you have it set up?","ko":"음악을 들을 때 보통 쓰는 기기나 앱을 묘사해 주세요. 어떻게 설정해 두고 쓰나요?"},
+          {"en":"Is there a genre of music you've gotten into recently? Describe it and what drew you to it.","ko":"최근에 빠진 음악 장르가 있나요? 그게 뭔지, 어떻게 끌리게 됐는지 묘사해 주세요."}
+        ]},
+        {"tag":"일상·습관","sub":"평소 듣는 방식","options":[
+          {"en":"When and where do you usually listen to music? Tell me how music fits into your daily routine.","ko":"보통 언제 어디서 음악을 듣나요? 음악이 당신의 일상에 어떻게 들어와 있는지 말해 주세요."},
+          {"en":"How do you usually find new music to listen to? Walk me through how you discover songs or artists.","ko":"새로운 음악은 보통 어떻게 찾나요? 곡이나 아티스트를 발견하는 과정을 들려주세요."},
+          {"en":"Do you listen to different kinds of music depending on your mood or activity? Tell me how that works for you.","ko":"기분이나 하는 일에 따라 다른 음악을 듣나요? 어떤 식인지 말해 주세요."}
+        ]},
+        {"tag":"경험","sub":"기억에 남는 경험","options":[
+          {"en":"Tell me about a memorable experience related to music, like a concert you went to or a song that meant a lot to you.","ko":"음악과 관련해 기억에 남는 경험을 말해 주세요. 다녀온 콘서트나, 당신에게 큰 의미가 있던 곡 같은 거요."},
+          {"en":"Tell me about a song that brings back a strong memory. What does it remind you of?","ko":"강한 기억을 떠올리게 하는 곡에 대해 말해 주세요. 그 곡은 무엇을 떠오르게 하나요?"},
+          {"en":"How did you first get into the kind of music you love now? Tell me the story.","ko":"지금 좋아하는 음악에 처음 어떻게 빠지게 됐나요? 그 이야기를 들려주세요."}
+        ]}
+      ]
+    },
+    "jogging": {
+      "label": "조깅", "category": "야외·운동",
+      "combo": [
+        {"tag":"묘사","sub":"장소·모습","options":[
+          {"en":"You mentioned that you enjoy jogging. Where do you usually go jogging, and can you describe what the place is like?","ko":"조깅하는 걸 좋아한다고 했죠. 보통 어디서 조깅하고, 그곳이 어떤지 묘사해 줄래요?"},
+          {"en":"Describe the gear you usually wear or bring when you go jogging. Why do those things matter to you?","ko":"조깅할 때 보통 입거나 챙기는 장비를 묘사해 주세요. 그것들이 왜 중요한가요?"},
+          {"en":"Describe what you see and hear on your usual jogging route.","ko":"평소 조깅 코스에서 보고 듣는 것들을 묘사해 주세요."}
+        ]},
+        {"tag":"일상·습관","sub":"평소 루틴","options":[
+          {"en":"Walk me through your usual jogging routine. When do you go, how long do you run, and what do you do before and after?","ko":"평소 조깅 루틴을 들려주세요. 언제 가고, 얼마나 달리고, 전후로 뭘 하나요?"},
+          {"en":"How do you keep yourself motivated to jog regularly? Tell me what helps you stick with it.","ko":"꾸준히 조깅하도록 어떻게 동기를 유지하나요? 계속하는 데 뭐가 도움이 되는지 말해 주세요."},
+          {"en":"Do you listen to anything or jog with anyone? Walk me through what a typical run feels like.","ko":"조깅할 때 뭘 듣거나 누군가와 함께 달리나요? 보통의 달리기가 어떤 느낌인지 들려주세요."}
+        ]},
+        {"tag":"비교·변화","sub":"비교·변화","options":[
+          {"en":"How did you first get into jogging, and how has your running changed since you started?","ko":"처음에 어떻게 조깅을 시작하게 됐고, 시작한 뒤로 달리기가 어떻게 달라졌나요?"},
+          {"en":"How does jogging in summer compare to jogging in winter for you? Which do you prefer?","ko":"여름에 조깅하는 것과 겨울에 조깅하는 건 당신에게 어떻게 다른가요? 어느 쪽이 더 좋아요?"},
+          {"en":"Some people prefer jogging outdoors while others use a treadmill. Which do you prefer, and why?","ko":"어떤 사람은 야외에서 조깅하는 걸, 어떤 사람은 러닝머신을 선호해요. 당신은 어느 쪽이 좋고 왜 그런가요?"}
+        ]}
+      ]
+    },
+    "walking": {
+      "label": "걷기", "category": "야외·운동",
+      "combo": [
+        {"tag":"묘사","sub":"장소·모습","options":[
+          {"en":"You said you like going for walks. Where do you usually walk, and can you describe what you see along the way?","ko":"걷기를 좋아한다고 했죠. 보통 어디를 걷고, 걷는 길에 뭐가 보이는지 묘사해 줄래요?"},
+          {"en":"Describe your favorite walking route. What makes it pleasant to walk there?","ko":"가장 좋아하는 산책 코스를 묘사해 주세요. 그곳을 걷는 게 기분 좋은 이유가 뭔가요?"},
+          {"en":"Describe how you usually feel before and after a long walk.","ko":"긴 산책 전후로 보통 어떤 기분인지 묘사해 주세요."}
+        ]},
+        {"tag":"일상·습관","sub":"평소 루틴","options":[
+          {"en":"Tell me about your walking routine. When and how often do you walk, and do you walk alone or with someone?","ko":"걷기 루틴을 말해 주세요. 언제 얼마나 자주 걷고, 혼자 걷나요 아니면 누군가와 함께 걷나요?"},
+          {"en":"Do you combine walking with anything else, like errands, listening to something, or thinking things over? Tell me about it.","ko":"걷기를 다른 일과 함께 하나요? 볼일 보기, 뭔가 듣기, 생각 정리 같은 거요. 말해 주세요."},
+          {"en":"Walk me through a recent walk you took, from start to finish.","ko":"최근에 했던 산책을 처음부터 끝까지 들려주세요."}
+        ]},
+        {"tag":"비교·변화","sub":"비교·변화","options":[
+          {"en":"Has walking become more or less a part of your life compared to a few years ago? What changed?","ko":"걷기가 몇 년 전과 비교해 삶에서 더 큰 부분이 됐나요, 아니면 줄었나요? 무엇이 달라졌나요?"},
+          {"en":"How is walking for exercise different from walking just to get somewhere, for you?","ko":"운동으로 걷는 것과 그냥 어딘가 가려고 걷는 건 당신에게 어떻게 다른가요?"},
+          {"en":"Some people find walking boring while others find it relaxing. What's your view, and why?","ko":"어떤 사람은 걷기를 지루해하고, 어떤 사람은 편안하게 느껴요. 당신 생각은 어떻고 왜 그런가요?"}
+        ]}
+      ]
+    },
+    "hiking": {
+      "label": "하이킹", "category": "야외·운동",
+      "combo": [
+        {"tag":"묘사","sub":"장소·모습","options":[
+          {"en":"You mentioned you enjoy hiking. Can you describe a trail or mountain you like to hike? What's it like there?","ko":"하이킹을 좋아한다고 했죠. 즐겨 가는 등산로나 산을 묘사해 줄래요? 그곳은 어떤가요?"},
+          {"en":"Describe what you usually pack for a hike and why each thing matters.","ko":"하이킹 갈 때 보통 챙기는 것들과 각각이 왜 필요한지 묘사해 주세요."},
+          {"en":"Describe the kind of scenery you most enjoy seeing on a hike.","ko":"하이킹에서 가장 보고 싶은 풍경이 어떤 것인지 묘사해 주세요."}
+        ]},
+        {"tag":"경험","sub":"과거 경험","options":[
+          {"en":"Tell me about a memorable hiking trip you've taken. Where did you go, who was with you, and what happened?","ko":"기억에 남는 하이킹을 말해 주세요. 어디로 갔고, 누구와 함께였고, 무슨 일이 있었나요?"},
+          {"en":"Tell me about the most challenging hike you've ever done. How did it go?","ko":"지금까지 한 하이킹 중 가장 힘들었던 것을 말해 주세요. 어떻게 됐나요?"},
+          {"en":"Tell me about the first time you went hiking. What made you start?","ko":"처음 하이킹을 갔던 때를 말해 주세요. 무엇 때문에 시작하게 됐나요?"}
+        ]},
+        {"tag":"문제·해결","sub":"문제 상황·대처","options":[
+          {"en":"Have you ever had something go wrong on a hike, like bad weather or getting too tired? What happened, and how did you handle it?","ko":"하이킹 중 일이 잘못된 적 있나요? 날씨가 나빴다거나 너무 지쳤다거나요. 무슨 일이었고, 어떻게 대처했나요?"},
+          {"en":"Have you ever taken a wrong path or gotten lost while hiking? Tell me what happened and how you found your way.","ko":"하이킹 중 길을 잘못 들거나 길을 잃은 적 있나요? 무슨 일이었고 어떻게 길을 찾았는지 말해 주세요."},
+          {"en":"Have you ever been unprepared for a hike, like the wrong shoes or not enough water? What did you do?","ko":"하이킹 준비가 부족했던 적 있나요? 신발이 안 맞거나 물이 부족하다거나요. 어떻게 했나요?"}
+        ]}
+      ]
+    },
+    "no_exercise": {
+      "label": "운동안함", "category": "야외·운동",
+      "combo": [
+        {"tag":"묘사","sub":"평소 하는 일","options":[
+          {"en":"You mentioned that you don't really exercise. Can you tell me what you usually do to relax or spend your free time instead?","ko":"운동을 잘 안 한다고 했죠. 대신 보통 어떻게 쉬거나 자유 시간을 보내는지 말해 줄래요?"},
+          {"en":"Describe your favorite way to unwind when you have nothing scheduled.","ko":"아무 일정도 없을 때 가장 좋아하는 휴식 방법을 묘사해 주세요."},
+          {"en":"Describe a hobby or activity you'd happily spend a whole afternoon on.","ko":"오후 내내 즐겁게 보낼 수 있는 취미나 활동 하나를 묘사해 주세요."}
+        ]},
+        {"tag":"일상·습관","sub":"쉬는 날 루틴","options":[
+          {"en":"Describe a typical day off for you. From morning to night, how do you usually spend it?","ko":"당신의 평범한 쉬는 날을 묘사해 주세요. 아침부터 밤까지 보통 어떻게 보내나요?"},
+          {"en":"How do you usually recharge after a stressful week? Walk me through what you do.","ko":"스트레스 받은 한 주 뒤엔 보통 어떻게 재충전하나요? 뭘 하는지 들려주세요."},
+          {"en":"What do you usually do in the evenings to relax? Tell me about your wind-down routine.","ko":"저녁에 쉬려고 보통 뭘 하나요? 하루를 마무리하는 루틴을 말해 주세요."}
+        ]},
+        {"tag":"비교·변화","sub":"과거와 비교","options":[
+          {"en":"Has the way you spend your free time changed compared to a few years ago? What's different now, and why?","ko":"자유 시간을 보내는 방식이 몇 년 전과 비교해 바뀌었나요? 지금은 뭐가 다르고, 왜 그런가요?"},
+          {"en":"Do you ever think about adding exercise to your routine? Compare how you spend your time now with how you'd like to.","ko":"운동을 일상에 더해 볼까 생각한 적 있나요? 지금 시간 보내는 방식과 바라는 방식을 비교해 주세요."},
+          {"en":"Some people relax by staying active, while others prefer to rest quietly. Which suits you better, and why?","ko":"어떤 사람은 활동적으로 움직이며 쉬고, 어떤 사람은 조용히 쉬는 걸 선호해요. 당신에겐 어느 쪽이 더 맞고 왜 그런가요?"}
+        ]}
+      ]
+    },
+    "domestic_travel": {
+      "label": "국내여행", "category": "여행",
+      "combo": [
+        {"tag":"묘사","sub":"장소의 모습","options":[
+          {"en":"You said you like traveling within your country. Can you describe a place you've visited that you really liked? What was it like?","ko":"국내 여행을 좋아한다고 했죠. 가 봤던 곳 중 정말 좋았던 곳을 묘사해 줄래요? 어떤 곳이었나요?"},
+          {"en":"Describe the kind of destination you enjoy most for a domestic trip — a city, the coast, the mountains? Why?","ko":"국내 여행으로 가장 즐기는 목적지 유형을 묘사해 주세요 — 도시, 바닷가, 산 중에서요. 왜 그런가요?"},
+          {"en":"Describe what you usually like to eat or buy when you travel somewhere new in your country.","ko":"국내의 새로운 곳을 여행할 때 보통 먹거나 사고 싶은 것을 묘사해 주세요."}
+        ]},
+        {"tag":"일상·습관","sub":"여행 준비","options":[
+          {"en":"How do you usually plan a domestic trip? Walk me through what you do, from deciding where to go to packing your bags.","ko":"국내 여행은 보통 어떻게 계획하나요? 어디 갈지 정하는 것부터 짐 싸기까지 과정을 들려주세요."},
+          {"en":"How do you usually get around when you travel within your country? Tell me about your transportation choices.","ko":"국내 여행을 다닐 때 보통 어떻게 이동하나요? 교통수단 선택에 대해 말해 주세요."},
+          {"en":"What do you usually do to make the most of a short domestic trip? Walk me through a typical itinerary.","ko":"짧은 국내 여행을 알차게 보내려고 보통 뭘 하나요? 보통의 일정을 들려주세요."}
+        ]},
+        {"tag":"경험","sub":"기억에 남는 경험","options":[
+          {"en":"Tell me about the most memorable domestic trip you've taken. Where did you go, and why does it stand out to you?","ko":"지금까지 다녀온 국내 여행 중 가장 기억에 남는 것을 말해 주세요. 어디로 갔고, 왜 특별히 기억에 남나요?"},
+          {"en":"Tell me about a domestic trip you took with family or friends. What did you do together?","ko":"가족이나 친구와 함께한 국내 여행에 대해 말해 주세요. 함께 뭘 했나요?"},
+          {"en":"Tell me about a time a domestic trip turned out completely different from what you expected.","ko":"국내 여행이 예상과 완전히 다르게 흘러갔던 때를 말해 주세요."}
+        ]}
+      ]
+    },
+    "overseas_travel": {
+      "label": "해외여행", "category": "여행",
+      "combo": [
+        {"tag":"묘사","sub":"장소의 모습","options":[
+          {"en":"You mentioned you enjoy traveling abroad. Can you describe a country or city you've visited? What did it look like, and what stood out to you?","ko":"해외여행을 좋아한다고 했죠. 가 봤던 나라나 도시를 묘사해 줄래요? 어떻게 생겼고, 무엇이 인상적이었나요?"},
+          {"en":"Describe the kind of place abroad you most want to visit, and what draws you to it.","ko":"가장 가 보고 싶은 해외의 장소를 묘사하고, 무엇이 당신을 끌어당기는지 말해 주세요."},
+          {"en":"Describe the food or culture from a country you've visited that left the biggest impression on you.","ko":"가 봤던 나라 중 가장 인상 깊었던 음식이나 문화를 묘사해 주세요."}
+        ]},
+        {"tag":"경험","sub":"기억에 남는 경험","options":[
+          {"en":"Tell me about your most memorable trip abroad. Where did you go, who did you travel with, and what did you do there?","ko":"가장 기억에 남는 해외여행을 말해 주세요. 어디로 갔고, 누구와 여행했고, 거기서 뭘 했나요?"},
+          {"en":"Tell me about the first time you traveled to another country. How did it feel?","ko":"처음 다른 나라로 여행 갔던 때를 말해 주세요. 어떤 기분이었나요?"},
+          {"en":"Tell me about an interesting person you met or an unexpected moment you had while traveling abroad.","ko":"해외여행 중 만난 흥미로운 사람이나 예상치 못한 순간에 대해 말해 주세요."}
+        ]},
+        {"tag":"문제·해결","sub":"문제 상황·대처","options":[
+          {"en":"Have you ever run into a problem while traveling abroad, like a delay, a language barrier, or getting lost? What happened, and how did you solve it?","ko":"해외여행 중 문제를 겪은 적 있나요? 연착, 언어 장벽, 길을 잃는 것 같은 거요. 무슨 일이었고, 어떻게 해결했나요?"},
+          {"en":"Have you ever had trouble communicating in a foreign country? Tell me what happened and how you managed.","ko":"외국에서 의사소통에 어려움을 겪은 적 있나요? 무슨 일이었고 어떻게 해결했는지 말해 주세요."},
+          {"en":"Has anything ever gone wrong with your travel plans abroad, like a missed flight or a booking problem? What did you do?","ko":"해외여행 계획에 문제가 생긴 적 있나요? 비행기를 놓쳤거나 예약 문제 같은 거요. 어떻게 했나요?"}
+        ]}
+      ]
+    }
+  }
+}

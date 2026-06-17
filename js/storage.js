@@ -65,6 +65,10 @@
     getPronMeaning: function () { return get(NS + "pronMeaning", "0") === "1"; },
     setPronMeaning: function (on) { return set(NS + "pronMeaning", on ? "1" : "0"); },
 
+    // 질문 소스: "api"(AI 연동) | "sample"(기본 제공 질문). 기본 sample(체크 해제)
+    getQuestionSource: function () { return get(NS + "qSource", "sample") === "api" ? "api" : "sample"; },
+    setQuestionSource: function (v) { return set(NS + "qSource", v === "sample" ? "sample" : "api"); },
+
     // 테마
     getTheme: function () { return get(K.theme, null); },
     setTheme: function (v) { return set(K.theme, v); },

@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>OPIcDay</title>
   <meta name="description" content="혼자 실전처럼 연습하고 AI 피드백을 받는 OPIcDay 앱" />
-  <link rel="stylesheet" href="css/style.css?v=20260615m" />
+  <link rel="stylesheet" href="css/style.css?v=20260617b" />
 </head>
 <body>
   <!-- ===== 상단 바 ===== -->
@@ -175,6 +175,15 @@
       </div>
 
       <div class="panel">
+        <h3>질문 소스</h3>
+        <p class="muted small">선택주제·롤플레이·돌발·모의고사에서 쓸 질문을 정합니다. <strong>기본 제공</strong>은 AI 호출 없이 저장된 질문으로 진행해요(키·한도와 무관).</p>
+        <div class="seg" id="qSourceSeg" role="group" aria-label="질문 소스">
+          <button class="seg-btn" data-src="api" type="button">AI 연동</button>
+          <button class="seg-btn" data-src="sample" type="button">기본 제공</button>
+        </div>
+      </div>
+
+      <div class="panel">
         <h3>화면</h3>
         <label class="switch-row">
           <span>다크모드</span>
@@ -237,6 +246,10 @@
         <h2>모의고사</h2>
       </div>
       <p class="muted small">버전을 고르세요. 현재 <strong>목표 레벨</strong>과 <strong>배경 설문 주제</strong>가 그대로 반영됩니다.</p>
+      <label class="qsrc-check">
+        <input type="checkbox" class="qsrc-check-cb" id="mockSrcCb" />
+        <span>AI로 질문 생성 <span class="qsrc-check-sub">(체크 해제 시 기본 질문)</span></span>
+      </label>
       <div class="ver-grid">
         <button class="ver-card" data-ver="short" type="button">
           <span class="ver-badge">기본</span>
@@ -254,6 +267,7 @@
 
     <!-- ===== 화면: 모의시험 / 런너 ===== -->
     <section class="screen" id="screen-mock" hidden>
+      <div class="run-col">
       <div class="detail-header">
         <button class="link-btn back" id="mockExit" type="button" aria-label="뒤로">← 나가기</button>
         <h2 class="detail-title" id="mockTitle">실전 풀이</h2>
@@ -269,6 +283,7 @@
         <button class="primary-btn" id="mockNext" type="button">다음 문제</button>
       </div>
       <div id="mockReport"></div>
+      </div>
     </section>
 
     <!-- ===== 화면: 테스트 내역 ===== -->
@@ -374,7 +389,8 @@
   <script src="data/pronunciation.js?v=20260615j"></script>
   <script src="data/sample-scripts.js?v=20260615j"></script>
   <script src="data/fallback-questions.js?v=20260615m"></script>
-  <script src="js/storage.js?v=20260615h"></script>
+  <script src="data/select-topic-pool.js?v=20260617a"></script>
+  <script src="js/storage.js?v=20260617b"></script>
   <script src="js/db.js?v=20260615h"></script>
   <script src="js/api.js?v=20260615j"></script>
   <script src="js/speech.js?v=20260615h"></script>
@@ -382,6 +398,6 @@
   <script src="js/criteria.js?v=20260615h"></script>
   <script src="js/questions.js?v=20260615j"></script>
   <script src="js/evaluate.js?v=20260615h"></script>
-  <script src="js/app.js?v=20260615m"></script>
+  <script src="js/app.js?v=20260617b"></script>
 </body>
 </html>

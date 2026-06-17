@@ -287,6 +287,7 @@
     if (type === "topic" || type === "roleplay" || type === "surprise") {
       startCombo(type);
     } else if (type === "mock") {
+      var mcb = $("mockSrcCb"); if (mcb) mcb.checked = Storage.getQuestionSource() === "api";
       show("mockset");
     }
   }
@@ -550,6 +551,21 @@
       '<span class="q-num">' + (i + 1) + "</span>" +
       '<span class="q-type" data-t="' + q.type + '">' + q.label + "</span>" +
       '<span class="q-type-hint">' + escapeHtml(q.hint) + "</span>";
+    // 다른 질문으로(리롤) — 풀에서 조립된 문제이고 같은 슬롯 후보가 2개 이상일 때만, 같은 줄 맨 오른쪽
+    if (q._pool && window.SELECT_TOPIC_POOL) {
+      var pEntry = window.SELECT_TOPIC_POOL.topics && (window.SELECT_TOPIC_POOL.topics[q._pool.key] || window.SELECT_TOPIC_POOL.generic);
+      var pSlot = pEntry && pEntry.combo && pEntry.combo[q._pool.slot];
+      var optCount = (pSlot && pSlot.options) ? pSlot.options.length : 0;
+      if (optCount > 1) {
+        var rr = el("button", "q-reroll");
+        rr.type = "button";
+        rr.title = "다른 질문으로";
+        rr.setAttribute("aria-label", "다른 질문으로");
+        rr.innerHTML = '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg><span>다른 질문</span>';
+        rr.addEventListener("click", function () { rerollQuestion(q); });
+        top.appendChild(rr);
+      }
+    }
     card.appendChild(top);
 
     var en = el("p", "q-en"); en.textContent = q.en; card.appendChild(en);
@@ -565,14 +581,14 @@
     actions.appendChild(tts);
     actions.appendChild(makeSpeedDots());
 
-    var trans = el("button", "q-trans", "한글 보기");
+    var trans = el("button", "q-trans", "해석");
     trans.type = "button";
     trans.setAttribute("aria-pressed", "false");
     trans.addEventListener("click", function () {
       var open = ko.classList.toggle("show");
       trans.classList.toggle("on", open);
       trans.setAttribute("aria-pressed", open ? "true" : "false");
-      trans.textContent = open ? "한글 숨기기" : "한글 보기";
+      trans.textContent = open ? "해석 숨기기" : "해석";
     });
     actions.appendChild(trans);
     card.appendChild(actions);
@@ -1442,6 +1458,19 @@
     };
     ready.appendChild(el("p", "combo-ready-hint muted", READY_HINT[type] || ""));
 
+    // 질문 소스 체크박스 — 체크: AI 연동 생성 / 해제: 기본(샘플) 질문
+    var srcRow = el("label", "combo-src");
+    var srcCb = el("input", "combo-src-cb");
+    srcCb.type = "checkbox";
+    srcCb.checked = Storage.getQuestionSource() === "api";
+    srcCb.addEventListener("change", function () {
+      Storage.setQuestionSource(srcCb.checked ? "api" : "sample");
+      if (typeof applyQSourceSeg === "function") applyQSourceSeg(); // 설정 화면 토글과 동기화
+    });
+    srcRow.appendChild(srcCb);
+    srcRow.appendChild(el("span", "combo-src-label", "AI로 질문 생성 (체크 해제 시 기본 질문)"));
+    ready.appendChild(srcRow);
+
     var btns = el("div", "combo-ready-btns");
     var start = el("button", "primary-btn", "▶ 시작");
     start.type = "button";
@@ -1467,7 +1496,51 @@
     var map = window.FALLBACK_TOPIC_MAP || {};
     return (topic && topic.id && map[topic.id]) ? map[topic.id] : "generic";
   }
+  // 선택주제 풀(뱅크)에서 무작위 조립 — 슬롯별 직전 인덱스 제외(중복 회피)
+  var POOL_PICK_KEY = "opicday:selPoolPick"; // { 풀키: [슬롯0 최근인덱스[], 슬롯1[], 슬롯2[]] }
+  function poolKeyFor(topic) {
+    var map = window.SELECT_POOL_TOPIC_MAP || {};
+    return (topic && topic.id && map[topic.id]) ? map[topic.id] : null;
+  }
+  function buildPoolCombo(topic) {
+    var pool = window.SELECT_TOPIC_POOL;
+    if (!pool || !pool.topics) return null;
+    var key = poolKeyFor(topic);
+    var entry = (key && pool.topics[key]) ? pool.topics[key] : pool.generic;
+    if (!entry || !entry.combo || !entry.combo.length) return null;
+    var storeKey = key || "generic";
+    var store = Storage.getJSON(POOL_PICK_KEY, {});
+    var recent = store[storeKey] || [];
+    var items = entry.combo.map(function (sl, si) {
+      var opts = (sl && sl.options) || [];
+      if (!opts.length) return null;
+      var rec = recent[si] || [];
+      var cands = [];
+      for (var k = 0; k < opts.length; k++) if (rec.indexOf(k) === -1) cands.push(k); // 최근 1~2개 제외
+      if (!cands.length) { // 후보 소진 → 직전 1개만 제외
+        var last = rec.length ? rec[rec.length - 1] : -1;
+        for (var k2 = 0; k2 < opts.length; k2++) if (k2 !== last) cands.push(k2);
+        if (!cands.length) cands = opts.map(function (_, idx) { return idx; });
+      }
+      var pick = cands[pickIndex(cands.length)];
+      rec.push(pick); while (rec.length > 2) rec.shift();
+      recent[si] = rec;
+      var o = opts[pick] || {};
+      return {
+        type: FB_TYPES[si] || "description", label: sl.tag || "질문", hint: sl.sub || "",
+        en: o.en || "", ko: o.ko || "",
+        _pool: { key: storeKey, slot: si, optIndex: pick } // 리롤(같은 슬롯 다른 후보)용
+      };
+    }).filter(Boolean);
+    store[storeKey] = recent;
+    Storage.setJSON(POOL_PICK_KEY, store);
+    return items.length ? items : null;
+  }
   function buildFallbackItems(topic) {
+    // 1순위: 선택주제 풀에서 무작위 조립(중복 회피)
+    var pooled = buildPoolCombo(topic);
+    if (pooled && pooled.length) return pooled;
+    // 2순위: 고정 폴백 질문
     var data = window.FALLBACK_QUESTIONS || {};
     var key = fallbackKeyFor(topic);
     var set = (data[key] && data[key].questions) ? data[key] : data.generic;
@@ -1475,6 +1548,26 @@
     return qs.map(function (q, i) {
       return { type: FB_TYPES[i] || "description", label: q.tag || "질문", hint: q.sub || "", en: q.en || "", ko: q.ko || "" };
     });
+  }
+  // 모의고사용 로컬 기본 질문 세트(자기소개 + 계획에 따른 토픽/롤플레이/돌발)
+  function buildFallbackMock(plan, topics) {
+    var items = [{
+      type: "intro", label: "자기소개", hint: "간단한 자기소개",
+      en: "Let's start with a short self-introduction. Could you tell me a little about yourself?",
+      ko: "간단한 자기소개로 시작해 볼게요. 본인에 대해 조금 말해 줄래요?"
+    }];
+    var ti = 0;
+    (plan || []).forEach(function (p) {
+      if (p.kind === "roleplay") {
+        pushAll(items, buildFallbackItems(topics.length ? topics[0] : null));
+      } else if (p.kind === "surprise") {
+        pushAll(items, buildFallbackItems(pickPracticeSurprise()));
+      } else {
+        var tp = topics.length ? topics[ti++ % topics.length] : null;
+        pushAll(items, buildFallbackItems(tp));
+      }
+    });
+    return items;
   }
   function comboLooksValid(items) {
     return Array.isArray(items) && items.length >= 1 &&
@@ -1486,10 +1579,29 @@
       try { console.warn("[OPIc] API 사용 불가(" + e.code + ") → 기본 제공 질문으로 진행. " + (e.message || "")); } catch (_) {}
     }
   }
+  // 현재 문제를 같은 슬롯의 다른 후보로 교체(순환). 풀에서 조립된 문제에서만 동작.
+  function rerollQuestion(q) {
+    var p = q && q._pool; if (!p) return;
+    var pool = window.SELECT_TOPIC_POOL; if (!pool) return;
+    var entry = (pool.topics && pool.topics[p.key]) ? pool.topics[p.key] : pool.generic;
+    var slot = entry && entry.combo && entry.combo[p.slot];
+    var opts = slot && slot.options;
+    if (!opts || opts.length <= 1) return;
+    if (q.recording && !window.confirm("질문을 바꾸면 이 문제에 입력·녹음한 답변이 지워집니다. 계속할까요?")) return;
+    var next = (p.optIndex + 1) % opts.length; // 직전 회피 + 한 바퀴 순환
+    p.optIndex = next;
+    q.en = opts[next].en || ""; q.ko = opts[next].ko || "";
+    // 질문이 바뀌었으므로 답변·평가 캐시 초기화
+    q.recording = null; q.evaluation = null; q.review = null;
+    q.correction = null; q.modelAnswer = null; q.analysis = null;
+    renderRunItem();
+  }
+
   function useFallbackCombo(s) {
     s.items = buildFallbackItems(s.topic);
     s.index = 0;
     s.fallback = true;
+    s.source = "sample";
     $("mockNavBar").style.display = "flex";
     renderRunItem();
   }
@@ -1499,8 +1611,8 @@
     var type = s.type, topic = s.topic, level = s.level;
     s.fallback = false;
 
-    // API 키가 없으면 호출하지 않고 바로 로컬 기본 질문으로 진행
-    if (!Storage.hasApiKey()) { useFallbackCombo(s); return; }
+    // '기본 제공' 설정이거나 API 키가 없으면 호출하지 않고 바로 로컬 기본 질문으로 진행
+    if (Storage.getQuestionSource() === "sample" || !Storage.hasApiKey()) { useFallbackCombo(s); return; }
 
     $("mockStage").innerHTML = loaderHTML(
       "AI가 " + level + " 난이도 " + (type === "roleplay" ? "상황극을" : "콤보 질문을") + " 만들고 있어요…");
@@ -1527,6 +1639,7 @@
       if (!comboLooksValid(items)) throw new Error("질문 형식이 올바르지 않습니다.");
       state.session.items = items;
       state.session.index = 0;
+      state.session.source = "api";
       $("mockNavBar").style.display = "flex";
       renderRunItem();
     } catch (e) {
@@ -1547,7 +1660,11 @@
 
     var stage = $("mockStage");
     stage.innerHTML = "";
-    if (s.fallback) stage.appendChild(el("div", "fallback-note", "기본 제공 질문으로 진행합니다"));
+    if (s.source) {
+      var isApi = s.source === "api";
+      stage.appendChild(el("div", "qsrc-note " + (isApi ? "qsrc-api" : "qsrc-sample"),
+        isApi ? "AI 생성 질문" : "기본 제공 질문"));
+    }
     if (qs[i].scenario && qs[i].scenario.en) stage.appendChild(scenarioBanner(qs[i].scenario));
     stage.appendChild(buildQuestionCard(qs[i], i, { showEval: false, perQFeedback: s.type !== "mock" }));
 
@@ -1734,19 +1851,20 @@
   function pushAll(arr, items) { items.forEach(function (x) { arr.push(x); }); }
 
   async function startMockExam(version) {
-    if (!requireApiKey(function () { startMockExam(version); })) return;
+    var sampleMode = Storage.getQuestionSource() === "sample" || !Storage.hasApiKey();
+    if (!sampleMode && !requireApiKey(function () { startMockExam(version); })) return;
     var level = Storage.getLevel();
-    if (!Storage.getSurvey().length) { toast("먼저 배경 설문에서 주제를 고르세요"); openSurvey(); return; }
+    if (!sampleMode && !Storage.getSurvey().length) { toast("먼저 배경 설문에서 주제를 고르세요"); openSurvey(); return; }
 
     var plan = MOCK_PLAN[version] || MOCK_PLAN.short;
     var modeLabel = version === "full" ? "실전형" : "짧은형";
     var topicNeeded = plan.filter(function (p) { return p.kind === "topic"; }).length;
-    var topics = pickTopics(topicNeeded);
+    var topics = Storage.getSurvey().length ? pickTopics(topicNeeded) : [];
 
     state.session = {
       type: "mock", mockMode: modeLabel, level: level,
       topicLabel: "📝 모의고사", title: "모의고사 · " + modeLabel,
-      items: null, index: 0, result: null,
+      items: null, index: 0, result: null, source: null,
     };
 
     show("mock");
@@ -1755,6 +1873,17 @@
     var _mh = document.querySelector(".mock-head"); if (_mh) _mh.style.display = ""; // 진행 행 표시(연습 시작화면에서 숨겼을 수 있음)
     $("mockReport").innerHTML = "";
     $("mockNavBar").style.display = "none";
+
+    // '기본 제공' 설정이거나 키 없으면 호출 없이 로컬 기본 질문으로 모의고사 구성
+    if (sampleMode) {
+      state.session.items = buildFallbackMock(plan, topics);
+      state.session.index = 0;
+      state.session.fallback = true;
+      state.session.source = "sample";
+      $("mockNavBar").style.display = "flex";
+      renderRunItem();
+      return;
+    }
 
     if (sessionAbort) sessionAbort.abort();
     sessionAbort = new AbortController();
@@ -1795,15 +1924,19 @@
 
       state.session.items = items;
       state.session.index = 0;
+      state.session.source = "api";
       $("mockNavBar").style.display = "flex";
       renderRunItem();
     } catch (e) {
       if (e && e.code === "ABORTED") return;
-      $("mockStage").innerHTML = "";
-      $("mockStage").appendChild(el("div", "error-box", "✕ " + ((e && e.message) || "문제 생성 실패")));
-      var retry = el("button", "ghost-btn", "다시 시도");
-      retry.addEventListener("click", function () { startMockExam(version); });
-      $("mockStage").appendChild(retry);
+      // 네트워크·401·429·4xx/5xx·파싱실패 → 로컬 기본 질문 모의고사로 폴백 (끊김 없이 진행)
+      noteApiIssue(e);
+      state.session.items = buildFallbackMock(plan, topics);
+      state.session.index = 0;
+      state.session.fallback = true;
+      state.session.source = "sample";
+      $("mockNavBar").style.display = "flex";
+      renderRunItem();
     }
   }
 
@@ -2006,6 +2139,17 @@
     });
     $("scriptModeSeg").querySelectorAll(".seg-btn").forEach(function (b) {
       b.addEventListener("click", function () { scriptState.mode = b.dataset.mode; applyScriptMode(); });
+    });
+    // 질문 소스 토글(AI 연동 / 기본 제공)
+    $("qSourceSeg").querySelectorAll(".seg-btn").forEach(function (b) {
+      b.addEventListener("click", function () { Storage.setQuestionSource(b.dataset.src); applyQSourceSeg(); });
+    });
+    applyQSourceSeg();
+    // 모의고사 선택 화면의 AI 체크박스
+    var mockSrcCb = $("mockSrcCb");
+    if (mockSrcCb) mockSrcCb.addEventListener("change", function () {
+      Storage.setQuestionSource(mockSrcCb.checked ? "api" : "sample");
+      applyQSourceSeg();
     });
     $("openScripts").addEventListener("click", openScripts);
     $("scriptsBack").addEventListener("click", goHome);
@@ -2639,6 +2783,15 @@
   // 요청에 '3단 콤보'(3단콤보 / 삼단 콤보 등)가 있으면 묘사→경험→비교 3개 생성
   var COMBO_RE = /(3|３|삼)\s*단\s*콤보/;
 
+  function applyQSourceSeg() {
+    var cur = Storage.getQuestionSource();
+    var seg = $("qSourceSeg");
+    if (!seg) return;
+    seg.querySelectorAll(".seg-btn").forEach(function (b) {
+      b.setAttribute("aria-pressed", b.dataset.src === cur ? "true" : "false");
+    });
+  }
+
   function applyScriptMode() {
     $("scriptModeSeg").querySelectorAll(".seg-btn").forEach(function (b) {
       b.setAttribute("aria-pressed", b.dataset.mode === scriptState.mode ? "true" : "false");
@@ -2933,25 +3086,12 @@
     host.innerHTML = "";
     var box = el("div", "model-answer script-result script-detail");
 
-    // 헤더 (레벨 배지 → 주제 + 배속·듣기)
+    // 헤더 — 레벨 배지 + 제목만 (오디오는 맨 아래 줄로)
     var head = el("div", "ma-head");
     if (sc.level) head.appendChild(el("span", "sd-level", sc.level));
     var maTag = el("span", "ma-tag");
     maTag.appendChild(document.createTextNode(String(sc.topicLabel || "").replace(/^✍️?\s*/, "")));
     head.appendChild(maTag);
-    // 듣기: 텍스트 없는 스피커 아이콘 버튼(파스텔 톤)
-    var tts = el("button", "icon-btn-sm icon-accent");
-    tts.type = "button";
-    tts.title = "질문 듣기";
-    tts.setAttribute("aria-label", "질문 듣기");
-    tts.innerHTML = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M19 5a9 9 0 0 1 0 14"/></svg>';
-    tts.addEventListener("click", function () {
-      var spoken = sc.answer || (sc.cards && sc.cards.map(function (c) { return c.en; }).join(" ")) || "";
-      playWithState(tts, spoken);
-    });
-    var scListen = el("span", "tts-group"); // 배속(왼쪽) + 듣기(오른쪽), 제목 줄 오른쪽 끝
-    scListen.appendChild(makeSpeedDots()); scListen.appendChild(tts);
-    head.appendChild(scListen);
     box.appendChild(head);
 
     // 질문 섹션 (버튼 없이 전체 폭)
@@ -2960,6 +3100,14 @@
       qSec.appendChild(el("div", "ss-eyebrow", "질문"));
       var qRow = el("div", "script-q");
       qRow.appendChild(el("span", "script-q-text", sc.question));
+      // 질문 듣기 버튼 (답안 듣기와 별도)
+      var qTts = el("button", "icon-btn-sm icon-accent sd-q-listen");
+      qTts.type = "button";
+      qTts.title = "질문 듣기";
+      qTts.setAttribute("aria-label", "질문 듣기");
+      qTts.innerHTML = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M19 5a9 9 0 0 1 0 14"/></svg>';
+      qTts.addEventListener("click", function () { playWithState(qTts, sc.question); });
+      qRow.appendChild(qTts);
       qSec.appendChild(qRow);
       box.appendChild(qSec);
     }
@@ -3008,54 +3156,51 @@
       var curMode = "body";
       var showKo = false, showPron = false; // 해석/한글발음 인터리브 표시 (독립 토글)
       var curHl = ""; // 주제표현 클릭 하이라이트 (현재 모드/해석·발음 상태 유지)
-      var stepSwitch = null;
-      if (hasStruct || hasKw) {
-        var aHead = el("div", "ma-view-head");
-        // 탭 (키워드가 있을 때만 — 본문/키워드만 선택)
-        if (hasKw) {
-          var modes = [["body", "본문"], ["keyword", "키워드"]];
-          var seg = el("div", "view-mode-seg");
-          var ind = el("span", "vm-indicator");
-          seg.appendChild(ind);
-          var n = modes.length;
-          // 균등 버튼(각 (100%-패딩8px)/n) 기준으로 인디케이터 폭·위치 계산
-          var moveInd = function (idx) {
-            ind.style.width = "calc((100% - 8px) / " + n + ")";
-            ind.style.left = "calc(4px + (100% - 8px) / " + n + " * " + idx + ")";
-          };
-          var segBtns = [];
-          modes.forEach(function (m, i) {
-            var b = el("button", "view-mode-btn" + (i === 0 ? " on" : ""), m[1]);
-            b.type = "button";
-            b.addEventListener("click", function () {
-              curMode = m[0];
-              segBtns.forEach(function (x, j) { x.classList.toggle("on", j === i); });
-              moveInd(i);
-              // 단계 표시 스위치는 본문 탭에서만 노출
-              if (stepSwitch) stepSwitch.style.display = (curMode === "body") ? "" : "none";
-              renderAns();
-            });
-            segBtns.push(b);
-            seg.appendChild(b);
+      var stepSwitch = null, stepRowEl = null;
+      // 탭(본문/키워드) — 풀 폭, 끝까지 채움
+      if (hasKw) {
+        var modes = [["body", "본문"], ["keyword", "키워드"]];
+        var seg = el("div", "view-mode-seg");
+        var ind = el("span", "vm-indicator");
+        seg.appendChild(ind);
+        var n = modes.length;
+        var moveInd = function (idx) {
+          ind.style.width = "calc((100% - 8px) / " + n + ")";
+          ind.style.left = "calc(4px + (100% - 8px) / " + n + " * " + idx + ")";
+        };
+        var segBtns = [];
+        modes.forEach(function (m, i) {
+          var b = el("button", "view-mode-btn" + (i === 0 ? " on" : ""), m[1]);
+          b.type = "button";
+          b.addEventListener("click", function () {
+            curMode = m[0];
+            segBtns.forEach(function (x, j) { x.classList.toggle("on", j === i); });
+            moveInd(i);
+            // 단계 표시 줄은 본문 탭에서만 노출
+            if (stepRowEl) stepRowEl.style.display = (curMode === "body") ? "flex" : "none";
+            renderAns();
           });
-          aHead.appendChild(seg);
-          moveInd(0);
-        }
-        // 단계 표시 스위치 (단계 구조가 있을 때만)
-        if (hasStruct) {
-          stepSwitch = el("label", "step-switch");
-          stepSwitch.appendChild(el("span", "step-switch-text", "단계 표시"));
-          var chk = el("input", "step-switch-input");
-          chk.type = "checkbox";
-          stepSwitch.appendChild(chk);
-          stepSwitch.appendChild(el("span", "step-switch-track"));
-          chk.addEventListener("change", function () {
-            stepOn = chk.checked;
-            if (curMode === "body") renderAns();
-          });
-          aHead.appendChild(stepSwitch);
-        }
-        aSec.appendChild(aHead);
+          segBtns.push(b);
+          seg.appendChild(b);
+        });
+        aSec.appendChild(seg);
+        moveInd(0);
+      }
+      // 단계 표시 스위치 — 탭 다음 줄에 단독, 오른쪽 끝 정렬 (본문 탭에서만)
+      if (hasStruct) {
+        stepSwitch = el("label", "step-switch");
+        stepSwitch.appendChild(el("span", "step-switch-text", "단계 표시"));
+        var chk = el("input", "step-switch-input");
+        chk.type = "checkbox";
+        stepSwitch.appendChild(chk);
+        stepSwitch.appendChild(el("span", "step-switch-track"));
+        chk.addEventListener("change", function () {
+          stepOn = chk.checked;
+          if (curMode === "body") renderAns();
+        });
+        stepRowEl = el("div", "sd-steprow");
+        stepRowEl.appendChild(stepSwitch);
+        aSec.appendChild(stepRowEl);
       }
 
       // 표시상태(해석/발음) 반영 + 현재 모드/단계로 다시 렌더
@@ -3108,6 +3253,22 @@
       transBtn.addEventListener("click", function () { toggleExtra("ko", transBtn); });
       pronBtn.addEventListener("click", function () { toggleExtra("pron", pronBtn); });
       actions.appendChild(transBtn); actions.appendChild(pronBtn);
+
+      // 오른쪽 끝: 배속(3점 컨트롤) + 듣기(답안)
+      var sdTts = el("button", "icon-btn-sm icon-accent");
+      sdTts.type = "button";
+      sdTts.title = "답안 듣기";
+      sdTts.setAttribute("aria-label", "답안 듣기");
+      sdTts.innerHTML = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M19 5a9 9 0 0 1 0 14"/></svg>';
+      sdTts.addEventListener("click", function () {
+        var spoken = sc.answer || (sc.cards && sc.cards.map(function (c) { return c.en; }).join(" ")) || "";
+        playWithState(sdTts, spoken);
+      });
+      var sdAudio = el("span", "sd-audio");
+      sdAudio.appendChild(makeSpeedDots());
+      sdAudio.appendChild(sdTts);
+      actions.appendChild(sdAudio);
+
       aSec.appendChild(actions);
       box.appendChild(aSec);
     }

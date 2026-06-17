@@ -106,6 +106,8 @@ body {
   flex: 1;
 }
 .screen { animation: fade .25s ease; }
+/* 문제 풀이 화면(선택주제·롤플레이·돌발·모의고사) — 콘텐츠 가운데 정렬 컬럼 */
+#screen-mock .run-col { width: 100%; max-width: 700px; margin: 0 auto; }
 @keyframes fade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
 
 /* ===== 시작하기 (API 키 게이트) ===== */
@@ -972,7 +974,10 @@ mark.expr-hl { background: #fde68a; color: #1f2937; border-radius: 3px; padding:
 .script-detail .script-q {
   position: relative; border-left: 0; padding: 15px 16px 15px 22px; border-radius: 12px;
   background: #f1f5fc;
+  display: flex; align-items: flex-start; gap: 10px;
 }
+.script-detail .script-q .script-q-text { flex: 1; min-width: 0; }
+.script-detail .sd-q-listen { flex: none; }
 .script-detail .script-q::before {
   content: ""; position: absolute; left: 9px; top: 14px; bottom: 14px; width: 3px;
   border-radius: 3px; background: #2563eb;
@@ -1062,7 +1067,11 @@ mark.expr-hl { background: #fde68a; color: #1f2937; border-radius: 3px; padding:
 .script-detail .kw-note strong { color: #3a4358; }
 
 /* 해석 / 한글발음 — 감싸던 회색 컨테이너 없이 둥근 토글 칩 2개만 나란히 */
-.script-detail .ma-actions { display: flex; background: transparent; border: 0; padding: 0; gap: 8px; margin-top: 12px; }
+/* 맨 아래 줄: 해석/발음 칩(왼쪽) + 배속·듣기(오른쪽 끝) — 좁은 화면 줄바꿈 허용 */
+.script-detail .ma-actions { display: flex; align-items: center; flex-wrap: wrap; background: transparent; border: 0; padding: 0; gap: 8px; margin-top: 14px; }
+.script-detail .sd-audio { margin-left: auto; display: inline-flex; align-items: center; gap: 8px; }
+/* 단계 표시 줄 — 탭 다음 줄 오른쪽 끝 */
+.script-detail .sd-steprow { display: flex; justify-content: flex-end; margin: 10px 0 2px; }
 /* 토글 칩(pill) — 켜고 끄는 on/off를 칩 색으로 표시 */
 .script-detail .ma-sub {
   display: inline-flex; align-items: center; gap: 6px;
@@ -1296,6 +1305,22 @@ mark.expr-hl { background: #fde68a; color: #1f2937; border-radius: 3px; padding:
 }
 .combo-topic-clear:hover { border-color: var(--danger); color: var(--danger); background: color-mix(in srgb, var(--danger) 10%, transparent); }
 .combo-ready-hint { font-size: .85rem; margin: 10px 0 0; word-break: keep-all; }
+/* 질문 소스 체크박스 — 흰 배경 줄 (모의고사 선택 화면 등) */
+.qsrc-check {
+  display: flex; align-items: center; gap: 10px; cursor: pointer; user-select: none;
+  margin: 0 0 14px; padding: 12px 14px;
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm);
+  font-size: .9rem; color: var(--text);
+}
+.qsrc-check-cb { flex: none; width: 18px; height: 18px; accent-color: #2563eb; cursor: pointer; }
+.qsrc-check-sub { color: var(--text-muted); font-size: .85em; }
+
+.combo-src {
+  display: inline-flex; align-items: center; gap: 8px; cursor: pointer; user-select: none;
+  margin-top: 16px; font-size: .86rem; color: var(--text-muted);
+}
+.combo-src-cb { width: 17px; height: 17px; accent-color: #2563eb; cursor: pointer; flex: none; }
+.combo-src-label { word-break: keep-all; }
 .combo-ready-btns { display: flex; gap: 10px; justify-content: center; margin-top: 20px; flex-wrap: wrap; }
 .combo-ready-btns .primary-btn { min-width: 120px; }
 
@@ -1346,8 +1371,33 @@ mark.expr-hl { background: #fde68a; color: #1f2937; border-radius: 3px; padding:
 #mockStage .rec-type svg { stroke: #7a8294; }
 #mockStage .rec-type:hover { border-color: #d4e4ff; background: #f7f9fd; color: #2563eb; }
 #mockStage .rec-type:hover svg { stroke: #2563eb; }
-/* 폴백(로컬 기본 질문) 안내 한 줄 */
-#mockStage .fallback-note { font-size: 12px; color: #9aa1ad; margin: 0 0 8px; }
+/* 질문 출처 표시 칩 (AI 생성 / 기본 제공) */
+#mockStage .qsrc-note {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 12px; font-weight: 700; padding: 3px 10px; border-radius: 999px; margin: 0 0 10px;
+}
+#mockStage .qsrc-note::before { content: ""; width: 6px; height: 6px; border-radius: 50%; }
+#mockStage .qsrc-api { background: #eef3ff; color: #1d4ed8; border: 1px solid #d4e4ff; }
+#mockStage .qsrc-api::before { background: #2563eb; }
+#mockStage .qsrc-sample { background: #f1f3f7; color: #6b7280; border: 1px solid #e4e7ee; }
+#mockStage .qsrc-sample::before { background: #9aa1ad; }
+/* 해석(한글 보기) — 컨트롤 줄 맨 오른쪽, 박스 없이 텍스트만 */
+#mockStage .q-actions .q-trans {
+  margin-left: auto;
+  background: none; border: 0; padding: 6px 2px; color: #7a8294; font-weight: 600;
+}
+#mockStage .q-actions .q-trans:hover { background: none; border: 0; color: #2563eb; }
+#mockStage .q-actions .q-trans.on { background: none; border: 0; color: #1d4ed8; }
+/* 다른 질문으로(리롤) — 카드 상단 줄 맨 오른쪽, 박스 없이 아이콘+텍스트만(낮은 강조) */
+.q-reroll {
+  margin-left: auto; flex: none;
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 4px 2px; border: 0; background: none; color: #7a8294;
+  font: inherit; font-size: .8rem; font-weight: 600; cursor: pointer;
+  transition: color .15s;
+}
+.q-reroll svg { flex: none; }
+.q-reroll:hover { color: #2563eb; }
 
 /* 종합 리포트 */
 .report { margin-top: 8px; }
